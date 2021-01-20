@@ -57,6 +57,7 @@ class Min(Beacon):
     self.traj_line.set_ydata(self.pos_traj[1, :index])
 
     return self.point, self.annotation, self.radius, self.traj_line
+    self.traj_log = np.hstack((self.traj_log, self.pos.reshape(2, 1)))
   
   def __str__(self):
     return f"min drone at {self.pos}"

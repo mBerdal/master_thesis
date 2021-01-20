@@ -10,7 +10,7 @@ class Beacon():
     cls.ID_counter += 1
     return ret
 
-  def __init__(self, range, pos):
+  def __init__(self, range, pos=None):
     self.range = range
     self.pos = pos
     self.ID = self.get_ID()
@@ -52,4 +52,5 @@ class Beacon():
     )[0]
 
     return self.point, self.annotation, self.radius
+
 

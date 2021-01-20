@@ -5,7 +5,6 @@ from min import Min, MinState
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from time import sleep
 
 
 if __name__ == "__main__":
@@ -26,8 +25,14 @@ if __name__ == "__main__":
   beacons[0].insert_into_environment(E)
   sampling_time = 0.01
 
+  N_mins = 2
+
+  beacons = [Beacon(3)]
+  beacons[0].insert_into_environment(E)
+  sampling_time = 0.01
+
   for i in range(N_mins):
-    mn = Min(max_range)
+    mn = Min(3)
     mn.insert_into_environment(E)
 
     mn.state = MinState.FOLLOWING
@@ -94,4 +99,4 @@ if __name__ == "__main__":
     return animate_aux(i, min_counter[0], offset[0], ax)
 
 anim = FuncAnimation(fig, animate, fargs=(ax, ), init_func=init, frames=np.sum([b.pos_traj.shape[1] for b in beacons[1:]]), interval=20, blit=True)
-anim.save("a.gif", writer="Pillow")
+#anim.save("a.gif", writer="Pillow")
