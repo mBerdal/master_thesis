@@ -17,7 +17,6 @@ class Beacon():
   
   def insert_into_environment(self, env):
     self.pos = env.entrance_point
-    self.pos_traj = self.pos.reshape(2, 1)
   
   def is_within_range(self, other):
     dist = np.linalg.norm(self.pos - other.pos)
@@ -38,7 +37,7 @@ class Beacon():
     return list(filter(lambda other: self.is_within_range(other) and other.ID != self.ID, others))
 
   def get_bearing_to_other(self, other):
-    return np.arctan2(self.pos[1]-other.pos[1], self.pos[0]-other.pos[0])
+    return np.arctan2(other.pos[1] - self.pos[1], other.pos[0] - self.pos[0])
   
   def plot(self, axis, clr="green"):
     self.point = axis.plot(*self.pos, color=clr, marker="o", markersize=8)[0]
