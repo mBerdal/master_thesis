@@ -64,7 +64,7 @@ class Min(Beacon):
   def plot(self, axis):
     self.arrow_heading, = axis.plot(*np.vstack((self.pos, self.pos + self.heading)).T, color="blue")
     self.arrow_nominal_heading, = axis.plot(*np.vstack((self.pos, self.pos + self.nominal_heading)).T, color="green")
-    self.arrow_obs_avoidance_heading, = axis.plot(*np.vstack((self.pos, self.pos - self.obs_avoidance_heading)).T, color="red")
+    self.arrow_obs_avoidance_heading, = axis.plot(*np.vstack((self.pos, self.pos + self.obs_avoidance_heading)).T, color="red")
     return super().plot(axis, clr="blue") + (self.arrow_heading, self.arrow_nominal_heading, self.arrow_obs_avoidance_heading)
 
   def plot_traj_line(self, axis):
@@ -82,7 +82,7 @@ class Min(Beacon):
 
     self.arrow_heading.set_data(*np.vstack((new_pos, new_pos + self.heading_traj[:, index])).T)
     self.arrow_nominal_heading.set_data(*np.vstack((new_pos, new_pos + self.nominal_heading_traj[:, index])).T)
-    self.arrow_obs_avoidance_heading.set_data(*np.vstack((new_pos, new_pos - self.obs_avoidance_heading_traj[:, index])).T)
+    self.arrow_obs_avoidance_heading.set_data(*np.vstack((new_pos, new_pos + self.obs_avoidance_heading_traj[:, index])).T)
 
     return self.point, self.annotation, self.radius, self.traj_line, self.arrow_heading, self.arrow_nominal_heading, self.arrow_obs_avoidance_heading
   

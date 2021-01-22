@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-def simulate(dt, mins, SCS, env, show_decisions = False):
+def simulate(dt, mins, SCS, env, show_decisions_for = []):
   SCS.insert_into_environment(env)
   beacons = [SCS]
 
@@ -22,9 +22,6 @@ def simulate(dt, mins, SCS, env, show_decisions = False):
       if mn.get_RSSI(beacons[-1]) > np.exp(-0.2):
         mn.state = MinState.EXPLORING
       else: mn.do_step(dt)
-    
-
-    
 
     neighs = mn.get_neighbors(beacons)
     bearing_vecs_to_neighs = np.array([
@@ -38,8 +35,8 @@ def simulate(dt, mins, SCS, env, show_decisions = False):
     nominal_heading_vec = p2v(1, nominal_heading)
 
     """ Plotting decision""" 
-    if show_decisions:
-      dec_fig, dec_ax = plt.subplots()
+    if mn.ID in show_decisions_for:
+      _, dec_ax = plt.subplots()
       env.plot(dec_ax)
       mn.plot(dec_ax)
       dec_ax.set_title(f"{mn.ID} deciding direction")
@@ -86,12 +83,12 @@ if __name__ == "__main__":
   max_range = 3
 
 
-  N_mins = 20
+  N_mins = 13
   dt = 0.01
 
   SCS = Beacon(max_range)
   mins = [Min(max_range) for i in range(N_mins)]
-  mins = simulate(dt, mins, SCS, env)
+  mins = simulate(dt, mins, SCS, env, show_decisions_for=[13])
 
   fig, ax = plt.subplots(1)
 
