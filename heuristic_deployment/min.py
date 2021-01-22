@@ -1,6 +1,7 @@
 from beacon import Beacon
 from range_sensor import RangeSensor
 import numpy as np
+from helpers import polar_to_vec as p2v, normalize
 
 from enum import Enum
 
@@ -22,7 +23,9 @@ class Min(Beacon):
   def insert_into_environment(self, env):
     super().insert_into_environment(env)
     self.pos_traj = self.pos.reshape(2, 1)
-    self.heading_traj = np.zeros((1, ))
+    self.heading_traj = np.zeros((2, 1))
+    self.nominal_heading_traj = np.zeros((2, 1))
+    self.obs_avoidance_heading_traj = np.zeros((2, 1))
     self.speed = 0
     self.state = MinState.SPAWNED
 
@@ -34,45 +37,54 @@ class Min(Beacon):
     theta2 = np.random.uniform(-rand_lim, rand_lim)
     return theta1 + theta2
 
-  def set_heading_and_speed(self, heading, speed = None):
+  def get_obstacle_avoidance_heading(self, env):
+    xtra_heading_vec = np.zeros((2, ))
+    for s in self.sensors:
+      r = s.sense(env).get_val()
+      if not r == np.inf:
+        abs_ang = np.arctan2(self.heading[1], self.heading[0]) + s.host_relative_angle
+        xtra_heading_vec += -p2v(1/r - 1/s.max_range, abs_ang)
+    return xtra_heading_vec
+
+  def set_heading_and_speed(self, nominal_heading, obs_avoidance_heading = np.zeros((2, )), speed = None):
     assert speed is None or speed >= 0
-    self.heading = heading
+    self.nominal_heading = normalize(nominal_heading)
+    self.obs_avoidance_heading = obs_avoidance_heading
+    self.heading = normalize(nominal_heading + obs_avoidance_heading)
     if not speed is None:
       self.speed = speed
 
   def do_step(self, sampling_time):
-    self.pos = self.pos + np.array([np.cos(self.heading), np.sin(self.heading)])*self.speed*sampling_time
+    self.pos = self.pos + self.heading*self.speed*sampling_time
     self.pos_traj = np.hstack((self.pos_traj, self.pos.reshape(2, 1)))
-    self.heading_traj = np.hstack((self.heading_traj, self.heading))
+    self.heading_traj = np.hstack((self.heading_traj, self.heading.reshape(2, 1)))
+    self.nominal_heading_traj = np.hstack((self.nominal_heading_traj, self.nominal_heading.reshape(2, 1)))
+    self.obs_avoidance_heading_traj = np.hstack((self.obs_avoidance_heading_traj, self.obs_avoidance_heading.reshape(2, 1)))
   
   def plot(self, axis):
-    self.arrow = axis.plot(
-      [self.pos[0], self.pos[0] + np.cos(self.heading)],
-      [self.pos[1], self.pos[1] + np.sin(self.heading)],
-      color="blue"
-    )[0]
-    return super().plot(axis, clr="blue") + (self.arrow, )
+    self.arrow_heading, = axis.plot(*np.vstack((self.pos, self.pos + self.heading)).T, color="blue")
+    self.arrow_nominal_heading, = axis.plot(*np.vstack((self.pos, self.pos + self.nominal_heading)).T, color="green")
+    self.arrow_obs_avoidance_heading, = axis.plot(*np.vstack((self.pos, self.pos - self.obs_avoidance_heading)).T, color="red")
+    return super().plot(axis, clr="blue") + (self.arrow_heading, self.arrow_nominal_heading, self.arrow_obs_avoidance_heading)
 
   def plot_traj_line(self, axis):
-    self.traj_line = axis.plot(*self.pos_traj, alpha=0.4)[0]
+    self.traj_line, = axis.plot(*self.pos_traj, alpha=0.4)
     return self.traj_line
 
   def plot_pos_from_pos_traj_index(self, index):
     new_pos = self.pos_traj[:, index]
-    self.point.set_xdata(new_pos[0])
-    self.point.set_ydata(new_pos[1])
+    self.point.set_data(new_pos)
     self.annotation.set_x(new_pos[0])
     self.annotation.set_y(new_pos[1])
     theta = np.linspace(0, 2*np.pi)
-    self.radius.set_xdata(new_pos[0] + self.range*np.cos(theta))
-    self.radius.set_ydata(new_pos[1] + self.range*np.sin(theta))
-    self.traj_line.set_xdata(self.pos_traj[0, :index])
-    self.traj_line.set_ydata(self.pos_traj[1, :index])
+    self.radius.set_data(new_pos.reshape(2, 1) + p2v(self.range, theta))
+    self.traj_line.set_data(self.pos_traj[:, :index])
 
-    self.arrow.set_xdata([new_pos[0], new_pos[0] + np.cos(self.heading_traj[index])])
-    self.arrow.set_ydata([new_pos[1], new_pos[1] + np.sin(self.heading_traj[index])])
+    self.arrow_heading.set_data(*np.vstack((new_pos, new_pos + self.heading_traj[:, index])).T)
+    self.arrow_nominal_heading.set_data(*np.vstack((new_pos, new_pos + self.nominal_heading_traj[:, index])).T)
+    self.arrow_obs_avoidance_heading.set_data(*np.vstack((new_pos, new_pos - self.obs_avoidance_heading_traj[:, index])).T)
 
-    return self.point, self.annotation, self.radius, self.traj_line, self.arrow
+    return self.point, self.annotation, self.radius, self.traj_line, self.arrow_heading, self.arrow_nominal_heading, self.arrow_obs_avoidance_heading
   
   def __str__(self):
     return f"min drone {self.ID} at {self.pos}"
@@ -90,19 +102,12 @@ if __name__ == "__main__":
   ]))
   
   mn = Min(3)
-  mn.pos = np.array([9.99, -9.1])
-
-  from helpers import polar_to_vec as p2v
-
-  nominal_heading = 0
-  nominal_heading_vec = p2v(1, nominal_heading)
-  mn.set_heading_and_speed(nominal_heading, 0)
-
-  xtra_heading_vec = np.zeros((2, ))
-  for s in mn.sensors:
-    r = s.sense(env).get_val()
-    abs_ang = nominal_heading + s.host_relative_angle
-    xtra_heading_vec += p2v(-1/r, abs_ang)
-  total_heading_vec = nominal_heading_vec + xtra_heading_vec
-  total_heading = np.arctan2(total_heading_vec[1], np.rad2deg(total_heading_vec[0]))
-  print(np.rad2deg(total_heading))
+  mn.pos = 9*np.ones((2, ))
+  mn.set_heading_and_speed(p2v(1, 0), np.zeros((2, )), 0)
+  obs_vec = mn.get_obstacle_avoidance_heading(env)
+  mn.set_heading_and_speed(p2v(1, 0), obs_vec, 1)
+  import matplotlib.pyplot as plt
+  fig, ax = plt.subplots()
+  env.plot(ax)
+  mn.plot(ax)
+  plt.show()

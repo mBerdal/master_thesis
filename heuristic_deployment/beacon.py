@@ -1,4 +1,5 @@
 import numpy as np
+from helpers import normalize
 
 class Beacon():
 
@@ -36,9 +37,9 @@ class Beacon():
   def get_neighbors(self, others):
     return list(filter(lambda other: self.is_within_range(other) and other.ID != self.ID, others))
 
-  def get_bearing_to_other(self, other):
-    return np.arctan2(other.pos[1] - self.pos[1], other.pos[0] - self.pos[0])
-  
+  def get_bearing_vec_to_other(self, other):
+    return normalize(other.pos - self.pos)
+
   def plot(self, axis, clr="green"):
     self.point = axis.plot(*self.pos, color=clr, marker="o", markersize=8)[0]
     self.annotation = axis.annotate(self.ID, xy=(self.pos[0], self.pos[1]), fontsize=14)

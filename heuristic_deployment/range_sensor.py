@@ -21,7 +21,7 @@ class RangeSensor():
         self.host_relative_angle = np.deg2rad(angle_deg)
 
     def sense(self, environment):
-        abs_angle = self.host_relative_angle + self.host.heading
+        abs_angle = self.host_relative_angle + np.arctan2(self.host.heading[1], self.host.heading[0])
         closed_corners = np.vstack((environment.corners, environment.corners[0, :]))
         valid_crossings = np.array([np.inf])
         max_t = np.array([self.max_range, 1])

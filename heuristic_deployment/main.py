@@ -1,13 +1,13 @@
 from environment import Env
 from beacon import Beacon
 from min import Min, MinState
-from helpers import polar_to_vec as p2v
+from helpers import polar_to_vec as p2v, plot_vec
 
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-def simulate(dt, mins, SCS, env):
+def simulate(dt, mins, SCS, env, show_decisions = False):
   SCS.insert_into_environment(env)
   beacons = [SCS]
 
@@ -15,42 +15,52 @@ def simulate(dt, mins, SCS, env):
     mn.insert_into_environment(env)
 
     mn.state = MinState.FOLLOWING
-    heading = mn.get_bearing_to_other(beacons[-1])
-    mn.set_heading_and_speed(heading, 1)
+    print(f"min {mn.ID} taking off")
+    heading_vec = mn.get_bearing_vec_to_other(beacons[-1])
+    mn.set_heading_and_speed(heading_vec, speed=2)
     while mn.state == MinState.FOLLOWING:
-      if mn.is_within_circle_of_acceptance(beacons[-1]):
+      if mn.get_RSSI(beacons[-1]) > np.exp(-0.2):
         mn.state = MinState.EXPLORING
       else: mn.do_step(dt)
     
-    print(f"min {mn.ID} stopped following at pos\t\t", mn.pos)
+
+    
+
     neighs = mn.get_neighbors(beacons)
-    bearings_to_neighs = np.array([
-      mn.get_bearing_to_other(neigh) for neigh in neighs
+    bearing_vecs_to_neighs = np.array([
+      mn.get_bearing_vec_to_other(neigh) for neigh in neighs
     ])
     num_neighs_of_neighs = np.array([
       neigh.get_num_neighbors(beacons) for neigh in neighs
     ])
+    bearings_to_neighs = np.arctan2(bearing_vecs_to_neighs[:, 1], bearing_vecs_to_neighs[:, 0])
     nominal_heading = Min.get_exploration_dir(bearings_to_neighs, num_neighs_of_neighs)
     nominal_heading_vec = p2v(1, nominal_heading)
 
-    mn.set_heading_and_speed(nominal_heading, 1)
+    """ Plotting decision""" 
+    if show_decisions:
+      dec_fig, dec_ax = plt.subplots()
+      env.plot(dec_ax)
+      mn.plot(dec_ax)
+      dec_ax.set_title(f"{mn.ID} deciding direction")
 
-    while mn.state == MinState.EXPLORING:
-      """ Obstacle avoidance part 
-      xtra_heading_vec = np.zeros((2, ))
-      for s in mn.sensors:
-        r = s.sense(env).get_val()
-        abs_ang = nominal_heading + s.host_relative_angle
-        if mn.ID == 3:
-          print(p2v(-1/r, abs_ang), np.rad2deg(s.host_relative_angle))
-        xtra_heading_vec += p2v(-1/r, abs_ang)
-      total_heading_vec = nominal_heading_vec + xtra_heading_vec
-      total_heading = np.arctan2(total_heading_vec[1], np.rad2deg(total_heading_vec[0]))
-      if mn.ID == 3:
-        print(np.rad2deg(mn.heading), np.rad2deg(nominal_heading), xtra_heading_vec, np.rad2deg(total_heading))
-      mn.set_heading_and_speed(total_heading, 1)
-      """
-      RSSI_ok = np.array([mn.get_RSSI(neigh) > np.exp(-2.6) for neigh in neighs])
+      for i in np.arange(len(neighs)):
+        print(f"Neighbor ID: {neighs[i].ID}, num_neighs: {num_neighs_of_neighs[i]}")
+        plot_vec(dec_ax, bearing_vecs_to_neighs[i], mn.pos, clr="red" if neighs[i].get_num_neighbors(beacons) >= 3 else "yellow")
+        neighs[i].plot(dec_ax)
+
+      plot_vec(dec_ax, nominal_heading_vec, mn.pos, "pink", alpha=0.4)
+      plt.show()
+    """"""
+    cnt = 0
+    while mn.state == MinState.EXPLORING and cnt < 5000:
+      cnt += 1
+      if cnt == 5000:
+        print(f"OVERFLOW for min {mn.ID}")
+      obs_vec = mn.get_obstacle_avoidance_heading(env)
+      mn.set_heading_and_speed(nominal_heading_vec, obs_vec, speed=1)
+
+      RSSI_ok = np.array([mn.get_RSSI(b) > np.exp(-2.6) for b in beacons])
       if np.count_nonzero(RSSI_ok) == 0:
         mn.state = MinState.LANDED
         beacons.append(mn)
@@ -60,7 +70,8 @@ def simulate(dt, mins, SCS, env):
   return mins
 
 if __name__ == "__main__":
-  _animate, save_animation = True, False
+  _animate, save_animation = False, False
+  start_animation_from_min_ID = 0
 
 
   env = Env(np.array([
@@ -75,7 +86,7 @@ if __name__ == "__main__":
   max_range = 3
 
 
-  N_mins = 10
+  N_mins = 20
   dt = 0.01
 
   SCS = Beacon(max_range)
@@ -96,7 +107,8 @@ if __name__ == "__main__":
 
   
   if _animate:
-    offset, min_counter = [0], [0]
+    offset, min_counter = [0], [start_animation_from_min_ID]
+    print(f"total frames: {np.sum([mn.pos_traj.shape[1] for mn in mins])}")
 
     def init():
       SCS.plot(ax)
@@ -132,4 +144,11 @@ if __name__ == "__main__":
     for mn in mins:
       mn.plot(ax)
       mn.plot_traj_line(ax)
+    import sys
+    """ Plotting Fisher determinant value
+    sys.path.append('./')
+    from fisher_determinant_approach import plot_color_map as pcm
+    S = np.hstack([SCS.pos.reshape(2, 1)] + [mn.pos.reshape(2, 1) for mn in mins])
+    pcm(fig, ax, 1000, [-10, 10], [-10, 10], S, 1)
+    """
     plt.show()
