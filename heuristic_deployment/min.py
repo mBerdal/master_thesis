@@ -30,7 +30,7 @@ class Min(Beacon):
     self.state = MinState.SPAWNED
 
   @staticmethod
-  def get_exploration_dir(bearing_to_neighbors, num_neighbors_of_neighbors, k=3, rand_lim = 0.1):
+  def get_exploration_dir(bearing_to_neighbors, num_neighbors_of_neighbors, k, rand_lim = 0.1):
     alphas = num_neighbors_of_neighbors < k
     sum_alphas = np.sum(alphas)
     theta1 = np.sum(alphas*bearing_to_neighbors)/sum_alphas if sum_alphas > 0 else 0

@@ -7,19 +7,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-def simulate(dt, mins, SCS, env, show_decisions_for = []):
+def simulate(dt, mins, SCS, env, k, show_decisions_for = []):
   SCS.insert_into_environment(env)
-  beacons = [SCS]
+  beacons = np.array([SCS], dtype=object)
 
   for mn in mins:
     mn.insert_into_environment(env)
-
-    mn.state = MinState.FOLLOWING
     print(f"min {mn.ID} taking off")
-    heading_vec = mn.get_bearing_vec_to_other(beacons[-1])
+    mn.state = MinState.FOLLOWING
+
+    target = beacons[0]
+    if len(beacons) > 1:
+      all_num_neighs = np.array([m.get_num_neighbors(beacons) for m in beacons[1:]])
+      min_indices, = np.where(all_num_neighs == all_num_neighs.min())
+      target = max(beacons[1:][min_indices], key=lambda b: np.linalg.norm(b.pos - mn.pos))
+    
+    print(f"min {mn.ID} targeting beacon {target.ID}")
+    print(np.array([m.get_num_neighbors(beacons) for m in beacons[1:]]))
+    heading_vec = mn.get_bearing_vec_to_other(target)
     mn.set_heading_and_speed(heading_vec, speed=2)
     while mn.state == MinState.FOLLOWING:
-      if mn.get_RSSI(beacons[-1]) > np.exp(-0.2):
+      if mn.get_RSSI(target) > np.exp(-0.2):
         mn.state = MinState.EXPLORING
       else: mn.do_step(dt)
 
@@ -31,7 +39,7 @@ def simulate(dt, mins, SCS, env, show_decisions_for = []):
       neigh.get_num_neighbors(beacons) for neigh in neighs
     ])
     bearings_to_neighs = np.arctan2(bearing_vecs_to_neighs[:, 1], bearing_vecs_to_neighs[:, 0])
-    nominal_heading = Min.get_exploration_dir(bearings_to_neighs, num_neighs_of_neighs)
+    nominal_heading = Min.get_exploration_dir(bearings_to_neighs, num_neighs_of_neighs, k)
     nominal_heading_vec = p2v(1, nominal_heading)
 
     """ Plotting decision""" 
@@ -56,11 +64,18 @@ def simulate(dt, mins, SCS, env, show_decisions_for = []):
         print(f"OVERFLOW for min {mn.ID}")
       obs_vec = mn.get_obstacle_avoidance_heading(env)
       mn.set_heading_and_speed(nominal_heading_vec, obs_vec, speed=1)
+      theta_nom = nominal_heading
+      theta_eff = np.arctan2(nominal_heading_vec[1] + obs_vec[[1]], nominal_heading_vec[0] + obs_vec[0])
+
+      if np.abs(theta_nom - theta_eff) > np.pi/2:
+        print("TRAP")
+        mn.state = MinState.LANDED
+        beacons = np.hstack((beacons, [mn]))
 
       RSSI_ok = np.array([mn.get_RSSI(b) > np.exp(-2.6) for b in beacons])
       if np.count_nonzero(RSSI_ok) == 0:
         mn.state = MinState.LANDED
-        beacons.append(mn)
+        beacons = np.hstack((beacons, [mn]))
       else: mn.do_step(dt)
     
     print(f"min {mn.ID} landed at pos\t\t\t {mn.pos}\n------------------", )
@@ -83,12 +98,12 @@ if __name__ == "__main__":
   max_range = 3
 
 
-  N_mins = 13
+  N_mins = 25
   dt = 0.01
 
   SCS = Beacon(max_range)
   mins = [Min(max_range) for i in range(N_mins)]
-  mins = simulate(dt, mins, SCS, env, show_decisions_for=[13])
+  mins = simulate(dt, mins, SCS, env, k=3)
 
   fig, ax = plt.subplots(1)
 
