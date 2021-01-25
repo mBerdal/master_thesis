@@ -34,7 +34,7 @@ class Min(Beacon):
     alphas = num_neighbors_of_neighbors < k
     sum_alphas = np.sum(alphas)
     theta1 = np.sum(alphas*bearing_to_neighbors)/sum_alphas if sum_alphas > 0 else 0
-    theta2 = np.random.uniform(-rand_lim, rand_lim)
+    theta2 = 0*np.random.uniform(-rand_lim, rand_lim)
     return theta1 + theta2
 
   def get_obstacle_avoidance_heading(self, env):

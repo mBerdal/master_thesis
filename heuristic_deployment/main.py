@@ -32,37 +32,44 @@ def simulate(dt, mins, SCS, env, k, show_decisions_for = []):
         mn.state = MinState.EXPLORING
       else: mn.do_step(dt)
 
-    neighs = mn.get_neighbors(beacons)
-    bearing_vecs_to_neighs = np.array([
-      mn.get_bearing_vec_to_other(neigh) for neigh in neighs
-    ])
-    num_neighs_of_neighs = np.array([
-      neigh.get_num_neighbors(beacons) for neigh in neighs
-    ])
-    bearings_to_neighs = np.arctan2(bearing_vecs_to_neighs[:, 1], bearing_vecs_to_neighs[:, 0])
-    nominal_heading = Min.get_exploration_dir(bearings_to_neighs, num_neighs_of_neighs, k)
-    nominal_heading_vec = p2v(1, nominal_heading)
+
 
     """ Plotting decision""" 
     if mn.ID in show_decisions_for:
       _, dec_ax = plt.subplots()
-      env.plot(dec_ax)
       mn.plot(dec_ax)
       dec_ax.set_title(f"{mn.ID} deciding direction")
 
       for i in np.arange(len(neighs)):
         print(f"Neighbor ID: {neighs[i].ID}, num_neighs: {num_neighs_of_neighs[i]}")
-        plot_vec(dec_ax, bearing_vecs_to_neighs[i], mn.pos, clr="red" if neighs[i].get_num_neighbors(beacons) >= 3 else "yellow")
+        plot_vec(dec_ax, bearing_vecs_to_neighs[i], mn.pos, clr="red" if neighs[i].get_num_neighbors(beacons) >= k else "yellow")
         neighs[i].plot(dec_ax)
 
-      plot_vec(dec_ax, nominal_heading_vec, mn.pos, "pink", alpha=0.4)
+      plot_vec(dec_ax, nominal_heading_vec, mn.pos, "pink")
       plt.show()
     """"""
     cnt = 0
+    prev_neigh_IDS = set()
     while mn.state == MinState.EXPLORING and cnt < 5000:
+      neighs = mn.get_neighbors(beacons)
+      curr_neigh_IDs = set(n.ID for n in neighs)
+      if curr_neigh_IDs.isdisjoint(prev_neigh_IDS):
+        bearing_vecs_to_neighs = np.array([
+          mn.get_bearing_vec_to_other(neigh) for neigh in neighs
+        ])
+        num_neighs_of_neighs = np.array([
+          neigh.get_num_neighbors(beacons) for neigh in neighs
+        ])
+        bearings_to_neighs = np.arctan2(bearing_vecs_to_neighs[:, 1], bearing_vecs_to_neighs[:, 0])
+        nominal_heading = Min.get_exploration_dir(bearings_to_neighs, num_neighs_of_neighs, k)
+        nominal_heading_vec = p2v(1, nominal_heading)
+        prev_neigh_IDS = curr_neigh_IDs
+        
       cnt += 1
       if cnt == 5000:
         print(f"OVERFLOW for min {mn.ID}")
+        break
+
       obs_vec = mn.get_obstacle_avoidance_heading(env)
       mn.set_heading_and_speed(nominal_heading_vec, obs_vec, speed=1)
       theta_nom = nominal_heading
@@ -70,26 +77,25 @@ def simulate(dt, mins, SCS, env, k, show_decisions_for = []):
 
       if np.abs(theta_nom - theta_eff) > np.pi/2:
         print("TRAP")
-        mn.state = MinState.LANDED
-        beacons = np.hstack((beacons, [mn]))
+        break
 
       RSSI_ok = np.array([mn.get_RSSI(b) > np.exp(-2.6) for b in beacons])
       if np.count_nonzero(RSSI_ok) == 0:
-        mn.state = MinState.LANDED
-        beacons = np.hstack((beacons, [mn]))
+        break
       else: mn.do_step(dt)
-    
+    mn.state = MinState.LANDED
+    beacons = np.append(beacons, mn)
     print(f"min {mn.ID} landed at pos\t\t\t {mn.pos}\n------------------", )
   return mins
 
 if __name__ == "__main__":
-  _animate, save_animation = True, False
+  _animate, save_animation = False, False
   start_animation_from_min_ID = 0
 
 
   env = Env(np.array([
     [-10, -10],
-    [ 10, -10],
+    [ 10, -10], 
     [ 10,  10],
     [-10,  10]
   ]), np.array([
@@ -99,12 +105,12 @@ if __name__ == "__main__":
   max_range = 3
 
 
-  N_mins = 15
+  N_mins = 25
   dt = 0.01
 
   SCS = Beacon(max_range)
   mins = [Min(max_range) for i in range(N_mins)]
-  mins = simulate(dt, mins, SCS, env, k=3)
+  mins = simulate(dt, mins, SCS, env, k=3, show_decisions_for=[])
 
   fig, ax = plt.subplots(1)
 
