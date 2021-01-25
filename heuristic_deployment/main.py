@@ -16,12 +16,13 @@ def simulate(dt, mins, SCS, env, k, show_decisions_for = []):
     print(f"min {mn.ID} taking off")
     mn.state = MinState.FOLLOWING
 
-    target = beacons[0]
+    target = beacons[-1]
+    """ Possibly start at beacon with fewest neighbors
     if len(beacons) > 1:
       all_num_neighs = np.array([m.get_num_neighbors(beacons) for m in beacons[1:]])
       min_indices, = np.where(all_num_neighs == all_num_neighs.min())
       target = max(beacons[1:][min_indices], key=lambda b: np.linalg.norm(b.pos - mn.pos))
-    
+    """
     print(f"min {mn.ID} targeting beacon {target.ID}")
     print(np.array([m.get_num_neighbors(beacons) for m in beacons[1:]]))
     heading_vec = mn.get_bearing_vec_to_other(target)
@@ -82,7 +83,7 @@ def simulate(dt, mins, SCS, env, k, show_decisions_for = []):
   return mins
 
 if __name__ == "__main__":
-  _animate, save_animation = False, False
+  _animate, save_animation = True, False
   start_animation_from_min_ID = 0
 
 
@@ -98,7 +99,7 @@ if __name__ == "__main__":
   max_range = 3
 
 
-  N_mins = 25
+  N_mins = 15
   dt = 0.01
 
   SCS = Beacon(max_range)
