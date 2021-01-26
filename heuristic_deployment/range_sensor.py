@@ -1,4 +1,5 @@
 import numpy as np
+from helpers import get_vector_angle as gva
 
 class RangeReading():
     def __init__(self, measured_range):
@@ -21,7 +22,7 @@ class RangeSensor():
         self.host_relative_angle = np.deg2rad(angle_deg)
 
     def sense(self, environment):
-        abs_angle = self.host_relative_angle + np.arctan2(self.host.heading[1], self.host.heading[0])
+        abs_angle = self.host_relative_angle + self.host.heading
         closed_corners = np.vstack((environment.corners, environment.corners[0, :]))
         valid_crossings = np.array([np.inf])
         max_t = np.array([self.max_range, 1])

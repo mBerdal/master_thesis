@@ -1,7 +1,7 @@
 from environment import Env
 from beacon import Beacon
 from min import Min, MinState
-from helpers import polar_to_vec as p2v, plot_vec
+from helpers import polar_to_vec as p2v, plot_vec, get_vector_angle as gva, normalize
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,74 +17,36 @@ def simulate(dt, mins, SCS, env, k, show_decisions_for = []):
     mn.state = MinState.FOLLOWING
 
     target = beacons[-1]
-    """ Possibly start at beacon with fewest neighbors
-    if len(beacons) > 1:
-      all_num_neighs = np.array([m.get_num_neighbors(beacons) for m in beacons[1:]])
-      min_indices, = np.where(all_num_neighs == all_num_neighs.min())
-      target = max(beacons[1:][min_indices], key=lambda b: np.linalg.norm(b.pos - mn.pos))
-    """
     print(f"min {mn.ID} targeting beacon {target.ID}")
-    print(np.array([m.get_num_neighbors(beacons) for m in beacons[1:]]))
-    heading_vec = mn.get_bearing_vec_to_other(target)
-    mn.set_heading_and_speed(heading_vec, speed=2)
+
+    mn.set_heading_and_speed(gva(mn.get_vec_to_other(target)), speed=2)
     while mn.state == MinState.FOLLOWING:
       if mn.get_RSSI(target) > np.exp(-0.2):
         mn.state = MinState.EXPLORING
       else: mn.do_step(dt)
 
-
-
-    """ Plotting decision""" 
-    if mn.ID in show_decisions_for:
-      _, dec_ax = plt.subplots()
-      mn.plot(dec_ax)
-      dec_ax.set_title(f"{mn.ID} deciding direction")
-
-      for i in np.arange(len(neighs)):
-        print(f"Neighbor ID: {neighs[i].ID}, num_neighs: {num_neighs_of_neighs[i]}")
-        plot_vec(dec_ax, bearing_vecs_to_neighs[i], mn.pos, clr="red" if neighs[i].get_num_neighbors(beacons) >= k else "yellow")
-        neighs[i].plot(dec_ax)
-
-      plot_vec(dec_ax, nominal_heading_vec, mn.pos, "pink")
-      plt.show()
-    """"""
-    cnt = 0
     prev_neigh_IDS = set()
-    while mn.state == MinState.EXPLORING and cnt < 5000:
-      neighs = mn.get_neighbors(beacons)
-      curr_neigh_IDs = set(n.ID for n in neighs)
+    while mn.state == MinState.EXPLORING:
+      mn.compute_neighbors(beacons)
+      curr_neigh_IDs = set(n.ID for n in mn.neighbors)
+
       if curr_neigh_IDs.isdisjoint(prev_neigh_IDS):
-        bearing_vecs_to_neighs = np.array([
-          mn.get_bearing_vec_to_other(neigh) for neigh in neighs
-        ])
-        num_neighs_of_neighs = np.array([
-          neigh.get_num_neighbors(beacons) for neigh in neighs
-        ])
-        bearings_to_neighs = np.arctan2(bearing_vecs_to_neighs[:, 1], bearing_vecs_to_neighs[:, 0])
-        nominal_heading = Min.get_exploration_dir(bearings_to_neighs, num_neighs_of_neighs, k)
-        nominal_heading_vec = p2v(1, nominal_heading)
+        exploration_dir = mn.get_exploration_dir(3)
+        exploration_vec = p2v(1, exploration_dir)
         prev_neigh_IDS = curr_neigh_IDs
         
-      cnt += 1
-      if cnt == 5000:
-        print(f"OVERFLOW for min {mn.ID}")
-        break
-
-      obs_vec = mn.get_obstacle_avoidance_heading(env)
-      mn.set_heading_and_speed(nominal_heading_vec, obs_vec, speed=1)
-      theta_nom = nominal_heading
-      theta_eff = np.arctan2(nominal_heading_vec[1] + obs_vec[[1]], nominal_heading_vec[0] + obs_vec[0])
-
-      if np.abs(theta_nom - theta_eff) > np.pi/2:
-        print("TRAP")
-        break
+      obs_vec = mn.get_obstacle_avoidance_vec(env)
+      mn.set_heading_and_speed(gva(exploration_vec + obs_vec), speed=1)
 
       RSSI_ok = np.array([mn.get_RSSI(b) > np.exp(-2.6) for b in beacons])
-      if np.count_nonzero(RSSI_ok) == 0:
-        break
+      
+      if np.abs(exploration_dir - gva(exploration_vec + obs_vec)) > np.pi/2 or np.count_nonzero(RSSI_ok) == 0:
+        mn.state = MinState.LANDED
       else: mn.do_step(dt)
-    mn.state = MinState.LANDED
+
     beacons = np.append(beacons, mn)
+    for b in beacons:
+      b.compute_neighbors(beacons)
     print(f"min {mn.ID} landed at pos\t\t\t {mn.pos}\n------------------", )
   return mins
 
@@ -114,20 +76,9 @@ if __name__ == "__main__":
 
   fig, ax = plt.subplots(1)
 
-  ax.set_xlim([
-    np.min(np.concatenate([mn.pos_traj[0, :] for mn in mins])) - max_range, 
-    np.max(np.concatenate([mn.pos_traj[0, :] for mn in mins])) + max_range
-  ])
-  ax.set_ylim([
-    np.min(np.concatenate([mn.pos_traj[1, :] for mn in mins])) - max_range,
-    np.max(np.concatenate([mn.pos_traj[1, :] for mn in mins])) + max_range
-  ])
-
-
   
   if _animate:
     offset, min_counter = [0], [start_animation_from_min_ID]
-    print(f"total frames: {np.sum([mn.pos_traj.shape[1] for mn in mins])}")
 
     def init():
       SCS.plot(ax)
@@ -140,15 +91,15 @@ if __name__ == "__main__":
       return artists
 
     def animate(i, ax):
-      if i - offset[0] >= mins[min_counter[0]].pos_traj.shape[1]:
-        offset[0] += mins[min_counter[0]].pos_traj.shape[1]
+      if i - offset[0] >= mins[min_counter[0]].get_pos_traj_length():
+        offset[0] += mins[min_counter[0]].get_pos_traj_length()
         min_counter[0] += 1
 
       return mins[min_counter[0]].plot_pos_from_pos_traj_index(i - offset[0])
 
 
 
-    anim = FuncAnimation(fig, animate, fargs=(ax, ), init_func=init, frames=np.sum([mn.pos_traj.shape[1] for mn in mins]), interval=2, blit=False)
+    anim = FuncAnimation(fig, animate, fargs=(ax, ), init_func=init, interval=2, blit=False)
     if save_animation:
       animation_name = "animation.gif"
       print("Saving animation")

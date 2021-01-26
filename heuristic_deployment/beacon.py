@@ -15,6 +15,7 @@ class Beacon():
     self.range = range
     self.pos = pos
     self.ID = self.get_ID()
+    self.neighbors = []
   
   def insert_into_environment(self, env):
     self.pos = env.entrance_point
@@ -25,21 +26,23 @@ class Beacon():
 
   def is_within_circle_of_acceptance(self, other):
     return np.linalg.norm(self.pos - other.pos) <= 0.01
+
+  def compute_neighbors(self, others):
+    self.neighbors = list(filter(lambda other: self.is_within_range(other) and self != other, others))
   
   def get_RSSI(self, other):
     return np.exp(-np.linalg.norm(self.pos - other.pos))
 
-  def get_num_neighbors(self, others):
-    return np.count_nonzero(
-      [self.is_within_range(other) and self.ID != other.ID for other in others]
-    )
+  def get_vec_to_other(self, other):
+    return other.pos - self.pos
   
-  def get_neighbors(self, others):
-    return list(filter(lambda other: self.is_within_range(other) and other.ID != self.ID, others))
+  def __eq__(self, other):
+        return self.ID == other.ID
 
-  def get_bearing_vec_to_other(self, other):
-    return normalize(other.pos - self.pos)
 
+  """""
+  PLOTTING STUFF
+  """""
   def plot(self, axis, clr="green"):
     self.point = axis.plot(*self.pos, color=clr, marker="o", markersize=8)[0]
     self.annotation = axis.annotate(self.ID, xy=(self.pos[0], self.pos[1]), fontsize=14)
