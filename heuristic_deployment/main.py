@@ -89,7 +89,7 @@ def simulate(dt, mins, SCS, env, k, show_decisions_for = []):
   return mins
 
 if __name__ == "__main__":
-  _animate, save_animation = False, False
+  _animate, save_animation = True, False
   start_animation_from_min_ID = 0
 
 
@@ -105,7 +105,7 @@ if __name__ == "__main__":
   max_range = 3
 
 
-  N_mins = 25
+  N_mins = 9
   dt = 0.01
 
   SCS = Beacon(max_range)
