@@ -5,10 +5,10 @@ class Beacon():
 
   ID_counter = 0
 
-  @classmethod
-  def get_ID(cls):
-    ret = cls.ID_counter
-    cls.ID_counter += 1
+  @staticmethod
+  def get_ID():
+    ret = Beacon.ID_counter
+    Beacon.ID_counter += 1
     return ret
 
   def __init__(self, range, pos=None):
@@ -38,6 +38,10 @@ class Beacon():
   
   def __eq__(self, other):
         return self.ID == other.ID
+  
+  @classmethod
+  def __str__(cls):
+        return cls.__name__
 
 
   """""

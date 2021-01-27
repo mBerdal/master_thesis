@@ -13,7 +13,7 @@ def normalize(vec):
         return vec/np.linalg.norm(vec)
     return vec
 
-def plot_vec(axis, vec, startpoint=np.zeros((2, )), clr=None, alpha=1):
+def plot_vec(axis, vec, startpoint=np.zeros((2, )), clr="black", alpha=1):
     """
 
     Args:

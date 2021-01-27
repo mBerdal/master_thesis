@@ -34,11 +34,12 @@ class Min(Beacon):
     num_neighs_of_neighs = np.array([
       len(n.neighbors) for n in self.neighbors
     ])
+
     alphas = num_neighs_of_neighs < k
     sum_alphas = np.sum(alphas)
     theta1 = np.sum(alphas*angs_to_neighs)/sum_alphas if sum_alphas > 0 else 0
     theta2 = np.random.uniform(-rand_lim, rand_lim)
-    return theta1 + theta2
+    return theta1 + 0*theta2
 
   def get_obstacle_avoidance_vec(self, env):
     xtra_heading_vec = np.zeros((2, ))
@@ -46,7 +47,7 @@ class Min(Beacon):
       r = s.sense(env).get_val()
       if not r == np.inf:
         abs_ang = self.heading + s.host_relative_angle
-        xtra_heading_vec += -p2v(1/r - 1/s.max_range, abs_ang)
+        xtra_heading_vec += -p2v(1 - r/s.max_range, abs_ang)
     return xtra_heading_vec
 
   def set_heading_and_speed(self, heading, speed = None):
@@ -85,6 +86,3 @@ class Min(Beacon):
 
     self.heading_arrow.set_data(*np.hstack((new_pos.reshape(2, 1), new_pos.reshape(2, 1) + p2v(1, self._heading_traj[index]).reshape(2, 1))))
     return self.point, self.annotation, self.radius, self.traj_line, self.heading_arrow
-  
-  def __str__(self):
-    return f"min drone {self.ID} at {self.pos}"
