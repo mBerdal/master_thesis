@@ -2,20 +2,15 @@ from min import MinState
 import numpy as np
 from enum import Enum
 from helpers import get_vector_angle as gva, polar_to_vec as p2v
-
-from deployment_strategies.deployment_strategy import DeploymentStrategy
-
-class FollowingStrategy(Enum):
-    DIRECT = 1,
-    SAFE   = 2
+from deployment_strategies.deployment_strategy import DeploymentStrategy, FollowingStrategy
 
 class HeuristicDeploy(DeploymentStrategy):
-    
-    def __init__(self, k=3):
+
+    def __init__(self, k=3, following_strategy=FollowingStrategy.SAFE):
+        super().__init__(following_strategy)
         self.k = k
-        self.__target = None
-        self.__heading = 0
-        self.__speed = 0
+        self.__exploration_dir = None
+        self.__exploration_vec = None
 
     def get_heading_and_speed(self, MIN, beacons, SCS, ENV):
         if MIN.state == MinState.SPAWNED or MIN.state == MinState.FOLLOWING:
@@ -25,53 +20,19 @@ class HeuristicDeploy(DeploymentStrategy):
         else:
             print("MIN ALREADY LANDED")
             exit(0)
-    
-    def __compute_target(self, beacons, SCS):
-        target = beacons[0]
-        if len(beacons) > 1:
-            tmp = beacons[1:]
-            num_neighs = np.array([len(b.neighbors) for b in tmp])
-            min_neigh_indices, = np.where(num_neighs == num_neighs.min())
-            if len(min_neigh_indices) > 1:
-                return min(tmp[min_neigh_indices], key=lambda beacon: np.linalg.norm(SCS.get_vec_to_other(beacon)))
-            else:
-                return tmp[min_neigh_indices[0]]
-        return target
-
-    def follow(self, MIN, beacons, SCS, ENV, following_strategy=FollowingStrategy.SAFE):
-        if MIN.state == MinState.SPAWNED:
-            self.__target = self.__compute_target(beacons, SCS)
-            if following_strategy == FollowingStrategy.SAFE:
-                self.__beacons_to_follow = SCS.path_tree.get_beacon_path_to_target(self.__target.ID)
-                SCS.path_tree.add_node(MIN, self.__target.ID)
-            else:
-                self.__beacons_to_follow = [self.__target]
-            MIN.state = MinState.FOLLOWING
-            self.__btf = self.__beacons_to_follow.pop(0)
-        if MIN.get_RSSI(self.__btf) >= np.exp(-0.3):
-            try:
-                self.__btf = self.__beacons_to_follow.pop(0)
-                self.__heading = gva(MIN.get_vec_to_other(self.__btf))
-                self.__speed = 2
-            except IndexError:
-                return self.explore(MIN, beacons, ENV)
-        return self.__heading, self.__speed
-
 
     def explore(self, MIN, beacons, ENV):
-        if MIN.state == MinState.FOLLOWING:
-            MIN.state = MinState.EXPLORING
-            MIN.compute_neighbors(beacons)
+        if self.__exploration_dir is None:
             self.__exploration_dir = HeuristicDeploy.__get_exploration_dir(MIN, self.k)
             self.__exploration_vec = p2v(1, self.__exploration_dir)
-            self.__speed = 1
+        self.speed = 1
         
         obs_vec = HeuristicDeploy.__get_obstacle_avoidance_vec(MIN, ENV)
         self.__heading = gva(self.__exploration_vec + obs_vec)
-        if np.abs(self.__exploration_dir - gva(self.__exploration_vec + obs_vec)) > np.pi/2 or MIN.get_RSSI(self.__target) < np.exp(-2.6):
+        if np.abs(self.__exploration_dir - gva(self.__exploration_vec + obs_vec)) > np.pi/2 or MIN.get_RSSI(self.target) < np.exp(-2.6):
             MIN.state = MinState.LANDED
-            self.__speed = 0
-        return self.__heading, self.__speed
+            self.speed = 0
+        return self.__heading, self.speed
 
     @staticmethod
     def __get_exploration_dir(MIN, k, rand_lim = 0.1):

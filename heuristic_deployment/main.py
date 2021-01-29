@@ -2,6 +2,7 @@ from environment import Env
 from scs import SCS
 from min import Min, MinState
 from deployment_strategies.heuristic_deploy import HeuristicDeploy
+from deployment_strategies.potential_fields_deploy import PotentialFieldsDeploy
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,6 +24,7 @@ def simulate(dt, MINs, SCS, ENV):
   return MINs
 
 if __name__ == "__main__":
+
   _animate, save_animation = False, False
   start_animation_from_min_ID = 0
 
@@ -38,11 +40,11 @@ if __name__ == "__main__":
 
   max_range = 3
 
-  N_mins = 70
+  N_mins = 18
   dt = 0.01
 
   SCS = SCS(max_range)
-  mins = [Min(max_range, HeuristicDeploy()) for i in range(N_mins)]
+  mins = [Min(max_range, PotentialFieldsDeploy()) for i in range(N_mins)]
   mins = simulate(dt, mins, SCS, ENV)
 
   fig, ax = plt.subplots(1)
@@ -86,7 +88,7 @@ if __name__ == "__main__":
       mn.plot(ax)
       mn.plot_traj_line(ax)
     import sys
-    """ Plotting Fisher determinant value
+    """ Plotting Fisher determinant value 
     sys.path.append('./')
     from fisher_determinant_approach import plot_color_map as pcm
     S = np.hstack([SCS.pos.reshape(2, 1)] + [mn.pos.reshape(2, 1) for mn in mins])
