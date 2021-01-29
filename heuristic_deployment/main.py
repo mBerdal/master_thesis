@@ -8,44 +8,49 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-def simulate(dt, MINs, SCS, ENV):
-  SCS.insert_into_environment(ENV)
+def simulate(dt, MINs, SCS, env):
+  SCS.insert_into_environment(env)
   beacons = np.array([SCS], dtype=object)
 
   for mn in MINs:
-    mn.insert_into_environment(ENV)
+    mn.insert_into_environment(env)
     while not mn.state == MinState.LANDED:
-          mn.do_step(beacons, SCS, ENV, dt)
+          mn.do_step(beacons, SCS, env, dt)
 
     beacons = np.append(beacons, mn)
     for b in beacons:
       b.compute_neighbors(beacons)
     print(f"min {mn.ID} landed at pos\t\t\t {mn.pos}\n------------------", )
-  return MINs
 
 if __name__ == "__main__":
 
   _animate, save_animation = False, False
   start_animation_from_min_ID = 0
 
+  env = Env(
+    np.array([
+      -9.8, -9.8
+    ]),
+    obstacle_corners = [
+    np.array([
+      [-10, -10],
+      [ 10, -10], 
+      [ 10,  10],
+      [-10,  10]
+    ])
+    ]
+  )
 
-  ENV = Env(np.array([
-    [-10, -10],
-    [ 10, -10], 
-    [ 10,  10],
-    [-10,  10]
-  ]), np.array([
-    -9.8, -9.8
-  ]))
 
   max_range = 3
 
-  N_mins = 18
+  N_mins = 10
   dt = 0.01
 
-  SCS = SCS(max_range)
+  scs = SCS(max_range)
   mins = [Min(max_range, PotentialFieldsDeploy()) for i in range(N_mins)]
-  mins = simulate(dt, mins, SCS, ENV)
+  
+  simulate(dt, mins, scs, env)
 
   fig, ax = plt.subplots(1)
 
@@ -54,8 +59,8 @@ if __name__ == "__main__":
     offset, min_counter = [0], [start_animation_from_min_ID]
 
     def init():
-      SCS.plot(ax)
-      ENV.plot(ax)
+      scs.plot(ax)
+      env.plot(ax)
       artists = []
       for mn in mins:
         artists += mn.plot(ax)
@@ -82,16 +87,17 @@ if __name__ == "__main__":
       plt.show()
   
   else:
-    ENV.plot(ax)
-    SCS.plot(ax)
+    env.plot(ax)
+    scs.plot(ax)
     for mn in mins:
       mn.plot(ax)
       mn.plot_traj_line(ax)
+
+    """ Plotting Fisher determinant value
     import sys
-    """ Plotting Fisher determinant value 
     sys.path.append('./')
     from fisher_determinant_approach import plot_color_map as pcm
-    S = np.hstack([SCS.pos.reshape(2, 1)] + [mn.pos.reshape(2, 1) for mn in mins])
+    S = np.hstack([scs.pos.reshape(2, 1)] + [mn.pos.reshape(2, 1) for mn in mins])
     pcm(fig, ax, 1000, [-10, 10], [-10, 10], S, 1)
-    """
+    """ 
     plt.show()
