@@ -13,8 +13,9 @@ class MinState(Enum):
 
 class Min(Beacon):
 
-  def __init__(self, max_range):
+  def __init__(self, max_range, deployment_strategy):
     super().__init__(max_range, None)
+    self.deployment_strategy = deployment_strategy
     self.sensors = []
     for ang in np.arange(0, 360, 90):
       r = RangeSensor(max_range)
@@ -25,30 +26,8 @@ class Min(Beacon):
     self._pos_traj = self.pos.reshape(2, 1)
     self._heading_traj = np.zeros((1, ))
     self.speed = 0
+    self.heading = 0
     self.state = MinState.SPAWNED
-
-  def get_exploration_dir(self, k, rand_lim = 0.1):
-    angs_to_neighs = gva(np.array([
-        self.get_vec_to_other(n) for n in self.neighbors
-    ]).T)
-    num_neighs_of_neighs = np.array([
-      len(n.neighbors) for n in self.neighbors
-    ])
-
-    alphas = num_neighs_of_neighs < k
-    sum_alphas = np.sum(alphas)
-    theta1 = np.sum(alphas*angs_to_neighs)/sum_alphas if sum_alphas > 0 else 0
-    theta2 = np.random.uniform(-rand_lim, rand_lim)
-    return theta1 + 0*theta2
-
-  def get_obstacle_avoidance_vec(self, env):
-    xtra_heading_vec = np.zeros((2, ))
-    for s in self.sensors:
-      r = s.sense(env).get_val()
-      if not r == np.inf:
-        abs_ang = self.heading + s.host_relative_angle
-        xtra_heading_vec += -p2v(1 - r/s.max_range, abs_ang)
-    return xtra_heading_vec
 
   def set_heading_and_speed(self, heading, speed = None):
     assert speed >= 0, "Trying to set MIN speed to something negative is not allowed."
@@ -56,8 +35,10 @@ class Min(Beacon):
     if not speed is None:
       self.speed = speed
 
-  def do_step(self, sampling_time):
-    self.pos = self.pos + p2v(1, self.heading)*self.speed*sampling_time
+  def do_step(self, beacons, SCS, ENV, dt):
+    psi, V = self.deployment_strategy.get_heading_and_speed(self, beacons, SCS, ENV)
+    self.set_heading_and_speed(psi, V)
+    self.pos = self.pos + p2v(1, self.heading)*self.speed*dt
     self._pos_traj = np.hstack((self._pos_traj, self.pos.reshape(2, 1)))
     self._heading_traj = np.concatenate((self._heading_traj, [self.heading]))
   

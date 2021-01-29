@@ -9,9 +9,11 @@ Assuming that the previously deployed MIN is at the frontier of the explored are
 
 Alternatively the MIN which resides at the frontier of the explored area with the fewest neighbors could be the target. Odds are that the MIN with fewest neighbours lie at the frontier. Hence the frontier check could be disregarded, and the MIN with fewest neighbors could be chosen to be the target. If more than one MIN have the same amount of neighbors, choose the one that is closest to the SCS.
 
-> Q1: how to define the frontier of the explored area?
+> ##### Q1
+> how to define the frontier of the explored area?
 >
-> A1: Any MIN whose communication disk is not fully covered by those of other MINs is the the frontier (not computationally feasible, and not robust when using position estimates to decide). Some other criteria should be found.
+> ##### A1
+> Any MIN whose communication disk is not fully covered by those of other MINs is the the frontier (not computationally feasible, and not robust when using position estimates to decide). Some other criteria should be found.
 ### How should the new MIN decide it's path to the target?
 Assuming the SCS stores the directed graph, $\mathcal{G}$, where MINs are nodes. MINs $i$ and $j$ have an edge, $e_{ij}$, from $i$ to $j$ if $i$ was the target of $j$. Performing a DFS starting from the SCS and finding the target (defined in one of the ways described above) for the MIN that is to be deployed yields a sequence of MINs which can be visited when travelling from the SCS to the target.
 
@@ -29,10 +31,10 @@ If there is a feasible path from $b_{i-1}$ to $b_{i}$ for all $1\leq i<|\mathcal
 
 When in the exploring stage, the "new" MIN should fly in a direction not previously explored. Regardless of the direction the new MIN should avoid obstacles.
 
-> ### MIN
+> ##### MIN
 > A MIN $i$ is described by its position $\mathbf{x}_{i}^{i}$ in the intertial frame, and its rotation about the intertial z-axis, $\psi_{i}$.
 
-> #### Range sensors
+> ##### Range sensors
 > Each MIN is equipped with 4 range sensors, $r_{j},\;j\in[0,4)$. Sensor $r_{j}$ is mounted on the body at an angle $\theta_{j} = 90^{\circ}\cdot j$. The range sensors can maximally detect objects at a distance $d_{max}$ away. 
 > Given the description of an obstacle $\mathcal{O}=\{\mathbf{x}^{i}: f(\mathbf{x}^{i})\leq 0\}$ in the inertial frame such that the border of the obstacle is described by $\partial\mathcal{O} = \{\mathbf{x}^{i}: f(\mathbf{x}_{i}) = 0\}$ and a MIN positioned at $\mathbf{x}_{i}^{i}$ in the inertial frame with a yaw angle $\psi_{i}$. The set 
 $$\mathcal{R}_{j} = \{d: f\big(\mathbf{x}_{i}^{i} + \mathbf{R}_{z}(\psi_{i})\mathbf{R}_{z}(\theta_{i})\begin{bmatrix}
