@@ -3,24 +3,26 @@ from scs import SCS
 from min import Min, MinState
 from deployment_strategies.heuristic_deploy import HeuristicDeploy
 from deployment_strategies.potential_fields_deploy import PotentialFieldsDeploy
+from deployment_strategies.deployment_strategy import FollowingStrategy
 
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-def simulate(dt, MINs, SCS, env):
-  SCS.insert_into_environment(env)
-  beacons = np.array([SCS], dtype=object)
+def simulate(dt, mins, scs, env):
+  scs.insert_into_environment(env)
+  beacons = np.array([scs], dtype=object)
 
-  for mn in MINs:
-    mn.insert_into_environment(env)
-    while not mn.state == MinState.LANDED:
-          mn.do_step(beacons, SCS, env, dt)
+  for m in mins:
+    m.insert_into_environment(env)
+    while not m.state == MinState.LANDED:
+          m.do_step(beacons, scs, env, dt)
 
-    beacons = np.append(beacons, mn)
+    beacons = np.append(beacons, m)
     for b in beacons:
       b.compute_neighbors(beacons)
-    print(f"min {mn.ID} landed at pos\t\t\t {mn.pos}\n------------------", )
+    print(f"min {m.ID} landed at pos\t\t\t {m.pos}\n------------------", )
+  print(f"minimum number of neighbors: {min(beacons, key=lambda b: len(b.neighbors))}")    
 
 if __name__ == "__main__":
 
@@ -41,14 +43,14 @@ if __name__ == "__main__":
     ]
   )
 
-
   max_range = 3
 
-  N_mins = 10
+  N_mins = 80
   dt = 0.01
 
+
   scs = SCS(max_range)
-  mins = [Min(max_range, PotentialFieldsDeploy()) for i in range(N_mins)]
+  mins = [Min(max_range, PotentialFieldsDeploy(K_o=10, following_strategy=FollowingStrategy.SAFE)) for _ in range(N_mins)]
   
   simulate(dt, mins, scs, env)
 
@@ -68,7 +70,7 @@ if __name__ == "__main__":
         mn.plot_pos_from_pos_traj_index(0)
       return artists
 
-    def animate(i, ax):
+    def animate(i):
       if i - offset[0] >= mins[min_counter[0]].get_pos_traj_length():
         offset[0] += mins[min_counter[0]].get_pos_traj_length()
         min_counter[0] += 1
@@ -77,7 +79,7 @@ if __name__ == "__main__":
 
 
 
-    anim = FuncAnimation(fig, animate, fargs=(ax, ), init_func=init, interval=2, blit=False)
+    anim = FuncAnimation(fig, animate, init_func=init, interval=2, blit=False)
     if save_animation:
       animation_name = "animation.gif"
       print("Saving animation")

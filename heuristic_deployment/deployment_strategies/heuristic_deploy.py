@@ -29,7 +29,7 @@ class HeuristicDeploy(DeploymentStrategy):
         
         obs_vec = HeuristicDeploy.__get_obstacle_avoidance_vec(MIN, ENV)
         self.__heading = gva(self.__exploration_vec + obs_vec)
-        if np.abs(self.__exploration_dir - gva(self.__exploration_vec + obs_vec)) > np.pi/2 or MIN.get_RSSI(self.target) < np.exp(-2.6):
+        if np.abs(self.__exploration_dir - gva(self.__exploration_vec + obs_vec)) > np.pi/2 or MIN.get_RSSI(self.target) < np.exp(-self.MIN_RSSI_STRENGTH_BEFORE_LAND):
             MIN.state = MinState.LANDED
             self.speed = 0
         return self.__heading, self.speed

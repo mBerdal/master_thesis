@@ -11,6 +11,9 @@ class FollowingStrategy(Enum):
 
 class DeploymentStrategy(ABC):
 
+    MIN_RSSI_STRENGTH_BEFORE_LAND = 2.9
+    MIN_RSSI_STRENGTH_BEFORE_EXPLORE = 1
+
     def __init__(self, following_strategy=FollowingStrategy.SAFE):
         self.following_strategy = following_strategy
         self.target = None
@@ -21,6 +24,7 @@ class DeploymentStrategy(ABC):
     def follow(self, MIN, beacons, SCS, ENV):
         if MIN.state == MinState.SPAWNED:
             self.target = self.__compute_target(beacons, SCS)
+            print(f"{MIN.ID} targeting {self.target.ID}")
             if self.following_strategy == FollowingStrategy.SAFE:
                 self.__beacons_to_follow = SCS.path_tree.get_beacon_path_to_target(self.target.ID)
                 SCS.path_tree.add_node(MIN, self.target.ID)
@@ -28,8 +32,9 @@ class DeploymentStrategy(ABC):
                 self.__beacons_to_follow = [self.target]
             MIN.state = MinState.FOLLOWING
             self.__btf = self.__beacons_to_follow.pop(0)
+            self.heading = gva(MIN.get_vec_to_other(self.__btf))
             self.speed = 2
-        if MIN.get_RSSI(self.__btf) >= np.exp(-0.2):
+        if MIN.get_RSSI(self.__btf) >= np.exp(-self.MIN_RSSI_STRENGTH_BEFORE_EXPLORE):
             try:
                 self.__btf = self.__beacons_to_follow.pop(0)
                 self.heading = gva(MIN.get_vec_to_other(self.__btf))
@@ -39,7 +44,9 @@ class DeploymentStrategy(ABC):
                 self.speed = 0
         return self.heading, self.speed
     
-    def __compute_target(self, beacons, SCS):
+
+    @staticmethod
+    def __compute_target(beacons, SCS):
         target = beacons[0]
         if len(beacons) > 1:
             tmp = beacons[1:]

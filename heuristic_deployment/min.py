@@ -1,7 +1,8 @@
 from beacon import Beacon
 from range_sensor import RangeSensor
-import numpy as np
 from helpers import polar_to_vec as p2v, plot_vec
+
+import numpy as np
 
 from enum import Enum
 
