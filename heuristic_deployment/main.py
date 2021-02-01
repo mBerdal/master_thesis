@@ -48,7 +48,6 @@ if __name__ == "__main__":
   N_mins = 10
   dt = 0.01
 
-
   scs = SCS(max_range)
   mins = [Min(max_range, PotentialFieldsDeploy(K_o=1, following_strategy=FollowingStrategy.SAFE)) for _ in range(N_mins)]
   

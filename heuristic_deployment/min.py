@@ -1,10 +1,15 @@
 from beacon import Beacon
 from range_sensor import RangeSensor
-from helpers import polar_to_vec as p2v, plot_vec
+from helpers import (
+  get_smallest_signed_angle as ssa,
+  get_vector_angle as gva,
+  polar_to_vec as p2v,
+  normalize,
+  euler_int,
+  plot_vec
+)
 
 import numpy as np
-from helpers import polar_to_vec as p2v, normalize, get_vector_angle as gva, plot_vec, euler_int, get_smallest_signed_angle as ssa
-
 from enum import Enum
 
 class MinState(Enum):
