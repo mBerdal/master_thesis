@@ -13,7 +13,7 @@ class PotentialFieldsDeploy(DeploymentStrategy):
 
     MAX_EXPLORATION_SPEED = 2
 
-    def __init__(self, K_n=1, K_o=1, min_force_threshold=0.1, following_strategy=FollowingStrategy.SAFE):
+    def __init__(self, K_n=1, K_o=1, min_force_threshold=0.01, following_strategy=FollowingStrategy.SAFE):
         super().__init__(following_strategy)
         self.__K_n = K_n
         self.__K_o = K_o
@@ -40,9 +40,11 @@ class PotentialFieldsDeploy(DeploymentStrategy):
         return self.__get_generic_force_vector(vecs_to_neighs, self.__K_n)
 
     def __get_obstacle_forces(self, MIN, ENV):
+        for s in MIN.sensors:
+            s.sense(ENV)
         vecs_to_obs = [
-            (R_z(MIN.heading)@R_z(s.host_relative_angle)@s.sense(ENV).get_meas())[:2].reshape(2, 1)
-            for s in MIN.sensors if s.sense(ENV).is_valid
+            (R_z(MIN.heading)@R_z(s.host_relative_angle)@s.measurement.get_val())[:2]
+            for s in MIN.sensors if s.measurement.is_valid()
         ]
         return self.__get_generic_force_vector(vecs_to_obs, self.__K_o)
 

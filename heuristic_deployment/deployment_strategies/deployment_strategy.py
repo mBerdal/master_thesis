@@ -33,7 +33,7 @@ class DeploymentStrategy(ABC):
         if MIN.state == MinState.SPAWNED:
             self.v = np.zeros((2, ))
             self.target = self.__compute_target(beacons, SCS)
-            print(f"{MIN.ID} targeting {self.target.ID}")
+            print(f"{MIN.ID} targeting {self.target.ID} that currently has {len(self.target.neighbors)} neighs")
             if self.following_strategy == FollowingStrategy.SAFE:
                 self.__beacons_to_follow = SCS.path_tree.get_beacon_path_to_target(self.target.ID)
                 SCS.path_tree.add_node(MIN, self.target.ID)

@@ -52,8 +52,8 @@ class HeuristicDeploy(DeploymentStrategy):
     def __get_obstacle_avoidance_vec(MIN, ENV):
         xtra_heading_vec = np.zeros((2, ))
         for s in MIN.sensors:
-            m = s.sense(ENV)
-            if m.is_valid:
-                v_s = np.array([HeuristicDeploy.OBS_AVOIDANCE_GAIN, 0, 0]).reshape(3, 1) - HeuristicDeploy.OBS_AVOIDANCE_GAIN*m.get_meas()/s.max_range
+            s.sense(ENV)
+            if s.measurement.is_valid():
+                v_s = np.array([HeuristicDeploy.OBS_AVOIDANCE_GAIN, 0, 0]).reshape(3, 1) - HeuristicDeploy.OBS_AVOIDANCE_GAIN*s.measurement.get_val()/s.max_range
                 xtra_heading_vec += (-(R_z(MIN.heading)@R_z(s.host_relative_angle)@v_s)[:2]).reshape((2, ))
         return xtra_heading_vec

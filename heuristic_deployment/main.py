@@ -15,13 +15,14 @@ def simulate(dt, mins, scs, env):
 
   for m in mins:
     m.insert_into_environment(env)
-    while not m.state == MinState.LANDED:
+    cnt = 0
+    while not m.state == MinState.LANDED and cnt < 10000:
           m.do_step(beacons, scs, env, dt)
-
+          cnt += 1
     beacons = np.append(beacons, m)
     for b in beacons:
       b.compute_neighbors(beacons)
-    print(f"min {m.ID} landed at pos\t\t\t {m.pos}\n------------------", )
+    print(f"min {m.ID} landed at pos\t\t\t {m.pos}\nits target now has {len(m.deployment_strategy.target.neighbors)} neighs\n------------------", )
   print(f"minimum number of neighbors: {min(beacons, key=lambda b: len(b.neighbors))}")    
 
 if __name__ == "__main__":
@@ -34,23 +35,28 @@ if __name__ == "__main__":
       -9.8, -9.8
     ]),
     obstacle_corners = [
-    np.array([
-      [-10, -10],
-      [ 10, -10], 
-      [ 10,  10],
-      [-10,  10]
-    ])
+      np.array([
+        [-10, -10],
+        [ 10, -10], 
+        [ 10,  10],
+        [-10,  10]
+      ]),
+      np.array([
+        [-5, -5],
+        [ 5, -5], 
+        [ 5,  5],
+        [-5,  5]
+      ]),
     ]
   )
 
   max_range = 3
 
-  N_mins = 50
+  N_mins = 80
   dt = 0.01
 
   scs = SCS(max_range)
-  mins = [Min(max_range, HeuristicDeploy(following_strategy=FollowingStrategy.SAFE)) for _ in range(N_mins)]
-  #PotentialFieldsDeploy(K_o=1, following_strategy=FollowingStrategy.SAFE)
+  mins = [Min(max_range, PotentialFieldsDeploy(K_o=1, K_n=1, following_strategy=FollowingStrategy.SAFE)) for _ in range(N_mins)]
   simulate(dt, mins, scs, env)
 
   fig, ax = plt.subplots(1)
