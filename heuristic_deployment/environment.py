@@ -2,9 +2,10 @@ from matplotlib.patches import Polygon
 
 class Env():
 
-  def __init__(self, corners, entrance_point):
-    self.corners = corners
+  def __init__(self, entrance_point, obstacle_corners = []):
+    self.obstacle_corners = obstacle_corners
     self.entrance_point = entrance_point
 
   def plot(self, axis):
-    axis.add_patch(Polygon(self.corners, fill=False))
+    for i in range(len(self.obstacle_corners)):
+      axis.add_patch(Polygon(self.obstacle_corners[i], fill=False))

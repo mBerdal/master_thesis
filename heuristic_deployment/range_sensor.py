@@ -1,5 +1,4 @@
 import numpy as np
-from helpers import get_vector_angle as gva
 
 class RangeReading():
     def __init__(self, measured_range):
@@ -18,15 +17,18 @@ class RangeSensor():
 
     def mount(self, host, angle_deg):
         self.host = host
-        host.sensors.append(self)
         self.host_relative_angle = np.deg2rad(angle_deg)
+        host.sensors.append(self)
 
     def sense(self, environment):
+      return RangeReading(np.min([self.__sense_aux(corners) for corners in environment.obstacle_corners]))
+
+    def __sense_aux(self, corners):
         abs_angle = self.host_relative_angle + self.host.heading
-        closed_corners = np.vstack((environment.corners, environment.corners[0, :]))
+        closed_corners = np.vstack((corners, corners[0, :]))
         valid_crossings = np.array([np.inf])
         max_t = np.array([self.max_range, 1])
-        for i in np.arange(environment.corners.shape[0]):
+        for i in np.arange(corners.shape[0]):
             x1, x2 = closed_corners[i, :], closed_corners[i+1, :]
 
             A = np.array([
@@ -40,4 +42,4 @@ class RangeSensor():
                     valid_crossings = np.hstack((valid_crossings, t[0]))
             except np.linalg.LinAlgError:
                 pass
-        return RangeReading(np.min(valid_crossings))
+        return valid_crossings

@@ -1,5 +1,7 @@
 from beacon import Beacon
 from range_sensor import RangeSensor
+from helpers import polar_to_vec as p2v, plot_vec
+
 import numpy as np
 from helpers import polar_to_vec as p2v, normalize, get_vector_angle as gva, plot_vec, euler_int
 

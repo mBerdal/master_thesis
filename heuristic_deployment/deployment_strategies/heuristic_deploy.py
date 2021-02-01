@@ -21,7 +21,7 @@ class HeuristicDeploy(DeploymentStrategy):
 
         self.v = normalize(self.__exploration_vec + obs_vec)
 
-        if np.abs(self.__exploration_dir - gva(self.__exploration_vec + obs_vec)) > np.pi/2 or MIN.get_RSSI(self.target) < np.exp(-2.6):
+        if np.abs(self.__exploration_dir - gva(self.__exploration_vec + obs_vec)) > np.pi/2 or MIN.get_RSSI(self.target) < np.exp(self.MIN_RSSI_STRENGTH_BEFORE_LAND):
             MIN.state = MinState.LANDED
             self.v = np.zeros((2, ))
         return self.v

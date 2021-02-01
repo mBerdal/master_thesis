@@ -11,6 +11,7 @@ class PotentialFieldsDeploy(DeploymentStrategy):
         self.__K_n = K_n
         self.__K_o = K_o
         self.__min_force_threshold = min_force_threshold
+        self.__x_dot = np.zeros((2, ))
     
     def explore(self, MIN, beacons, ENV):
         MIN.compute_neighbors(beacons)
@@ -18,7 +19,7 @@ class PotentialFieldsDeploy(DeploymentStrategy):
         F_o = self.__get_obstacle_forces(MIN, ENV)
         F_sum = F_n + F_o
 
-        if np.linalg.norm(F_sum) > self.__min_force_threshold:
+        if np.linalg.norm(F_sum) > self.__min_force_threshold and MIN.get_RSSI(self.target) >= np.exp(self.MIN_RSSI_STRENGTH_BEFORE_LAND):
             self.v = normalize(F_sum)
         else:
             MIN.state = MinState.LANDED

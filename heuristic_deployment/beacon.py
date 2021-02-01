@@ -24,9 +24,6 @@ class Beacon():
     dist = np.linalg.norm(self.pos - other.pos)
     return dist < self.range and dist < other.range
 
-  def is_within_circle_of_acceptance(self, other):
-    return np.linalg.norm(self.pos - other.pos) <= 0.01
-
   def compute_neighbors(self, others):
     self.neighbors = list(filter(lambda other: self.is_within_range(other) and self != other, others))
   
@@ -39,9 +36,8 @@ class Beacon():
   def __eq__(self, other):
         return self.ID == other.ID
   
-  @classmethod
-  def __str__(cls):
-        return cls.__name__
+  def __str__(self):
+        return f"[\n\ttype: {self.__class__.__name__},\n\tID:{self.ID},\n\tneighbors: {len(self.neighbors)},\n\tpos: {self.pos}\n]"
 
 
   """""
