@@ -1,7 +1,7 @@
 from min import MinState
 import numpy as np
 from enum import Enum
-from helpers import get_vector_angle as gva, polar_to_vec as p2v
+from helpers import get_vector_angle as gva, polar_to_vec as p2v, normalize
 from deployment_strategies.deployment_strategy import DeploymentStrategy, FollowingStrategy
 
 class HeuristicDeploy(DeploymentStrategy):
@@ -12,27 +12,19 @@ class HeuristicDeploy(DeploymentStrategy):
         self.__exploration_dir = None
         self.__exploration_vec = None
 
-    def get_heading_and_speed(self, MIN, beacons, SCS, ENV):
-        if MIN.state == MinState.SPAWNED or MIN.state == MinState.FOLLOWING:
-            return self.follow(MIN, beacons, SCS, ENV)
-        elif MIN.state == MinState.EXPLORING:
-            return self.explore(MIN, beacons, ENV)
-        else:
-            print("MIN ALREADY LANDED")
-            exit(0)
-
     def explore(self, MIN, beacons, ENV):
         if self.__exploration_dir is None:
             self.__exploration_dir = HeuristicDeploy.__get_exploration_dir(MIN, self.k)
             self.__exploration_vec = p2v(1, self.__exploration_dir)
-        self.speed = 1
         
         obs_vec = HeuristicDeploy.__get_obstacle_avoidance_vec(MIN, ENV)
-        self.__heading = gva(self.__exploration_vec + obs_vec)
+
+        self.v = normalize(self.__exploration_vec + obs_vec)
+
         if np.abs(self.__exploration_dir - gva(self.__exploration_vec + obs_vec)) > np.pi/2 or MIN.get_RSSI(self.target) < np.exp(-2.6):
             MIN.state = MinState.LANDED
-            self.speed = 0
-        return self.__heading, self.speed
+            self.v = np.zeros((2, ))
+        return self.v
 
     @staticmethod
     def __get_exploration_dir(MIN, k, rand_lim = 0.1):

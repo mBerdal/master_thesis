@@ -2,7 +2,7 @@ import numpy as np
 
 from deployment_strategies.deployment_strategy import DeploymentStrategy, FollowingStrategy
 from min import MinState
-from helpers import polar_to_vec as p2v, get_vector_angle as gva
+from helpers import polar_to_vec as p2v, get_vector_angle as gva, normalize
 
 class PotentialFieldsDeploy(DeploymentStrategy):
 
@@ -17,14 +17,12 @@ class PotentialFieldsDeploy(DeploymentStrategy):
         F_n = self.__get_neighbor_forces(MIN)
         F_o = self.__get_obstacle_forces(MIN, ENV)
         F_sum = F_n + F_o
-        self.heading = gva(F_sum)
 
         if np.linalg.norm(F_sum) > self.__min_force_threshold:
-            self.speed = np.linalg.norm(F_sum)
+            self.v = normalize(F_sum)
         else:
-            self.speed = 0
             MIN.state = MinState.LANDED
-        return self.heading, self.speed
+        return self.v
         
 
     def __get_neighbor_forces(self, MIN):
@@ -46,12 +44,3 @@ class PotentialFieldsDeploy(DeploymentStrategy):
             return -gain*np.sum(mat/np.linalg.norm(mat, axis=0)**3, axis=1)
         except ValueError:
             return np.zeros((2, ))
-
-    def get_heading_and_speed(self, MIN, beacons, SCS, ENV):
-        if MIN.state == MinState.SPAWNED or MIN.state == MinState.FOLLOWING:
-            return self.follow(MIN, beacons, SCS, ENV)
-        elif MIN.state == MinState.EXPLORING:
-            return self.explore(MIN, beacons, ENV)
-        else:
-            print("MIN ALREADY LANDED")
-            exit(0)

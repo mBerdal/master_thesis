@@ -1,7 +1,7 @@
 from beacon import Beacon
 from range_sensor import RangeSensor
 import numpy as np
-from helpers import polar_to_vec as p2v, normalize, get_vector_angle as gva, plot_vec
+from helpers import polar_to_vec as p2v, normalize, get_vector_angle as gva, plot_vec, euler_int
 
 from enum import Enum
 
@@ -23,22 +23,15 @@ class Min(Beacon):
 
   def insert_into_environment(self, env):
     super().insert_into_environment(env)
-    self._pos_traj = self.pos.reshape(2, 1)
-    self._heading_traj = np.zeros((1, ))
-    self.speed = 0
     self.heading = 0
+    self._pos_traj = self.pos.reshape(2, 1)
+    self._heading_traj = np.array([self.heading])
     self.state = MinState.SPAWNED
 
-  def set_heading_and_speed(self, heading, speed = None):
-    assert speed >= 0, "Trying to set MIN speed to something negative is not allowed."
-    self.heading = heading
-    if not speed is None:
-      self.speed = speed
-
   def do_step(self, beacons, SCS, ENV, dt):
-    psi, V = self.deployment_strategy.get_heading_and_speed(self, beacons, SCS, ENV)
-    self.set_heading_and_speed(psi, V)
-    self.pos = self.pos + p2v(1, self.heading)*self.speed*dt
+    v = self.deployment_strategy.get_velocity_vector(self, beacons, SCS, ENV)
+    self.pos = euler_int(self.pos, v, dt)
+    self.heading = gva(v)
     self._pos_traj = np.hstack((self._pos_traj, self.pos.reshape(2, 1)))
     self._heading_traj = np.concatenate((self._heading_traj, [self.heading]))
   

@@ -1,5 +1,8 @@
 import numpy as np
 
+def euler_int(state, state_dot, dt):
+    return state + dt*state_dot
+
 def polar_to_vec(r, theta):
     return r*np.array([np.cos(theta), np.sin(theta)])
 
