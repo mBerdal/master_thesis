@@ -26,7 +26,7 @@ def simulate(dt, mins, scs, env):
 
 if __name__ == "__main__":
 
-  _animate, save_animation = True, False
+  _animate, save_animation = False, False
   start_animation_from_min_ID = 0
 
   env = Env(
@@ -45,12 +45,12 @@ if __name__ == "__main__":
 
   max_range = 3
 
-  N_mins = 10
+  N_mins = 50
   dt = 0.01
 
   scs = SCS(max_range)
-  mins = [Min(max_range, PotentialFieldsDeploy(K_o=1, following_strategy=FollowingStrategy.SAFE)) for _ in range(N_mins)]
-  
+  mins = [Min(max_range, HeuristicDeploy(following_strategy=FollowingStrategy.SAFE)) for _ in range(N_mins)]
+  #PotentialFieldsDeploy(K_o=1, following_strategy=FollowingStrategy.SAFE)
   simulate(dt, mins, scs, env)
 
   fig, ax = plt.subplots(1)

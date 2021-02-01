@@ -1,4 +1,4 @@
-# Heuristic deployment notes
+# Deployment strategy notes
 ## Following
 
 When deploying a new MIN, it should travel into the environment towards some previously deployed MIN, called the target. When the deployed MIN has arrived at the target, it should start exploration.
@@ -15,7 +15,7 @@ Alternatively the MIN which resides at the frontier of the explored area with th
 > ##### A1
 > Any MIN whose communication disk is not fully covered by those of other MINs is the the frontier (not computationally feasible, and not robust when using position estimates to decide). Some other criteria should be found.
 ### How should the new MIN decide it's path to the target?
-Assuming the SCS stores the directed graph, $\mathcal{G}$, where MINs are nodes. MINs $i$ and $j$ have an edge, $e_{ij}$, from $i$ to $j$ if $i$ was the target of $j$. Performing a DFS starting from the SCS and finding the target (defined in one of the ways described above) for the MIN that is to be deployed yields a sequence of MINs which can be visited when travelling from the SCS to the target.
+Assuming the SCS stores the directed graph, $\mathcal{G}$, where landed MINs and the SCS are nodes, and the SCS is the head of the graph. Nodes $i$ and $j$ have an edge, $e_{ij}$, from $i$ to $j$ if $i$ was the target of $j$ when MIN $i$ was in the following stage. Performing a DFS starting from the SCS and finding the target (defined in one of the ways described above) for the MIN that is to be deployed yields a sequence of MINs which can be visited when travelling from the SCS to the target.
 
 The DFS returns an ordered sequence $\mathcal{S} = \{SCS\dots\ t\}$ of MINs (and the SCS) that can be visited when travelling from the SCS to the target. We define $b_{0} = SCS$ and $b_{|\mathcal{S}|-1} = t$. For all MINs, $b_{i}\in\mathcal{S},1\leq i<|\mathcal{S}|$, it started its exploration phase at $\hat{\mathbf{x}}_{b_{i-1}}$ and ended its exploration phase at $\hat{\mathbf{x}}_{b_{i}}$. Thus we know that there is a feasible path from MIN $b_{i-1}$ to $b_{i}$ for all $1\leq i<|\mathcal{S}|$.
 
@@ -25,28 +25,29 @@ If there is a feasible path from $b_{i-1}$ to $b_{i}$ for all $1\leq i<|\mathcal
 > 
 > If previously deployed MINs collect information about the environment (iteratively creates an occupancy grid), one could find the shortest path from the SCS to the target which is entirely contained within the free cells of the occupancy grid, and have the new MIN follow this path towards the target.
 
+## MIN description
+A MIN $i$ is described by its position $\mathbf{x}_{i}^{i}$ in the intertial frame, and its rotation about the intertial z-axis, $\psi_{i}$.
 
-
-## Exploring
-
-When in the exploring stage, the "new" MIN should fly in a direction not previously explored. Regardless of the direction the new MIN should avoid obstacles.
-
-> ##### MIN
-> A MIN $i$ is described by its position $\mathbf{x}_{i}^{i}$ in the intertial frame, and its rotation about the intertial z-axis, $\psi_{i}$.
-
-> ##### Range sensors
-> Each MIN is equipped with 4 range sensors, $r_{j},\;j\in[0,4)$. Sensor $r_{j}$ is mounted on the body at an angle $\theta_{j} = 90^{\circ}\cdot j$. The range sensors can maximally detect objects at a distance $d_{max}$ away. 
-> Given the description of an obstacle $\mathcal{O}=\{\mathbf{x}^{i}: f(\mathbf{x}^{i})\leq 0\}$ in the inertial frame such that the border of the obstacle is described by $\partial\mathcal{O} = \{\mathbf{x}^{i}: f(\mathbf{x}_{i}) = 0\}$ and a MIN positioned at $\mathbf{x}_{i}^{i}$ in the inertial frame with a yaw angle $\psi_{i}$. The set 
+### Range sensors
+Each MIN is equipped with 4 range sensors, $r_{j},\;j\in[0,4)$. Sensor $r_{j}$ is mounted on the body at an angle $\theta_{j} = 90^{\circ}\cdot j$. The range sensors can maximally detect objects at a distance $d_{max}$ away. 
+Given the description of an obstacle $\mathcal{O}=\{\mathbf{x}^{i}: f(\mathbf{x}^{i})\leq 0\}$ in the inertial frame such that the border of the obstacle is described by $\partial\mathcal{O} = \{\mathbf{x}^{i}: f(\mathbf{x}_{i}) = 0\}$ and a MIN positioned at $\mathbf{x}_{i}^{i}$ in the inertial frame with a yaw angle $\psi_{i}$. The set 
 $$\mathcal{R}_{j} = \{d: f\big(\mathbf{x}_{i}^{i} + \mathbf{R}_{z}(\psi_{i})\mathbf{R}_{z}(\theta_{i})\begin{bmatrix}
     d& 0
 \end{bmatrix}^{T}\big) = 0, 0\leq d\leq d_{max}\}$$
->Is the set of all points along the sensor $r_{j}$'s x-axis that intersects with the boundary of the obstacle $\mathcal{O}$. When polling a range sensor, it returns measurements according to:
+Is the set of all points along the sensor $r_{j}$'s x-axis that intersects with the boundary of the obstacle $\mathcal{O}$. When polling a range sensor, it returns measurements according to:
 $$
 m_{j} = \begin{cases}
     \min\mathcal{R}_{j}, &\mathcal{R}_{j}\neq\emptyset\\
     \infty, &\text{otherwise}
 \end{cases}
 $$
+
+
+
+## 'Heuristic Deployment' - Exploring
+
+When in the exploring stage, the "new" MIN should fly in a direction not previously explored. Regardless of the direction the new MIN should avoid obstacles.
+
 ### Currently implemented approach
 
 1. Compute nominal exploration direction (rotation about the inertial z-axis) according to:
@@ -86,5 +87,20 @@ Thus the MIN is stuck if the effective direction is more than $90^{\circ}$ off t
 
 A MIN is too far away from the target, $t$, if the RSSI from the target is below a certain threshold, $\tau$:
 $$
-\text{RSSI}(t, i) < t
+\text{RSSI}(t, i) < \tau
 $$
+
+## 'Potential Fields Deployment' - Exploring
+Once the new MIN, $i$, has arrived sufficiently close to its target and enters the exploration stage, it performs the following loop:
+
+1. Compute it's neighbors:
+   $$
+   \mathcal{N}(i) = \{j\in\mathcal{B}: ||\mathbf{x}_{i} - \mathbf{x}_{j}||\leq r\},
+   $$
+   where $\mathcal{B}$ is the set containing the SCS and all MINs that have already landed.
+2. Poll it's range sensors:
+   $$
+   F_{j} = \begin{cases}
+       m_{j}, &m_{j} < \infty
+   \end{cases}
+   $$

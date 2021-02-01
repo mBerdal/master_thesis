@@ -3,9 +3,10 @@ import numpy as np
 class RangeReading():
     def __init__(self, measured_range):
         self.__measured_range = measured_range
+        self.is_valid = measured_range != np.inf
     
-    def get_val(self):
-        return self.__measured_range
+    def get_meas(self):
+        return np.array([self.__measured_range, 0, 0]).reshape(3, 1)
 
     def __str__(self):
         return f"Range reading: {self.__measured_range} [m]"

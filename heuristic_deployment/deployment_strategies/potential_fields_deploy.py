@@ -2,7 +2,12 @@ import numpy as np
 
 from deployment_strategies.deployment_strategy import DeploymentStrategy, FollowingStrategy
 from min import MinState
-from helpers import polar_to_vec as p2v, get_vector_angle as gva, normalize
+from helpers import (
+    polar_to_vec as p2v,
+    get_vector_angle as gva,
+    rot_z_mat as R_z,
+    normalize
+)
 
 class PotentialFieldsDeploy(DeploymentStrategy):
 
@@ -36,7 +41,8 @@ class PotentialFieldsDeploy(DeploymentStrategy):
 
     def __get_obstacle_forces(self, MIN, ENV):
         vecs_to_obs = [
-            p2v(s.sense(ENV).get_val(), MIN.heading + s.host_relative_angle).reshape(2, 1) for s in MIN.sensors if not s.sense(ENV).get_val() == np.inf
+            (R_z(MIN.heading)@R_z(s.host_relative_angle)@s.sense(ENV).get_meas())[:2].reshape(2, 1)
+            for s in MIN.sensors if s.sense(ENV).is_valid
         ]
         return self.__get_generic_force_vector(vecs_to_obs, self.__K_o)
 

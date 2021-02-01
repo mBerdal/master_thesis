@@ -1,10 +1,17 @@
 from min import MinState
 import numpy as np
 from enum import Enum
-from helpers import get_vector_angle as gva, polar_to_vec as p2v, normalize
+from helpers import (
+    get_vector_angle as gva,
+    polar_to_vec as p2v,
+    rot_z_mat as R_z,
+    normalize
+)
 from deployment_strategies.deployment_strategy import DeploymentStrategy, FollowingStrategy
 
 class HeuristicDeploy(DeploymentStrategy):
+
+    OBS_AVOIDANCE_GAIN = 1.1
 
     def __init__(self, k=3, following_strategy=FollowingStrategy.SAFE):
         super().__init__(following_strategy)
@@ -21,7 +28,7 @@ class HeuristicDeploy(DeploymentStrategy):
 
         self.v = normalize(self.__exploration_vec + obs_vec)
 
-        if np.abs(self.__exploration_dir - gva(self.__exploration_vec + obs_vec)) > np.pi/2 or MIN.get_RSSI(self.target) < np.exp(self.MIN_RSSI_STRENGTH_BEFORE_LAND):
+        if np.abs(self.__exploration_dir - gva(self.__exploration_vec + obs_vec)) > np.pi/2 or MIN.get_RSSI(self.target) < np.exp(-self.MIN_RSSI_STRENGTH_BEFORE_LAND):
             MIN.state = MinState.LANDED
             self.v = np.zeros((2, ))
         return self.v
@@ -45,8 +52,8 @@ class HeuristicDeploy(DeploymentStrategy):
     def __get_obstacle_avoidance_vec(MIN, ENV):
         xtra_heading_vec = np.zeros((2, ))
         for s in MIN.sensors:
-            r = s.sense(ENV).get_val()
-            if not r == np.inf:
-                abs_ang = MIN.heading + s.host_relative_angle
-                xtra_heading_vec += -p2v(1 - r/s.max_range, abs_ang)
+            m = s.sense(ENV)
+            if m.is_valid:
+                v_s = np.array([HeuristicDeploy.OBS_AVOIDANCE_GAIN, 0, 0]).reshape(3, 1) - HeuristicDeploy.OBS_AVOIDANCE_GAIN*m.get_meas()/s.max_range
+                xtra_heading_vec += (-(R_z(MIN.heading)@R_z(s.host_relative_angle)@v_s)[:2]).reshape((2, ))
         return xtra_heading_vec

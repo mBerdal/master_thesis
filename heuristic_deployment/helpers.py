@@ -19,6 +19,13 @@ def normalize(vec):
 def get_smallest_signed_angle(ang):
     return np.mod(ang + np.pi, 2*np.pi) - np.pi
 
+def rot_z_mat(ang):
+    return np.array([
+        [np.cos(ang), -np.sin(ang), 0],
+        [np.sin(ang),  np.cos(ang), 0],
+        [     0     ,      0      , 1]
+    ])
+
 def plot_vec(axis, vec, startpoint=np.zeros((2, )), clr="black", alpha=1):
     """
 
