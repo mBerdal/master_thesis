@@ -6,6 +6,8 @@ from helpers import polar_to_vec as p2v, get_vector_angle as gva, normalize
 
 class PotentialFieldsDeploy(DeploymentStrategy):
 
+    MAX_EXPLORATION_SPEED = 2
+
     def __init__(self, K_n=1, K_o=1, min_force_threshold=0.1, following_strategy=FollowingStrategy.SAFE):
         super().__init__(following_strategy)
         self.__K_n = K_n
@@ -19,8 +21,8 @@ class PotentialFieldsDeploy(DeploymentStrategy):
         F_o = self.__get_obstacle_forces(MIN, ENV)
         F_sum = F_n + F_o
 
-        if np.linalg.norm(F_sum) > self.__min_force_threshold and MIN.get_RSSI(self.target) >= np.exp(self.MIN_RSSI_STRENGTH_BEFORE_LAND):
-            self.v = normalize(F_sum)
+        if np.linalg.norm(F_sum) > self.__min_force_threshold and MIN.get_RSSI(self.target) >= np.exp(-self.MIN_RSSI_STRENGTH_BEFORE_LAND):
+            self.v = F_sum if np.linalg.norm(F_sum) < self.MAX_EXPLORATION_SPEED else  self.MAX_EXPLORATION_SPEED*normalize(F_sum)
         else:
             MIN.state = MinState.LANDED
         return self.v

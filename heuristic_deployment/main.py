@@ -45,16 +45,12 @@ if __name__ == "__main__":
 
   max_range = 3
 
-<<<<<<< HEAD
   N_mins = 10
-=======
-  N_mins = 80
->>>>>>> 346ae0c1c869fce4f53e10d1c9005da9c7f6d976
   dt = 0.01
 
 
   scs = SCS(max_range)
-  mins = [Min(max_range, PotentialFieldsDeploy(K_o=10, following_strategy=FollowingStrategy.SAFE)) for _ in range(N_mins)]
+  mins = [Min(max_range, PotentialFieldsDeploy(K_o=1, following_strategy=FollowingStrategy.SAFE)) for _ in range(N_mins)]
   
   simulate(dt, mins, scs, env)
 

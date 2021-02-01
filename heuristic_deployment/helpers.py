@@ -16,6 +16,9 @@ def normalize(vec):
         return vec/np.linalg.norm(vec)
     return vec
 
+def get_smallest_signed_angle(ang):
+    return np.mod(ang + np.pi, 2*np.pi) - np.pi
+
 def plot_vec(axis, vec, startpoint=np.zeros((2, )), clr="black", alpha=1):
     """
 

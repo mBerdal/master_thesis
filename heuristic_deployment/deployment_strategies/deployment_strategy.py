@@ -13,7 +13,7 @@ class DeploymentStrategy(ABC):
 
     FOLLOWING_SPEED = 2
     MIN_RSSI_STRENGTH_BEFORE_LAND = 2.9
-    MIN_RSSI_STRENGTH_BEFORE_EXPLORE = 1
+    MIN_RSSI_STRENGTH_BEFORE_EXPLORE = 0.1
 
     def __init__(self, following_strategy=FollowingStrategy.SAFE):
         self.following_strategy = following_strategy

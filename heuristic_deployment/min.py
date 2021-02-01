@@ -3,7 +3,7 @@ from range_sensor import RangeSensor
 from helpers import polar_to_vec as p2v, plot_vec
 
 import numpy as np
-from helpers import polar_to_vec as p2v, normalize, get_vector_angle as gva, plot_vec, euler_int
+from helpers import polar_to_vec as p2v, normalize, get_vector_angle as gva, plot_vec, euler_int, get_smallest_signed_angle as ssa
 
 from enum import Enum
 
@@ -33,7 +33,9 @@ class Min(Beacon):
   def do_step(self, beacons, SCS, ENV, dt):
     v = self.deployment_strategy.get_velocity_vector(self, beacons, SCS, ENV)
     self.pos = euler_int(self.pos, v, dt)
-    self.heading = gva(v)
+    psi_ref = gva(v)
+    tau = 0.1
+    self.heading = ssa(euler_int(self.heading, (1/tau)*(psi_ref - self.heading), dt))
     self._pos_traj = np.hstack((self._pos_traj, self.pos.reshape(2, 1)))
     self._heading_traj = np.concatenate((self._heading_traj, [self.heading]))
   
