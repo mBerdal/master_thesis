@@ -54,6 +54,11 @@ class DeploymentStrategy(ABC):
             except IndexError:
                 MIN.state = MinState.EXPLORING
                 MIN.compute_neighbors(beacons)
+                """
+                Extra check to see if the 'new' MIN has traveled further than the previous one
+                TODO: RSSI check
+                TODO: Distance check
+                """
                 print(f"MIN {MIN.ID} exploring")
                 return self.get_exploration_velocity(MIN, beacons, ENV)
         v = None
@@ -69,6 +74,10 @@ class DeploymentStrategy(ABC):
         F_btf = MIN.get_vec_to_other(btf)
         F_btf_aug = DeploymentStrategy.MAX_FOLLOWING_SPEED*normalize(F_btf) if np.linalg.norm(F_btf) > DeploymentStrategy.MAX_FOLLOWING_SPEED else F_btf
         F = F_o + F_btf_aug
+        """
+        TODO: return a non-zero net force when the MIN the deployed MIN is following is the target
+        (to ensure than we travel further into the environment)
+        """
         return DeploymentStrategy.MAX_FOLLOWING_SPEED*normalize(F)
     
     @staticmethod
