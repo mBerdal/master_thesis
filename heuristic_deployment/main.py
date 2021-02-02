@@ -3,7 +3,10 @@ from scs import SCS
 from min import Min, MinState
 from deployment_strategies.heuristic_deploy import HeuristicDeploy
 from deployment_strategies.potential_fields_deploy import PotentialFieldsDeploy
-from deployment_strategies.deployment_strategy import FollowingStrategy
+from deployment_strategies.deployment_strategy import (
+  FollowingStrategy,
+  FollowingStrategyType
+)
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,10 +18,8 @@ def simulate(dt, mins, scs, env):
 
   for m in mins:
     m.insert_into_environment(env)
-    cnt = 0
-    while not m.state == MinState.LANDED and cnt < 10000:
+    while not m.state == MinState.LANDED:
           m.do_step(beacons, scs, env, dt)
-          cnt += 1
     beacons = np.append(beacons, m)
     for b in beacons:
       b.compute_neighbors(beacons)
@@ -52,11 +53,23 @@ if __name__ == "__main__":
 
   max_range = 3
 
-  N_mins = 80
+  N_mins = 24
   dt = 0.01
 
   scs = SCS(max_range)
-  mins = [Min(max_range, PotentialFieldsDeploy(K_o=1, K_n=1, following_strategy=FollowingStrategy.SAFE)) for _ in range(N_mins)]
+  mins = [
+    Min(
+      max_range,
+      PotentialFieldsDeploy(
+        K_n=2,
+        K_o=1,
+        following_strategy=FollowingStrategy(
+          FollowingStrategyType.ATTRACTIVE,
+          K_o=0.001
+        ),
+        if_same_num_neighs="nearest")
+      ) for _ in range(N_mins)
+  ]
   simulate(dt, mins, scs, env)
 
   fig, ax = plt.subplots(1)

@@ -7,31 +7,34 @@ from helpers import (
     rot_z_mat as R_z,
     normalize
 )
-from deployment_strategies.deployment_strategy import DeploymentStrategy, FollowingStrategy
+from deployment_strategies.deployment_strategy import (
+    DeploymentStrategy,
+    FollowingStrategy,
+    FollowingStrategyType
+)
+
 
 class HeuristicDeploy(DeploymentStrategy):
 
     OBS_AVOIDANCE_GAIN = 1.1
 
-    def __init__(self, k=3, following_strategy=FollowingStrategy.SAFE):
-        super().__init__(following_strategy)
+    def __init__(self, k=3, following_strategy=FollowingStrategy(FollowingStrategyType.SAFE), if_same_num_neighs="nearest"):
+        super().__init__(following_strategy, if_same_num_neighs)
         self.k = k
         self.__exploration_dir = None
         self.__exploration_vec = None
 
-    def explore(self, MIN, beacons, ENV):
+    def get_exploration_velocity(self, MIN, beacons, ENV):
         if self.__exploration_dir is None:
             self.__exploration_dir = HeuristicDeploy.__get_exploration_dir(MIN, self.k)
             self.__exploration_vec = p2v(1, self.__exploration_dir)
         
         obs_vec = HeuristicDeploy.__get_obstacle_avoidance_vec(MIN, ENV)
-
-        self.v = normalize(self.__exploration_vec + obs_vec)
+        v = normalize(self.__exploration_vec + obs_vec)
 
         if np.abs(self.__exploration_dir - gva(self.__exploration_vec + obs_vec)) > np.pi/2 or MIN.get_RSSI(self.target) < np.exp(-self.MIN_RSSI_STRENGTH_BEFORE_LAND):
             MIN.state = MinState.LANDED
-            self.v = np.zeros((2, ))
-        return self.v
+        return v
 
     @staticmethod
     def __get_exploration_dir(MIN, k, rand_lim = 0.1):

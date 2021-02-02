@@ -19,6 +19,13 @@ class MinState(Enum):
   LANDED    = 3
 
 class Min(Beacon):
+      
+  clr = {
+    MinState.SPAWNED:   "yellow",
+    MinState.FOLLOWING: "red",
+    MinState.EXPLORING: "green",
+    MinState.LANDED:    "black",
+  }
 
   def __init__(self, max_range, deployment_strategy):
     super().__init__(max_range, None)
@@ -30,19 +37,21 @@ class Min(Beacon):
 
   def insert_into_environment(self, env):
     super().insert_into_environment(env)
+    self.state = MinState.SPAWNED
     self.heading = 0
     self._pos_traj = self.pos.reshape(2, 1)
     self._heading_traj = np.array([self.heading])
-    self.state = MinState.SPAWNED
+    self.state_traj = np.array([self.state], dtype=object)
 
   def do_step(self, beacons, SCS, ENV, dt):
     v = self.deployment_strategy.get_velocity_vector(self, beacons, SCS, ENV)
     self.pos = euler_int(self.pos, v, dt)
     psi_ref = gva(v)
     tau = 0.1
-    self.heading = ssa(euler_int(self.heading, (1/tau)*(psi_ref - self.heading), dt))
+    self.heading = euler_int(self.heading, (1/tau)*(ssa(psi_ref - self.heading)), dt)
     self._pos_traj = np.hstack((self._pos_traj, self.pos.reshape(2, 1)))
     self._heading_traj = np.concatenate((self._heading_traj, [self.heading]))
+    self.state_traj = np.concatenate((self.state_traj, [self.state]))
   
   def get_pos_traj_length(self):
         return self._pos_traj.shape[1]
@@ -52,7 +61,7 @@ class Min(Beacon):
   """""
   def plot(self, axis):
     self.heading_arrow = plot_vec(axis, p2v(1, self.heading), self.pos)
-    return super().plot(axis, clr="blue") + (self.heading_arrow, )
+    return super().plot(axis, clr=self.clr[self.state]) + (self.heading_arrow, )
 
   def plot_traj_line(self, axis):
     self.traj_line, = axis.plot(*self._pos_traj, alpha=0.4)
@@ -61,6 +70,7 @@ class Min(Beacon):
   def plot_pos_from_pos_traj_index(self, index):
     new_pos = self._pos_traj[:, index]
     self.point.set_data(new_pos)
+    self.point.set_color(self.clr[self.state_traj[index]])
     self.annotation.set_x(new_pos[0])
     self.annotation.set_y(new_pos[1])
     theta = np.linspace(0, 2*np.pi)
