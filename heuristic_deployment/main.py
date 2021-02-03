@@ -1,12 +1,11 @@
 from environment import Env
 from scs import SCS
 from min import Min, MinState
-from deployment_strategies.heuristic_deploy import HeuristicDeploy
-from deployment_strategies.potential_fields_deploy import PotentialFieldsDeploy
-from deployment_strategies.deployment_strategy import (
-  FollowingStrategy,
-  FollowingStrategyType
-)
+from deployment.following_strategies.attractive_follow import AttractiveFollow
+from deployment.following_strategies.straight_line_follow import StraightLineFollow
+from deployment.exploration_strategies.potential_fields_explore import PotentialFieldsExplore
+from deployment.exploration_strategies.heuristic_explore import HeuristicExplore
+from deployment.deployment_fsm import DeploymentFSM
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,12 +22,12 @@ def simulate(dt, mins, scs, env):
     beacons = np.append(beacons, m)
     for b in beacons:
       b.compute_neighbors(beacons)
-    print(f"min {m.ID} landed at pos\t\t\t {m.pos}\nits target now has {len(m.deployment_strategy.target.neighbors)} neighs\n------------------", )
+    print(f"min {m.ID} landed at pos\t\t\t {m.pos}\nits target now has {len(m.deployment_strategy.get_target().neighbors)} neighs\n------------------", )
   print(f"minimum number of neighbors: {min(beacons, key=lambda b: len(b.neighbors))}")    
 
 if __name__ == "__main__":
 
-  _animate, save_animation = False, False
+  _animate, save_animation = True, False
   start_animation_from_min_ID = 0
 
   env = Env(
@@ -53,25 +52,28 @@ if __name__ == "__main__":
 
   max_range = 3
 
-  N_mins = 24
+  N_mins = 10
   dt = 0.01
 
   scs = SCS(max_range)
   mins = [
     Min(
       max_range,
-      PotentialFieldsDeploy(
-        K_n=2,
-        K_o=1,
-        following_strategy=FollowingStrategy(
-          FollowingStrategyType.ATTRACTIVE,
-          K_o=0.001
+      DeploymentFSM(
+        AttractiveFollow(
+          K_o = 0.001
         ),
-        if_same_num_neighs="nearest")
-      ) for _ in range(N_mins)
+        PotentialFieldsExplore(
+          K_n=1,
+          K_o=1,
+          min_force_threshold=0.1
+        )
+      )
+    ) for _ in range(N_mins)
   ]
-  simulate(dt, mins, scs, env)
 
+
+  simulate(dt, mins, scs, env)
   fig, ax = plt.subplots(1)
 
   
