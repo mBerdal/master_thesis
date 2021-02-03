@@ -1,10 +1,13 @@
+from deployment.exploration_strategies.exploration_strategy import (
+    ExplorationStrategy,
+    AtLandingConditionException
+)
 from helpers import (
     normalize,
     get_vector_angle as gva,
     polar_to_vec as p2v,
     rot_z_mat as R_z
 )
-from deployment.exploration_strategies.exploration_strategy import ExplorationStrategy, AtLandingConditionException
 import numpy as np
 
 class HeuristicExplore(ExplorationStrategy):

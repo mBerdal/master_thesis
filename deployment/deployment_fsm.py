@@ -1,4 +1,4 @@
-from min import MinState
+from beacons.MIN.min import MinState
 from deployment.following_strategies.following_strategy import AtTargetException
 from deployment.exploration_strategies.exploration_strategy import AtLandingConditionException
 from numpy import zeros

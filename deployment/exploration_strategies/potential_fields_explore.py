@@ -1,9 +1,12 @@
+from deployment.exploration_strategies.exploration_strategy import (
+    ExplorationStrategy,
+    AtLandingConditionException
+)
 from deployment.deployment_helpers import (
     get_neighbor_forces as gnf,
     get_obstacle_forces as gof
 )
 from helpers import normalize
-from deployment.exploration_strategies.exploration_strategy import ExplorationStrategy, AtLandingConditionException
 
 import numpy as np
 

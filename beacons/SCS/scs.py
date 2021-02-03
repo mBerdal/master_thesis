@@ -1,5 +1,5 @@
-from beacon import Beacon
-from path_tree import PathTree
+from beacons.beacon import Beacon
+from beacons.SCS.path_tree import PathTree
 
 class SCS(Beacon):
 

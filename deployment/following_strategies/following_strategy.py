@@ -1,11 +1,12 @@
-from helpers import normalize
-from min import MinState 
 from deployment.deployment_helpers import (
     get_obstacle_forces as gof,
     get_neighbor_forces as gnf
 )
-from helpers import rot_z_mat as R_z
-
+from helpers import (
+    rot_z_mat as R_z,
+    normalize
+)
+from beacons.MIN.min import MinState 
 from abc import ABC, abstractmethod
 import numpy as np
 

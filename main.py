@@ -1,6 +1,8 @@
 from environment import Env
-from scs import SCS
-from min import Min, MinState
+
+from beacons.SCS.scs import SCS
+from beacons.MIN.min import Min, MinState
+
 from deployment.following_strategies.attractive_follow import AttractiveFollow
 from deployment.following_strategies.straight_line_follow import StraightLineFollow
 from deployment.exploration_strategies.potential_fields_explore import PotentialFieldsExplore

@@ -1,5 +1,5 @@
-from beacon import Beacon
-from range_sensor import RangeSensor
+from beacons.beacon import Beacon
+from beacons.MIN.range_sensor import RangeSensor
 from helpers import (
   get_smallest_signed_angle as ssa,
   get_vector_angle as gva,

@@ -1,81 +1,183 @@
-# Notes from Optimality Analysis of Sensor-Target Localization Geometries
-## Definition of Problem 3
-Assume there exists a set of $N \geq 3$ time-of-arrival measurements from $N$ spatially distinct sensors.
-Using the observable set of random timing measurements 
-$\hat{\mathbf{y}}\sim\mathcal{N}(\mathbf{y}(\mathbf{x}), \sigma^{2}\mathbf{I}_{N})$, find an estimate $\tilde{\mathbf{x}}$
-of the true event location $\mathbf{x}$ which
-includes both the event location $\mathbf{p}$ and the time of the event $\tau$.
-
-> ### Remark
-> If the expected value of the estimate $E[\tilde{\mathbf{p}}]$ ($E[\tilde{\mathbf{x}}]$) is constrained to be $\mathbf{p}$, then 
-Problem 3 is one of unbiased localization.
-## Metric for optimal sensor placement
-> ### Nomenclature
-> Target emitter positioned at $\mathbf{p} = [x_{p}, y_{p}]$ transmits signal at time $\tau$. Denoting this information by $\mathbf{x} = [x_{p}, y_{p}, \tau]^{T}$.
+# Deployment strategy notes
+>### Nomenclature
+> The following frames are defined:
+> - $\mathcal{N}$: the intertial frame. Vectors on the inertial frame are defined with the superscript $n$.
+> - $\mathcal{B}$: the body-fixed frame for a MIN. Vectors on the body frame are defined with the superscript $b$.
+> - $\mathcal{S}_{j}$: the sensor frame for a sensor mounted on a MIN. Vectors on the sensor frame are defined with the superscript $s_{j}$.
 > 
-> Sensor $i$ positioned at $\mathbf{s}_{i} = [x_{i}, y_{i}]^{T}$.
-> 
-> $t_{i}(\cdot)$ denotes the signal time-of-arrival at sensor $i$, and is calculated as $t_{i}(\mathbf{x}) = \frac{||\mathbf{p}-\mathbf{s}_{i}||}{v} + \tau$, where $\mathbf{x} = [\mathbf{p}^{T} \tau]^{T}$, and $v$ is the propagation speed of the signal.
-
-The measured ToA is in general noisy. It is assumed that all ToA measurements are corrupted by white Gaussian noise with variance $\sigma$. Thus a single ToA measurement at sensor $i$ takes the form:
-> $\hat{t}_{i}(\mathbf{x}) = t_{i}(\mathbf{x}) + e_{i}$, $e_{i}\sim\mathcal{N}(0, \sigma)$
-
-Gathering ToA measurements from all sensors $i\in\mathcal{S} = \{0\dots N-1\}$ in a vector $\hat{\mathbf{y}}(\cdot)$:
-> $\hat{\mathbf{y}}(\mathbf{x}) = [t_{0}(\mathbf{x})\dots t_{N-1}(\mathbf{x})]^{T} + [e_{0}\dots e_{N-1}]^{T} = \mathbf{y}(\mathbf{x}) + \mathbf{e}$
-
-It is assumed that $\hat{\mathbf{y}}(\mathbf{x})\sim\mathcal{N}(\mathbf{y}(\mathbf{x}), \sigma\mathbf{I}_{N})$, i.e. no correlation between ToA measurements.
-
-The likelihood function of $\mathbf{x}$ given the measurement vector $\hat{\mathbf{y}}\sim\mathcal{N}(\mathbf{y}(\mathbf{x}), \sigma\mathbf{I}_{N})$ is given by:
-> $f_{\hat{\mathbf{y}}}(\hat{\mathbf{y}}; \mathbf{x}) = \frac{1}{(2\pi)^{N/2}|\sigma\mathbf{I}_{N}|^{1/2}}\exp{\big(-\frac{1}{2}(\hat{\mathbf{y}}-\mathbf{y}(\mathbf{x}))^{T}(\sigma\mathbf{I}_{N})^{-1}(\hat{\mathbf{y}}-\mathbf{y}(\mathbf{x}))\big)}$
-
-In general, the Cramer-Rao inequality lower bounds the *covariance* achievable by an unbiased estimator (under two mild regularity conditions). For an *unbiased* estimates $\tilde{\mathbf{x}}$ of $\mathbf{x}$, The Cramer-Rao bound states that:
-> $E[(\tilde{\mathbf{x}}-\mathbf{x})(\tilde{\mathbf{x}}-\mathbf{x})^{T}]\geq \mathcal{I}(\mathbf{x})^{-1} := \mathcal{C}(\mathbf{x})$
-
-If the statement above holds with equality, the estimator is *efficient* and the parameter estimate $\tilde{\mathbf{x}}$ is unique.
-
-Under the assumption of Gaussian measurement errors and errors being independent of the parameter, the Fisher information matrix is given by
-> $\mathcal{I}(\mathbf{x}) = \nabla_{\mathbf{x}}\mathbf{y}(\mathbf{x})^{T}(\sigma\mathbf{I}_{N})^{-1}\nabla_{\mathbf{x}}\mathbf{y}(\mathbf{x})$, where $\nabla_{\mathbf{x}}\mathbf{y}(\mathbf{x})$ is the gradient of $\mathbf{y}$ wrt. $\mathbf{x}$.
-
-> ### Remark
-> $\mathcal{C}(\mathbf{x}) = \mathcal{I}(\mathbf{x})^{-1}$ is symmetric positive definite given that $\mathcal{I}(\cdot)$ is invertible, and defines an *uncertainty ellipsoid*. Denote the eigenvalues of $\mathcal{C}(\mathbf{x})$ by $\lambda_{i}$, $i = 0, 1, 2$. Note that $\sqrt{\lambda_{i}}$, $i = 0, 1, 2$ is the length of the $i^{\mathrm{th}}$ axis of the ellipsoid. Note also that the axes lie along the corresponding eigenvectors of $\mathcal{C}(\mathbf{x})$.
-
-A scalar functional measure of the ‘size’ of the
-uncertainty ellipse provides a useful characterization of the potential performance of an unbiased estimator. For computational purposes the determinant of the Fisher information matrix, $\det(\mathcal{I}(\mathbf{x}))$, is used as a computationally feasible measure of the volume of the uncertainty ellipsoid.
-
-> ### Tip
-> Check out "D-optimal experimental design"
-
-The entire Fisher information matrix for ToA-based localization is given by:
-
-> ### Fisher information matrix for ToA-based localization
-> $\mathcal{I}(\mathbf{x}) = \frac{1}{\sigma^{2}}\sum\limits_{i=0}^{N-1}\left[\begin{array}{ccc}
-\sin^{2}(\phi_{i}) & \frac{1}{2}\sin(2\phi_{i}) & \sin(\phi_{i})\\
-\frac{1}{2}\sin(2\phi_{i}) & \cos^{2}(\phi_{i}) & \cos(\phi_{i})\\
-\sin(\phi_{i}) & \cos(\phi_{i}) & 1
-\end{array}\right]$
-
-In the statement above, the azimuth bearing from sensor $i$ to the target, $\phi_{i}$, is measured positive clockwise from the y-axis (North-axis). Thus the azimuth bearing angle
-for a sensor placed at $\mathbf{s}_{i} = [x_{i}, y_{i}]^{T}$ and a target placed at $\mathbf{p} = [x_{p}, y_{p}]^{T}$ can be calculated according to:
-> ### Azimuth bearing formula
-> $\phi_{i} = \mathrm{atan2}(x_{p}-x_{i}, y_{p}-y_{i})\mathrm{mod}(2\pi)$
-
-An unbiased and efficient estimate of $\mathbf{x}$ (or, probably more commonly, p) will, in general, achieve the smallest error variance
-when the sensor-target geometry obeys the configuration presented below:
-## Solution of problem 3
-> ### Theorem 4
-> Consider the time-of-arrival-based localization problem, i.e. Problem 3, where $\phi_{i}$, $i=0\dots N-1$ denotes the
-> angular positions of the sensors. Then, the Fisher information determinant is upper-bounded by $\frac{N^{2}}{4\sigma^{6}}$ which is achieved iff.:
-> 
-> $f_{1}(\Theta(\mathbf{x})) = \sum\limits_{i=0}^{N-1}\sin(\phi_{i}(\mathbf{x}))$ and $f_{2}(\Theta(\mathbf{x})) = \sum\limits_{i=0}^{N-1}\sin(2\phi_{i}(\mathbf{x}))$
+> The rotation matrix for a sensor $s_{j}$ mounted on a MIN at an angle $\theta_{j}$ is defined as: $\mathbf{R}_{s_{j}}^{b} = \mathbf{R}_{z}(\theta_{j})$.
 >
-> $f_{3}(\Theta(\mathbf{x})) = \sum\limits_{i=0}^{N-1}\cos(\phi_{i}(\mathbf{x}))$ and $f_{4}(\Theta(\mathbf{x})) = \sum\limits_{i=0}^{N-1}\cos(2\phi_{i}(\mathbf{x}))$
+> The rotationmatrix for a MIN, $i$, with a yaw angle $\psi_{i}$ is defined as: $\mathbf{R}_{b}^{n} = \mathbf{R}_{z}(\psi_{i})$.
+## Following
+
+When deploying a new MIN, it should travel into the environment towards some previously deployed MIN, called the target. When the deployed MIN has arrived at the target, it should start exploration.
+### What previously MIN should become the target?
+It is desirable that, during the exploration phase, the new  MIN should travel into space not previously explored. Due to this, it is desirable that the new MIN is close to the frontier of the explored area when starting exploration.
+
+Assuming that the previously deployed MIN is at the frontier of the explored area (which it must be if it was succesfull in its exploration phase), it should be the target.
+
+Alternatively the MIN which resides at the frontier of the explored area with the fewest neighbors could be the target. Odds are that the MIN with fewest neighbours lie at the frontier. Hence the frontier check could be disregarded, and the MIN with fewest neighbors could be chosen to be the target. If more than one MIN have the same amount of neighbors, choose the one that is closest to the SCS.
+
+> ##### Q1
+> how to define the frontier of the explored area?
 >
-> $f_{j}(\Theta(\mathbf{x})) = 0\;,\forall\;j = 1\dots 4\;,N\geq 3$.
+> ##### A1
+> Any MIN whose communication disk is not fully covered by those of other MINs is the the frontier (not computationally feasible, and not robust when using position estimates to decide). Some other criteria should be found.
+### How should the new MIN decide it's path to the target?
+Assuming the SCS stores the directed graph, $\mathcal{G}$, where landed MINs and the SCS are nodes, and the SCS is the head of the graph. Nodes $i$ and $j$ have an edge, $e_{ij}$, from $i$ to $j$ if $i$ was the target of $j$ when MIN $i$ was in the following stage. Performing a DFS starting from the SCS and finding the target (defined in one of the ways described above) for the MIN that is to be deployed yields a sequence of MINs which can be visited when travelling from the SCS to the target.
 
-> ### Tip
-> Have a look at Pareto efficiency (multi-objective optimization)
+The DFS returns an ordered sequence $\mathcal{S} = \{SCS\dots\ t\}$ of MINs (and the SCS) that can be visited when travelling from the SCS to the target. We define $b_{0} = SCS$ and $b_{|\mathcal{S}|-1} = t$. For all MINs, $b_{i}\in\mathcal{S},1\leq i<|\mathcal{S}|$, it started its exploration phase at $\hat{\mathbf{x}}_{b_{i-1}}$ and ended its exploration phase at $\hat{\mathbf{x}}_{b_{i}}$. Thus we know that there is a feasible path from MIN $b_{i-1}$ to $b_{i}$ for all $1\leq i<|\mathcal{S}|$.
 
-> ### First approach?
-> $\min\limits_{\Theta}\sum\limits_{j=1}^{3}f_{j}(\Theta(\mathbf{x}))^{2}$
+If there is a feasible path from $b_{i-1}$ to $b_{i}$ for all $1\leq i<|\mathcal{S}|$, we can connect these paths to find a feasible path from $b_{0} = SCS$ to $b_{|\mathcal{S}|-1}=t$.
+
+> Suggestion: Straight line path following (SLPF) with obstacle avoidance
 > 
-> For a bunch of points
+> If previously deployed MINs collect information about the environment (iteratively creates an occupancy grid), one could find the shortest path from the SCS to the target which is entirely contained within the free cells of the occupancy grid, and have the new MIN follow this path towards the target.
+
+
+## MIN description
+A MIN $i$ is described by its position $\mathbf{x}_{i}^{n}$ in the intertial frame, and its rotation about the intertial z-axis, $\psi_{i}$.
+
+### Range sensors
+Each MIN is equipped with 4 range sensors, $r_{j},\;j\in[0,4)$. Sensor $r_{j}$ is mounted on the body at an angle $\theta_{j} = 90^{\circ}\cdot j$. The range sensors can maximally detect objects at a distance $d_{max}$ away. 
+Given the description of an obstacle $\mathcal{O}=\{\mathbf{x}^{n}: f(\mathbf{x}^{n})\leq 0\}$ in the inertial frame such that the border of the obstacle is described by $\partial\mathcal{O} = \{\mathbf{x}^{n}: f(\mathbf{x}^{n}) = 0\}$ and a MIN positioned at $\mathbf{x}_{i}^{n}$ in the inertial frame with a yaw angle $\psi_{i}$. The set 
+$$\mathcal{R}_{j} = \{d: f\big(\mathbf{x}_{i}^{n} + \mathbf{R}_{z}(\psi_{i})\mathbf{R}_{z}(\theta_{i})\begin{bmatrix}
+    d& 0
+\end{bmatrix}^{T}\big) = 0, 0\leq d\leq d_{max}\}$$
+Is the set of all points along the sensor $r_{j}$'s x-axis that intersects with the boundary of the obstacle $\mathcal{O}$. When polling a range sensor, it returns measurements according to:
+$$
+\mathbf{m}_{j}^{s} = \begin{cases}
+    \begin{bmatrix}
+        \min\mathcal{R}_{j}&0&0
+    \end{bmatrix}^{T}, &\mathcal{R}_{j}\neq\emptyset\\
+    \begin{bmatrix}
+        \infty&0&0
+    \end{bmatrix}^{T}, &\text{otherwise}
+\end{cases}
+$$
+
+
+
+## 'Heuristic Deployment' - Exploring
+
+When in the exploring stage, the "new" MIN should fly in a direction not previously explored. Regardless of the direction the new MIN should avoid obstacles.
+
+### Currently implemented approach
+
+1. Compute nominal exploration direction (rotation about the inertial z-axis) according to:
+   $$
+   \psi_{nom} = \frac{\sum\limits_{j\in N(i)}\alpha_{j}\psi_{ij}}{\sum\limits_{j\in N(i)}\alpha_{j}},\quad\text{where}\quad\alpha_{j} = \begin{cases}
+       1, &N(j) < \kappa\\
+       0, &\text{otherwise}
+   \end{cases}
+   $$
+2. #### While MIN ${i}$ is sufficiently close to the target, and not stuck, do:
+   
+2.1 Using the range sensors, $r_{j},j\in[0, 4)$, compute an obstacle avoidance vector:
+$$
+\mathbf{o}^{n} = k_{o}\sum\limits_{r_{j}:||m_{j}||<\infty}\mathbf{R}_{z}(\psi_{i})\mathbf{R}_{z}(\theta_{j})\Bigg( 
+    \frac{1}{d_{max}}\mathbf{m}_{j}^{s} - \begin{bmatrix}
+        1\\0\\0
+    \end{bmatrix}
+\Bigg)
+$$
+
+> ##### Note
+> When a range sensor $r_{j}$ detects a n obstacle a distance $d_{max}$ away, we want $r_{j}$ to have zero contribution to the obstacle avoidance vector. When a sensor senses an obstacle $0$ meters away, we want it to dominate the obstacle avoidance vector. This is the reason behind the scaling term $1-\frac{m_{j}}{d_{max}}$.
+
+
+2.2 Compute an overall yaw angle according to:
+$$
+\psi_{eff} = \text{arctan2}\big(\sin(\psi_{nom}) + o_{y}, \cos(\psi_{nom}) + o_{x}\big)$$
+And move at constant speed in the direction defined by $\psi_{eff}$.
+
+## Terminating (landing)
+The exploring MIN, $i$, lands if it is either stuck, or too far away from the target. The stuck condition is defined as:
+$$
+|\psi_{nom} - \psi_{eff}| > \frac{\pi}{2}
+$$
+Thus the MIN is stuck if the effective direction is more than $90^{\circ}$ off the nominal exploration direction.
+
+A MIN is too far away from the target, $t$, if the RSSI from the target is below a certain threshold, $\tau$:
+$$
+\text{RSSI}(t, i) < \tau
+$$
+
+## 'Potential Fields Deployment' - Exploring
+Once the new MIN, $i$, has arrived sufficiently close to its target, $t$, and enters the exploration stage, it performs the following loop: until it fulfills the landing condition in step 5:
+
+1. Compute it's neighbors:
+   $$
+   \mathcal{N}(i) = \{j\in\mathcal{B}: ||\mathbf{x}_{i} - \mathbf{x}_{j}||\leq r\},
+   $$
+   where $\mathcal{B}$ is the set containing the SCS and all MINs that have already landed.
+2. Compute the neighbor-repelling force:
+   $$
+   \mathbf{F}_{\mathcal{N}(i)}^{n} = -k_{n}\sum\limits_{j\in\mathcal{N}(i)}\frac{\hat{\mathbf{x}}_{j}^{n}-\hat{\mathbf{x}}_{i}^{n}}{||\hat{\mathbf{x}}_{j}^{n}-\hat{\mathbf{x}}_{i}^{n}||^{3}}
+   $$ 
+3. Poll it's range sensors:
+   $$
+   \mathbf{m}_{j}^{n} = \begin{cases}
+       \mathbf{R}_{b}^{n}\mathbf{R}_{s_{j}}^{b}\mathbf{m}_{j}^{s_{j}}, &||\mathbf{m}_{j}^{s_{j}}|| < \infty\\
+       \mathbf{0}, & \text{otherwise}
+    \end{cases},\quad j\in[0,4)
+   $$
+4. Compute the obstacle-repelling force:
+   $$
+   \mathbf{F}_{o}^{n} = -k_{o}\sum\limits_{j=0}^{4-1}\frac{\mathbf{m}_{j}^{n}}{||\mathbf{m}_{j}^{n}||^{3}}
+   $$
+
+5. Compute the total force:
+   $$
+   \mathbf{F}^{n} = \mathbf{F}_{\mathcal{N}(i)}^{n} + \mathbf{F}_{o}^{n} = \begin{bmatrix}
+       f_{x}^{n} & f_{y}^{n} & 0
+   \end{bmatrix}^{T}
+   $$
+   If $||\mathbf{F}^{n}|| < f_{threshold}$ or $RSSI(i, t) < \tau$ the MIN, $i$, lands and another MIN is launched.
+   
+   Otherwise the MIN, $i$, sets its velocity according to:
+   $$
+   \dot{\mathbf{x}}_{i}^{n} = \begin{cases}
+       \mathbf{F}^{n}, &||\mathbf{F}^{n}||<V_{max}\\
+       V_{max}\frac{\mathbf{F}^{n}}{||\mathbf{F}^{n}||}, &\text{otherwise}
+   \end{cases}
+   $$
+   
+   Furthermore it adjusts it's heading according to:
+   $$
+   \psi_{i} = \text{atan2}(f_{y}^{n}, f_{x}^{n})
+   $$
+
+   > ### Note
+   > In the simulations the heading reference is lowpass filtered so that jittering caused by rapid changes in force is limited. This is done by assigning the following dynamcis to the heading reference: $\tau\dot{\psi_{i}} + \psi_{i} = \text{atan2}(f_{y}^{n}, f_{x}^{n})$, where $\tau$ is a time-constant deciding the settling time.
+
+## 'Attractive follow' - currently implemented following strategy
+When a new MIN, $i$, is spawned, it receives an ordered list it should visit on its journey towards its target. This list is supplied to the MIN by the SCS. The following loop is performed:
+
+1. pop top list element (MIN to follow), $f$, whose position is $\mathbf{x}_{f}$.
+2. Until $RSSI(i, f) < \tau_{switch}$ do:
+
+    2.1 Poll range sensors:
+   $$
+   \mathbf{m}_{j}^{n} = \begin{cases}
+       \mathbf{R}_{b}^{n}\mathbf{R}_{s_{j}}^{b}\mathbf{m}_{j}^{s_{j}}, &||\mathbf{m}_{j}^{s_{j}}|| < \infty\\
+       \mathbf{0}, & \text{otherwise}
+    \end{cases},\quad j\in[0,4)
+   $$
+   2.2. Compute the obstacle-repelling force:
+   $$
+   \mathbf{F}_{o}^{n} = -k_{o}\sum\limits_{j=0}^{4-1}\frac{\mathbf{m}_{j}^{n}}{||\mathbf{m}_{j}^{n}||^{3}}
+   $$
+   2.3 Compute force attracting $i$ towards $\mathbf{x}_{f}$:
+   $$
+   \mathbf{F}_{f} = \begin{cases}
+       V_{max}\frac{\mathbf{x}_{f} - \mathbf{x}_{i}}{||\mathbf{x}_{f} - \mathbf{x}_{i}||}, & ||\mathbf{x}_{f} - \mathbf{x}_{i}|| > V_{max}\\
+       \mathbf{x}_{f} - \mathbf{x}_{i}, &\text{otherwise}
+   \end{cases}
+   $$
+   2.4 set velocity to $\dot{\mathbf{x}}_{i} = V_{max}\frac{\mathbf{F}_{f} + \mathbf{F}_{o}}{||\mathbf{F}_{f} + \mathbf{F}_{o}||}$
+
+3. If list is not empty go to step 1, otherwise:
+4. $i$ is now close to it's target, $t$, but it needs to move past $t$ in order for the potential fields exploration to make $i$ explore unexplored areas. Therefore, move at constant speed, $V_{max}$, in the direction defined by $\mathbf{x}_{t} - \mathbf{x}_{i}$ until $RSSI(i, \tau)$ starts decreasing.
+5. Move at constant speed, $V_{max}$ in the direction defined by $\angle(\mathbf{x}_{i} - \mathbf{x}_{t}) + \text{random angle}$ until $RSSI(i, t) < \tau_{explore}$
+6. EXPLORE!
