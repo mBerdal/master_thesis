@@ -106,21 +106,13 @@ if __name__ == "__main__":
       print("Saving animation")
       anim.save(animation_name)
       print(f"Animation saved to {animation_name}")
-    else:
-      plt.show()
-  
+
   else:
     env.plot(ax)
     scs.plot(ax)
     for mn in mins:
       mn.plot(ax)
       mn.plot_traj_line(ax)
+      
+  plt.show()
 
-    """ Plotting Fisher determinant value
-    import sys
-    sys.path.append('./')
-    from fisher_determinant_approach import plot_color_map as pcm
-    S = np.hstack([scs.pos.reshape(2, 1)] + [mn.pos.reshape(2, 1) for mn in mins])
-    pcm(fig, ax, 1000, [-10, 10], [-10, 10], S, 1)
-    """ 
-    plt.show()
