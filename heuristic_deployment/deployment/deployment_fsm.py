@@ -15,10 +15,11 @@ class DeploymentFSM():
             MIN.state = MinState.FOLLOWING
         if MIN.state == MinState.FOLLOWING:
             try:
-                return self.__fs.get_following_velocity(MIN, ENV)
+                return self.__fs.get_following_velocity(MIN, beacons, ENV)
             except AtTargetException:
                 self.__es.prepare_exploration(self.__fs.target)
                 MIN.state = MinState.EXPLORING
+                print(f"{MIN.ID} exploring")
         if MIN.state == MinState.EXPLORING:
             try:
                 return self.__es.get_exploration_velocity(MIN, beacons, ENV)

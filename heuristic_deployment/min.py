@@ -31,7 +31,7 @@ class Min(Beacon):
     super().__init__(max_range, None)
     self.deployment_strategy = deployment_strategy
     self.sensors = []
-    for ang in np.arange(0, 360, 90):
+    for ang in np.arange(0, 360, 45):
       r = RangeSensor(max_range)
       r.mount(self, ang)
 

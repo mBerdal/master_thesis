@@ -17,7 +17,7 @@ class AttractiveFollow(FollowingStrategy):
         self.compute_next_beacon_to_follow()
 
     @FollowingStrategy.follow_velocity_wrapper
-    def get_following_velocity(self, MIN, ENV):
+    def get_following_velocity(self, MIN, beacons, ENV):
         F_o = gof(self.__K_o, MIN, ENV)
         F_btf = MIN.get_vec_to_other(self.btf)
         F_btf_aug = self.MAX_FOLLOWING_SPEED*normalize(F_btf) if np.linalg.norm(F_btf) > self.MAX_FOLLOWING_SPEED else F_btf

@@ -27,7 +27,7 @@ def simulate(dt, mins, scs, env):
 
 if __name__ == "__main__":
 
-  _animate, save_animation = True, False
+  _animate, save_animation = False, False
   start_animation_from_min_ID = 0
 
   env = Env(
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
   max_range = 3
 
-  N_mins = 10
+  N_mins = 30
   dt = 0.01
 
   scs = SCS(max_range)
@@ -61,7 +61,8 @@ if __name__ == "__main__":
       max_range,
       DeploymentFSM(
         AttractiveFollow(
-          K_o = 0.001
+          K_o = 0.001,
+          same_num_neighs_differentiator=lambda MINs, k: min(MINs, key=k)
         ),
         PotentialFieldsExplore(
           K_n=1,
