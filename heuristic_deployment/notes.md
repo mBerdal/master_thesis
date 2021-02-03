@@ -34,6 +34,7 @@ If there is a feasible path from $b_{i-1}$ to $b_{i}$ for all $1\leq i<|\mathcal
 > 
 > If previously deployed MINs collect information about the environment (iteratively creates an occupancy grid), one could find the shortest path from the SCS to the target which is entirely contained within the free cells of the occupancy grid, and have the new MIN follow this path towards the target.
 
+
 ## MIN description
 A MIN $i$ is described by its position $\mathbf{x}_{i}^{n}$ in the intertial frame, and its rotation about the intertial z-axis, $\psi_{i}$.
 
@@ -148,4 +149,35 @@ Once the new MIN, $i$, has arrived sufficiently close to its target, $t$, and en
    $$
 
    > ### Note
-   > In the simulations the heading reference is lowpass filtered so that rapid changes in force are limited. This is done by assigning the following dynamcis to the heading reference: $\tau\dot{\psi_{i}} + \psi_{i} = \text{atan2}(f_{y}^{n}, f_{x}^{n})$, where $\tau$ is a time-constant deciding the settling time.
+   > In the simulations the heading reference is lowpass filtered so that jittering caused by rapid changes in force is limited. This is done by assigning the following dynamcis to the heading reference: $\tau\dot{\psi_{i}} + \psi_{i} = \text{atan2}(f_{y}^{n}, f_{x}^{n})$, where $\tau$ is a time-constant deciding the settling time.
+
+## 'Attractive follow' - currently implemented following strategy
+When a new MIN, $i$, is spawned, it receives an ordered list it should visit on its journey towards its target. This list is supplied to the MIN by the SCS. The following loop is performed:
+
+1. pop top list element (MIN to follow), $f$, whose position is $\mathbf{x}_{f}$.
+2. Until $RSSI(i, f) < \tau_{switch}$ do:
+
+    2.1 Poll range sensors:
+   $$
+   \mathbf{m}_{j}^{n} = \begin{cases}
+       \mathbf{R}_{b}^{n}\mathbf{R}_{s_{j}}^{b}\mathbf{m}_{j}^{s_{j}}, &||\mathbf{m}_{j}^{s_{j}}|| < \infty\\
+       \mathbf{0}, & \text{otherwise}
+    \end{cases},\quad j\in[0,4)
+   $$
+   2.2. Compute the obstacle-repelling force:
+   $$
+   \mathbf{F}_{o}^{n} = -k_{o}\sum\limits_{j=0}^{4-1}\frac{\mathbf{m}_{j}^{n}}{||\mathbf{m}_{j}^{n}||^{3}}
+   $$
+   2.3 Compute force attracting $i$ towards $\mathbf{x}_{f}$:
+   $$
+   \mathbf{F}_{f} = \begin{cases}
+       V_{max}\frac{\mathbf{x}_{f} - \mathbf{x}_{i}}{||\mathbf{x}_{f} - \mathbf{x}_{i}||}, & ||\mathbf{x}_{f} - \mathbf{x}_{i}|| > V_{max}\\
+       \mathbf{x}_{f} - \mathbf{x}_{i}, &\text{otherwise}
+   \end{cases}
+   $$
+   2.4 set velocity to $\dot{\mathbf{x}}_{i} = V_{max}\frac{\mathbf{F}_{f} + \mathbf{F}_{o}}{||\mathbf{F}_{f} + \mathbf{F}_{o}||}$
+
+3. If list is not empty go to step 1, otherwise:
+4. $i$ is now close to it's target, $t$, but it needs to move past $t$ in order for the potential fields exploration to make $i$ explore unexplored areas. Therefore, move at constant speed, $V_{max}$, in the direction defined by $\mathbf{x}_{t} - \mathbf{x}_{i}$ until $RSSI(i, \tau)$ starts decreasing.
+5. Move at constant speed, $V_{max}$ in the direction defined by $\angle(\mathbf{x}_{i} - \mathbf{x}_{t}) + \text{random angle}$ until $RSSI(i, t) < \tau_{explore}$
+6. EXPLORE!
