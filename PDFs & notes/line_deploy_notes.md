@@ -16,20 +16,24 @@ $$
 ### Equilibrium point for drone $\nu_{n+1}$
 $$
 \begin{aligned}
-  F_{n+1} = 0&\implies\sum_{i=1}^{n}\kappa_{i}(x_{n+1}-x_{i}-\xi_{n+1,i})=0\\
-  &\implies x_{n+1}\sum_{i=1}^{n}\kappa_{i} - \sum_{i=1}^{n}\kappa_{i}(x_{i}+\xi_{n+1, i}) = 0\\
-  &\implies x_{n+1} = \frac{\sum_{i=1}^{n}\kappa_{i}(x_{i}+\xi_{n+1, i})}{\sum_{i=1}^{n}\kappa_{i}}\\
+  F_{n+1} = 0&\iff\sum_{i=1}^{n}\kappa_{i}(x_{n+1}-x_{i}-\xi_{n+1,i})=0\\
+  &\iff x_{n+1}\sum_{i=1}^{n}\kappa_{i} - \sum_{i=1}^{n}\kappa_{i}(x_{i}+\xi_{n+1, i}) = 0\\
+  &\iff x_{n+1} = \frac{\sum_{i=1}^{n}\kappa_{i}(x_{i}+\xi_{n+1, i})}{\sum_{i=1}^{n}\kappa_{i}}\\
 
 \end{aligned}
 $$
 ### Checking if $x_{n+1} > x_{n}$
 $$
 \begin{aligned}
-  x_{n+1}>x_{n}\implies&\frac{\sum_{i=1}^{n}\kappa_{i}(x_{i}+\xi_{n+1, i})}{\sum_{i=1}^{n}\kappa_{i}} > x_{n}\\
-  \implies&\sum_{i=1}^{n}\kappa_{i}(x_{i}+\xi_{n+1, i}) > x_{n}\sum_{i=1}^{n}\kappa_{i}\\
-  \implies&x_{n}\sum_{i=1}^{n-1}\kappa_{i}+\sum_{i=1}^{n-1}\kappa_{i}x_{i}+\sum_{i=1}^{n}\kappa_{i}\xi_{n+1, i} > x_{n}\sum_{i=1}^{n}\kappa_{i}\\
-  \implies&\sum_{i=1}^{n-1}\kappa_{i}x_{i}+\sum_{i=1}^{n}\kappa_{i}\xi_{n+1, i} > 0\\
+  x_{n+1}>x_{n}\iff&\frac{\sum_{i=1}^{n}\kappa_{i}(x_{i}+\xi_{n+1, i})}{\sum_{i=1}^{n}\kappa_{i}} > x_{n}\\
+  \iff&\sum_{i=1}^{n}\kappa_{i}(x_{i}+\xi_{n+1, i}) > x_{n}\sum_{i=1}^{n}\kappa_{i}\\
+  \iff&x_{n}\kappa_{n}+\sum_{i=1}^{n-1}\kappa_{i}x_{i}+\sum_{i=1}^{n}\kappa_{i}\xi_{n+1, i} > x_{n}\sum_{i=1}^{n}\kappa_{i}\\
+  \iff&\sum_{i=1}^{n-1}\kappa_{i}x_{i}+\sum_{i=1}^{n}\kappa_{i}\xi_{n+1, i} > x_{n}\Big(\sum_{i=1}^{n}[\kappa_{i}] - \kappa_{n}\Big)\\
 \end{aligned}
+$$
+Choosing $0\leq\kappa_{n} < \sum_{i=1}^{n}\kappa_{i}$ yields:
+$$
+\sum_{i=1}^{n-1}\kappa_{i}x_{i}+\sum_{i=1}^{n}\kappa_{i}\xi_{n+1, i} > 0
 $$
 By design $\xi_{n, i} > 0\;\forall\;n,i$. If the origin of the coordinate system is situated at the first node ($\nu_{1}$ AKA the SCS), 
 we have for the two first nodes, $\nu_{1}$ and $\nu_{2}$:
