@@ -38,15 +38,16 @@ $$
 $$
 Thus we have $x_{2} > x_{1} = 0$.
 
-Assume $x_{n+1} > x_{n}\;\forall\;n<m$. Thus:
+Assume $x_{n} > x_{n-1}\;\forall\;n<m$. Thus:
 $$
-\sum_{i=1}^{n-1}\kappa_{i}x_{i}+\sum_{i=1}^{n}\kappa_{i}\xi_{n+1, i} > 0.
+\sum_{i=1}^{n-2}\kappa_{i}x_{i}+\sum_{i=1}^{n-1}\kappa_{i}\xi_{n, i} > 0.
 $$
 For $m = n+1$ we have:
 $$
 \sum_{i=1}^{m-1}\kappa_{i}x_{i}+\sum_{i=1}^{m}\kappa_{i}\xi_{m+1, i}
 $$
-We know that $x_{n+1} > x_{n}\;\forall\;n<m$, and that $x_{1} = 0$. Thus we know that $x_{n} > 0\;\forall\;n<m$. Thus:
+We know that $x_{n} > x_{n-1}\;\forall\;n<m$, and that $x_{1} = 0$. Thus we know that $x_{n} > 0\;\forall\;n<m$. Thus:
 $$
-\sum_{i=1}^{m-1}\kappa_{i}x_{i}+\sum_{i=1}^{m}\kappa_{i}\xi_{m+1, i}>\sum_{i=1}^{m}\kappa_{i}\xi_{m+1, i}>0
+\sum_{i=1}^{m-1}\kappa_{i}x_{i}+\sum_{i=1}^{m}\kappa_{i}\xi_{m+1, i} = \sum_{i=1}^{n}\kappa_{i}x_{i}+\sum_{i=1}^{m}\kappa_{i}\xi_{m+1, i} > \sum_{i=1}^{m}\kappa_{i}\xi_{m+1, i}>0
 $$
+And we conclude that $x_{m} = x_{n+1} > x_{n}$.
