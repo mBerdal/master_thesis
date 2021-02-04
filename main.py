@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
   max_range = 3
 
-  N_mins = 30
+  N_mins = 24
   dt = 0.01
 
   scs = SCS(max_range)
