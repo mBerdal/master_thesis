@@ -31,7 +31,7 @@ $$
   \iff&\sum_{i=1}^{n-1}\kappa_{i}x_{i}+\sum_{i=1}^{n}\kappa_{i}\xi_{n+1, i} > x_{n}\Big(\sum_{i=1}^{n}[\kappa_{i}] - \kappa_{n}\Big)\\
 \end{aligned}
 $$
-Choosing $0\leq\kappa_{n} < \sum_{i=1}^{n}\kappa_{i}$ yields:
+Choosing $\kappa_{n}\leq\sum_{i=1}^{n}\kappa_{i}$ yields:
 $$
 \sum_{i=1}^{n-1}\kappa_{i}x_{i}+\sum_{i=1}^{n}\kappa_{i}\xi_{n+1, i} > 0
 $$
