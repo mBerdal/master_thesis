@@ -40,12 +40,7 @@ if __name__ == "__main__":
     np.array([
       -9.8, -9.8
     ]),
-    obstacle_corners = [
-      np.array([
-        [-10, -10],
-        [ -6, -10], 
-      ]),
-    ]
+    obstacle_corners = []
   )
 
   max_range = 3
