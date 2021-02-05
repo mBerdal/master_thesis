@@ -42,7 +42,7 @@ class FollowingStrategy(ABC):
         print(f"{MIN.ID} targeting {self.target.ID}")
 
     @abstractmethod
-    def get_following_velocity(self, MIN, ENV):
+    def get_following_velocity(self, MIN, beacons, ENV):
         pass
     
     def __compute_target(self, beacons, SCS):

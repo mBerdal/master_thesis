@@ -6,7 +6,7 @@ class NoFollow(FollowingStrategy):
     pass
 
   def prepare_following(self, MIN, beacons, SCS):
-    pass
+    self.target = None
 
-  def get_following_velocity(self, MIN, ENV):
+  def get_following_velocity(self, MIN, beacons, ENV):
       raise AtTargetException

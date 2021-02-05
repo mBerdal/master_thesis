@@ -7,6 +7,8 @@ from deployment.following_strategies.attractive_follow import AttractiveFollow
 from deployment.following_strategies.straight_line_follow import StraightLineFollow
 from deployment.exploration_strategies.potential_fields_explore import PotentialFieldsExplore
 from deployment.exploration_strategies.heuristic_explore import HeuristicExplore
+from deployment.following_strategies.no_follow import NoFollow
+from deployment.exploration_strategies.line_explore import LineExplore
 from deployment.deployment_fsm import DeploymentFSM
 
 import numpy as np
@@ -24,7 +26,9 @@ def simulate(dt, mins, scs, env):
     beacons = np.append(beacons, m)
     for b in beacons:
       b.compute_neighbors(beacons)
-    print(f"min {m.ID} landed at pos\t\t\t {m.pos}\nits target now has {len(m.deployment_strategy.get_target().neighbors)} neighs\n------------------", )
+    print(f"min {m.ID} landed at pos\t\t\t {m.pos}")
+    if not m.deployment_strategy.get_target() is None:
+          print(f"Its target now has {len(m.deployment_strategy.get_target().neighbors)} neighs\n------------------", )
   print(f"minimum number of neighbors: {min(beacons, key=lambda b: len(b.neighbors))}")    
 
 if __name__ == "__main__":
@@ -39,25 +43,18 @@ if __name__ == "__main__":
     obstacle_corners = [
       np.array([
         [-10, -10],
-        [ 10, -10], 
-        [ 10,  10],
-        [-10,  10]
-      ]),
-      np.array([
-        [-5, -5],
-        [ 5, -5], 
-        [ 5,  5],
-        [-5,  5]
+        [ -6, -10], 
       ]),
     ]
   )
 
   max_range = 3
 
-  N_mins = 24
+  N_mins = 15
   dt = 0.01
 
   scs = SCS(max_range)
+  """ Potential fields exploration
   mins = [
     Min(
       max_range,
@@ -71,6 +68,18 @@ if __name__ == "__main__":
           K_o=1,
           min_force_threshold=0.1
         )
+      )
+    ) for _ in range(N_mins)
+  ]
+  """
+  """ Line exploration """
+
+  mins = [
+    Min(
+      max_range,
+      DeploymentFSM(
+        NoFollow(),
+        LineExplore()
       )
     ) for _ in range(N_mins)
   ]
