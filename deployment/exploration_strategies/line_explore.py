@@ -16,7 +16,7 @@ class LineExplore(ExplorationStrategy):
   def get_exploration_velocity(self, MIN, beacons, ENV):
     x_is = np.array([b.pos[0] for b in beacons])
     RSSIs = np.array([MIN.get_RSSI(b) for b in beacons])
-    k_is = np.ones(len(beacons))
+    k_is = np.zeros(len(beacons))
     k_is[-1]=10
     F = -np.sum(k_is*(MIN.pos[0] - x_is - RSSIs))
     if np.linalg.norm(F) < self.force_threshold:

@@ -33,7 +33,7 @@ def simulate(dt, mins, scs, env):
 
 if __name__ == "__main__":
 
-  _animate, save_animation = False, False
+  _animate, save_animation = True, False
   start_animation_from_min_ID = 0
 
   env = Env(
