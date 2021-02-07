@@ -25,7 +25,7 @@ $$
 $$
 It is assumed that $\sum_{i=1}^{n}\kappa_{i} \neq 0$.
 ### Checking if $x_{n}^{*} < x_{n+1}^{*}$
-We assume that all nodes $\nu_{m}, m\leq n$ are static and placed at equilibriums so that $x_{m}^{*} < x_{m+1}^{*}\;\forall\;m<n$.
+We assume that all drones $\nu_{m}, m\leq n$ are static and placed at equilibriums so that $x_{m}^{*} < x_{m+1}^{*}\;\forall\;m<n$.
 Now:
 $$
 \begin{aligned}
@@ -75,8 +75,8 @@ $$
 
 ## Extending to 2D
 
-A node , $\nu_{n}$ now has state $\mathbf{x}_{n} = \begin{bmatrix}x_{n}&y_{n}\end{bmatrix}^{T}\in\mathbb{R}^{2}$. The RSSI is still just a scalar variable.
-Due to thus the potential field for node $n+1$ is modified:
+A drone , $\nu_{n}$ now has state $\mathbf{x}_{n} = \begin{bmatrix}x_{n}&y_{n}\end{bmatrix}^{T}\in\mathbb{R}^{2}$. The RSSI is still just a scalar variable.
+Due to thus the potential field for drone $n+1$ is modified:
 ### Potential field for drone $\nu_{i+1}$
 $$
 U_{n+1} = \frac{1}{2}\sum_{i=1}^{n}\kappa_{i}||\mathbf{x}_{n+1}-\mathbf{x}_{i}-\mathbf{1}_{2\times1}\xi_{n+1,i}||^{2}
@@ -92,7 +92,9 @@ $$
 $$
 
 ### Equilibrium point for drone $\nu_{n+1}$
-
+> **Note to self**
+>
+> Check the possibility of modelling the RSSI as a decaying function of $||\mathbf{x}_{n+1} - \mathbf{x}_{i}||$ and include this in the proof.
 $$
 \begin{aligned}
   \mathbf{x}_{n+1} = \mathbf{x}_{n+1}^{*}&\iff \mathbf{F}_{n+1} = \mathbf{0}\\
@@ -104,7 +106,7 @@ $$
 
 ### Checking if $||\mathbf{x}_{n}^{*}|| < ||\mathbf{x}_{n+1}^{*}||$
 
-We assume that all nodes $\nu_{m}, m\leq n$ are static and placed at equilibriums so that $||\mathbf{x}_{m}^{*}|| < ||\mathbf{x}_{m+1}^{*}||\;\forall\;m<n$.
+We assume that all drones $\nu_{m}, m\leq n$ are static and placed at equilibriums so that $||\mathbf{x}_{m}^{*}|| < ||\mathbf{x}_{m+1}^{*}||\;\forall\;m<n$.
 Now:
 $$
 \begin{aligned}
@@ -140,4 +142,32 @@ If we choose $\kappa_{i}\geq 0\;\forall\;0<i\leq n$ we have:
 
 $$
 \;\exist\;0<i\leq n:\kappa_{i} > 0, \xi_{n+1, i}>0\iff ||\mathbf{x}_{n}^{*}|| < ||\mathbf{x}_{n+1}^{*}||
+$$
+
+## Adding obstacke avoidance
+Each drone, $\nu_{i}$, is equipped with 4 range sensors, $r_{j},\;j\in[0,4)$. Sensor $r_{j}$ is mounted on the body at an angle $\theta_{j} = 90^{\circ}\cdot j$. The range sensors can maximally detect objects at a distance $d_{max}$ away. 
+Given the description of an obstacle $\mathcal{O}=\{\mathbf{x}^{n}: f(\mathbf{x}^{n})\leq 0\}$ in the inertial frame such that the border of the obstacle is described by $\partial\mathcal{O} = \{\mathbf{x}^{n}: f(\mathbf{x}^{n}) = 0\}$ and a drone positioned at $\mathbf{x}_{i}^{n}$ in the inertial frame with a yaw angle $\psi_{i}$. The set 
+$$\mathcal{R}_{j} = \{d: f\big(\mathbf{x}_{i}^{n} + \mathbf{R}_{z}(\psi_{i})\mathbf{R}_{z}(\theta_{j})\begin{bmatrix}
+    d& 0
+\end{bmatrix}^{T}\big) = 0, 0\leq d\leq d_{max}\}$$
+Is the set of all points along the sensor $r_{j}$'s x-axis that intersects with the boundary of the obstacle $\mathcal{O}$. When polling a range sensor, it returns measurements according to:
+$$
+\mathbf{m}_{j}^{s} = \begin{cases}
+    \begin{bmatrix}
+        \min\mathcal{R}_{j}&0
+    \end{bmatrix}^{T}, &\mathcal{R}_{j}\neq\emptyset\\
+    \begin{bmatrix}
+        \infty&0
+    \end{bmatrix}^{T}, &\text{otherwise}
+\end{cases}
+$$
+In the inertial frame the distance is computed as:
+$$
+\mathbf{m}_{j}^{n} =  \mathbf{R}_{z}(\psi_{i})\mathbf{R}_{z}(\theta_{j})\mathbf{m}_{j}^{s}
+$$
+The force exerted on a drone by obstacles is defined as:
+$$
+\mathbf{F}_{o}=-k_{o}\sum_{j:\mathcal{R}_{j}\neq\emptyset,\;0\leq j< 4}
+   \frac{\mathbf{m}_{j}^{n}}{||\mathbf{m}_{j}^{n}||^{3}}
+   
 $$

@@ -33,20 +33,27 @@ def simulate(dt, mins, scs, env):
 
 if __name__ == "__main__":
 
-  _animate, save_animation = True, False
+  _animate, save_animation = False, False
   start_animation_from_min_ID = 0
 
   env = Env(
     np.array([
       -9.8, -9.8
     ]),
-    obstacle_corners = []
+    obstacle_corners = [
+      np.array([
+        [-10, -10],
+        [ -9, -10],
+        [ -9,  10],
+        [-10,  10],
+      ])
+    ]
   )
 
   max_range = 3
 
-  N_mins = 15
-  dt = 0.01
+  N_mins = 3
+  dt = 0.001
 
   scs = SCS(max_range)
   """ Potential fields exploration
@@ -74,7 +81,10 @@ if __name__ == "__main__":
       max_range,
       DeploymentFSM(
         NoFollow(),
-        LineExplore()
+        LineExplore(
+          ndims=2,
+          K_o=0.01
+        )
       )
     ) for _ in range(N_mins)
   ]

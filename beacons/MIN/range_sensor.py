@@ -31,12 +31,15 @@ class RangeSensor():
         self.rot_mat = R_z(angle_deg)
 
     def sense(self, environment):
-        self.measurement = RangeReading(
-            np.min(np.concatenate(
-                    [self.__sense_aux(corners) for corners in environment.obstacle_corners]
-                )
-            )
-        )
+        if environment.obstacle_corners == []:
+          self.measurement = RangeReading(np.inf)
+        else:
+          self.measurement = RangeReading(
+              np.min(np.concatenate(
+                      [self.__sense_aux(corners) for corners in environment.obstacle_corners]
+                  )
+              )
+          )
 
     def __sense_aux(self, corners):
         """Computes the distance to an obstacle
@@ -48,8 +51,8 @@ class RangeSensor():
         Returns:
             float: distance along sensor-frame x-axis to nearest obstacle (inf if no obstacle is within range)
         """
-        closed_corners = np.vstack((corners, corners[0, :]))
         valid_crossings = np.array([np.inf])
+        closed_corners = np.vstack((corners, corners[0, :]))
         A_1 = p2v(1, self.host_relative_angle + self.host.heading).reshape(2, 1)
         max_t = np.array([self.max_range, 1])
         for i in np.arange(corners.shape[0]):
