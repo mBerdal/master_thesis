@@ -24,7 +24,9 @@ class LineExplore(ExplorationStrategy):
       """ 1D """
       x_is = np.array([b.pos[0] for b in beacons])
       RSSIs = np.array([MIN.get_RSSI(b) for b in beacons])
-      F = np.array([-np.sum(k_is*(MIN.pos[0] - x_is - RSSIs)), 0])
+      F_n = -np.sum(k_is*(MIN.pos[0] - x_is - RSSIs))
+      F_o = gof(self.K_o, MIN, ENV)[0]
+      F = np.array([F_n + F_o, 0])
     elif self.ndims == 2:
       """ 2D """
       x_is = np.concatenate([b.pos.reshape(2, 1) for b in beacons], axis=1)
