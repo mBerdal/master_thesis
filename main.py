@@ -33,7 +33,8 @@ def simulate(dt, mins, scs, env):
 
 if __name__ == "__main__":
 
-  _animate, save_animation = False, False
+  _animate, save_anim_or_img = False, True
+  anim_or_fig_name = "fig"
   start_animation_from_min_ID = 0
 
   env = Env(
@@ -43,8 +44,8 @@ if __name__ == "__main__":
     obstacle_corners = [
       np.array([
         [-10, -10],
-        [ -9, -10],
-        [ -9,  10],
+        [  0, -10],
+        [  0,  10],
         [-10,  10],
       ])
     ]
@@ -117,8 +118,8 @@ if __name__ == "__main__":
 
 
     anim = FuncAnimation(fig, animate, init_func=init, interval=2, blit=False)
-    if save_animation:
-      animation_name = "animation.gif"
+    if save_anim_or_img:
+      animation_name = anim_or_fig_name + ".gif"
       print("Saving animation")
       anim.save(animation_name)
       print(f"Animation saved to {animation_name}")
@@ -129,6 +130,7 @@ if __name__ == "__main__":
     for mn in mins:
       mn.plot(ax)
       mn.plot_traj_line(ax)
+    fig.savefig(anim_or_fig_name + ".pdf", bbox_inches="tight")
       
   plt.show()
 

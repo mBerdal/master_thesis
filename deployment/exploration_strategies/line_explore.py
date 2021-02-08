@@ -32,7 +32,7 @@ class LineExplore(ExplorationStrategy):
       F_n = -np.sum(k_is*(MIN.pos.reshape(2, 1) - x_is - RSSIs), axis=1).reshape(2, )
       F_o = gof(self.K_o, MIN, ENV)
       F = F_n + F_o
-      #print(np.linalg.norm(F_o), np.linalg.norm(F))
+          
     if np.linalg.norm(F) < self.force_threshold:
       raise AtLandingConditionException
     return F
