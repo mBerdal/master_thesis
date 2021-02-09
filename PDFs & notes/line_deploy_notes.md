@@ -73,6 +73,68 @@ $$
 >
 > $\sum_{i=1}^{n-1}\kappa_{i} = \sum_{i=1}^{n-1}\kappa_{i}> 0 \implies\sum_{i=1}^{n}\kappa_{i} = \kappa_{n} + \sum_{i=1}^{n-1}\kappa_{i}\neq 0 \implies \kappa_{n}\neq-\sum_{i=1}^{n-1}\kappa_{i}$
 
+## Extending to only local knowledge
+
+### Neighbors of $\nu_{n+1}$
+The set of all drones such that the $RSSI$ from those drones to $\nu_{n+1}$ is above a given threshold:
+$$
+\mathcal{N}(n+1) = \{1\leq i \leq n: \xi_{n+1, i} \geq \tau > 0\}
+$$
+### Potential field affecting drone $\nu_{n+1}$
+$$
+U_{n+1} = \frac{1}{2}\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}||x_{n+1}-x_{i}-\xi_{n+1,i}||^{2}
+$$
+
+### Force field affecting drone $\nu_{n+1}$
+$$
+F_{n+1} = \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}(x_{i}-x_{n+1}+\xi_{n+1,i})
+$$
+### Equilibrium point for drone $\nu_{n+1}$
+$$
+  x_{n+1}^{*} = \frac{\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}(x_{i}+\xi_{n+1, i})}{\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}}\\
+$$
+### Checking if $\nu_{i}$ moves further than it's neighbors
+Proove that:
+$$
+x_{n+1}^{*} > \max_{i\in\mathcal{N}(n+1)}x_{i}
+$$
+
+Define: $j = \argmax\limits_{i\in\mathcal{N}(n+1)}x_{i}$
+
+$$
+\begin{aligned}
+  \max_{i\in\mathcal{N}(n+1)}x_{i}= x_{j} < x_{n+1}^{*}&\iff x_{j} < \frac{\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}(x_{i}+\xi_{n+1, i})}{\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}}\\
+  &\iff x_{j}\sum_{i\in\mathcal{N}(n+1)}\kappa_{i} < \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}(x_{i}+\xi_{n+1, i})\\
+  &\iff x_{j}\sum_{i\in\mathcal{N}(n+1)}\kappa_{i} - \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}x_{i} < \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\xi_{n+1, i}\\
+  &\iff \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}(x_{j} - x_{i}) < \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\xi_{n+1, i}\\
+  &\iff \sum_{i\in\mathcal{N}(n+1)\setminus\{j\}}\kappa_{i}(x_{j} - x_{i}) < \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\xi_{n+1, i}\\
+\end{aligned}
+$$
+We know that $x_{j} \geq x_{i}\;\forall\;i\in\mathcal{N}(n+1)\setminus\{j\}$ such that $x_{j} - x_{i} \geq 0\;\forall\;i\in\mathcal{N}(n+1)\setminus\{j\}$. Furthermore $\kappa_{i}\geq 0\;\forall\;1\leq i\leq n+1$. Thus:
+$$
+\sum_{i\in\mathcal{N}(n+1)\setminus\{j\}}\kappa_{i}(x_{j} - x_{i})\geq 0
+$$
+Inserting yields:
+$$
+\begin{aligned}
+  \max_{i\in\mathcal{N}(n+1)}x_{i}= x_{j} < x_{n+1}^{*}&\iff 0 \leq\sum_{i\in\mathcal{N}(n+1)\setminus\{j\}}\kappa_{i}(x_{j} - x_{i}) < \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\xi_{n+1, i}\\
+  &\iff 0 < \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\xi_{n+1, i}
+  
+\end{aligned}
+$$
+By definition $\xi_{n+1, i} \geq \tau > 0\;\forall\;i\in\mathcal{N}(n+1)$. Thus:
+$$
+\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\xi_{n+1, i} \geq \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\tau\geq 0
+$$
+The inequality above holds strictly iff. $\exists\;i\in\mathcal{N}(n+1):\;\kappa_{i} > 0$. Thus:
+$$
+\exists\;i\in\mathcal{N}(n+1):\;\kappa_{i} > 0 \iff \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\xi_{n+1, i} > 0 \iff x_{n+1}^{*} > \max_{i\in\mathcal{N}(n+1)}x_{i}
+$$
+Thus we know that $\nu_{n+1}$ will move beyond it's neighbor, $\nu_{j}$, that is furthest away from the origin.
+
+### Checking if $\nu_{n+1}$ moves further than the previously deployed drone
+**TODO**: Check that there is a "chain" from $\nu_{1}$ to $\nu_{n}$ such that, in the end, $n\in\mathcal{N}(n+1)$. This means that previous drones must not
+land too far apart, i.e. $\exists\;j\in\mathcal{N}(i): x_{j}\geq x_{i}\;\forall\;1\leq i < n$.
 ## Extending to 2D
 
 A drone , $\nu_{n}$ now has state $\mathbf{x}_{n} = \begin{bmatrix}x_{n}&y_{n}\end{bmatrix}^{T}\in\mathbb{R}^{2}$. The RSSI is still just a scalar variable.
