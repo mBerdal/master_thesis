@@ -135,6 +135,11 @@ Thus we know that $\nu_{n+1}$ will move beyond it's neighbor, $\nu_{j}$, that is
 ### Checking if $\nu_{n+1}$ moves further than the previously deployed drone
 **TODO**: Check that there is a "chain" from $\nu_{1}$ to $\nu_{n}$ such that, in the end, $n\in\mathcal{N}(n+1)$. This means that previous drones must not
 land too far apart, i.e. $\exists\;j\in\mathcal{N}(i): x_{j}\geq x_{i}\;\forall\;1\leq i < n$.
+Alternatively: $\exists\;j\in\mathcal{N}(n+1): x_{j}\geq x_{n+1}\;\forall\;x_{1}\leq x_{n+1} \leq x_{n}$.
+
+By definition $\mathcal{N}(n+1) = \emptyset \implies F_{n+1} = 0$. With integrator dynamics on the drone: $\dot{x}_{n+1} = F_{n+1}$, this means that
+the drone will stop moving whenever it's neighbor set is empty, i.e. $\xi_{n+1, i} < \tau\;\forall\;1\leq i\leq n$.
+
 ## Extending to 2D
 
 A drone , $\nu_{n}$ now has state $\mathbf{x}_{n} = \begin{bmatrix}x_{n}&y_{n}\end{bmatrix}^{T}\in\mathbb{R}^{2}$. The RSSI is still just a scalar variable.
