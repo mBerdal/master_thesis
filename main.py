@@ -42,14 +42,16 @@ if __name__ == "__main__":
       -9.8, -9.8
     ]),
     obstacle_corners = [np.array([
-      [-6, -20],
-      [-6,  10]
+      [-10, -10],
+      [ 10, -10],
+      [ 10,  10],
+      [-10,  10],
     ])]
   )
 
   max_range = 3
 
-  N_mins = 8
+  N_mins = 45
   dt = 0.001
 
   scs = SCS(max_range)
@@ -79,7 +81,7 @@ if __name__ == "__main__":
       DeploymentFSM(
         NoFollow(),
         LineExplore(
-          ndims=1,
+          ndims=2,
           K_o=0.01
         )
       )
@@ -126,7 +128,7 @@ if __name__ == "__main__":
     for mn in mins:
       mn.plot(ax)
       mn.plot_traj_line(ax)
-    fig.savefig(anim_or_fig_name + ".pdf", bbox_inches="tight")
+    fig.savefig(anim_or_fig_name + ".png", bbox_inches="tight")
       
   plt.show()
 

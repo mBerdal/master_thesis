@@ -218,3 +218,68 @@ $$
 $$
 
 ### Equilibrium for $\nu_{n+1}$ (not modelling $RSSI$)
+$$
+\mathbf{x}_{n+1}^{*} = \sum_{i=1}^{n}\xi_{n+1, i}\mathbf{x}_{i}
+$$
+
+## Alternative metric for 2D spread: Determinant of covariance matrix
+
+### Potential field affecting $\nu_{n+1}$
+#### Sample covar. matrix
+For $N$ samples with values $\mathbf{x}_{i},\;1\leq i\leq N$ the sample covariance matrix, $\mathbf{Q}$ is computed as:
+$$
+\mathbf{Q} = \frac{1}{N-1}\sum_{i=1}^{N}(\mathbf{x}_{i}-\bar{\mathbf{x}}_{N})(\mathbf{x}_{i}-\bar{\mathbf{x}}_{N})^{T},
+$$
+where
+$$
+\bar{\mathbf{x}}_{N} = \frac{1}{N}\sum_{i=1}^{N}\mathbf{x}_{i}
+$$
+#### Covariance matrix for $\nu_{n+1}$
+$$
+\begin{aligned}
+\mathbf{Q}_{n+1} &= \frac{1}{(n+1)-1}\sum_{i=1}^{n+1}(\mathbf{x}_{i}-\bar{\mathbf{x}}_{n+1})(\mathbf{x}_{i}-\bar{\mathbf{x}}_{n+1})^{T}\\
+&= \frac{1}{n}\sum_{i=1}^{n+1}\begin{bmatrix}
+  x_{i}-\bar{x}_{n+1}\\y_{i}-\bar{y}_{n+1}
+\end{bmatrix}\begin{bmatrix}
+  x_{i}-\bar{x}_{n+1}&y_{i}-\bar{y}_{n+1}
+\end{bmatrix}\\
+&= \frac{1}{n}\sum_{i=1}^{n+1}\begin{bmatrix}
+  (x_{i}-\bar{x}_{n+1})^{2} & (x_{i}-\bar{x}_{n+1})(y_{i}-\bar{y}_{n+1})\\
+  \dots & (y_{i}-\bar{y}_{n+1})^{2}
+\end{bmatrix}\\
+\end{aligned}
+$$
+#### "The larger $|\mathbf{Q}|$ is, the more the datapoints are dispersed"
+$$
+\begin{aligned}
+\det(\mathbf{Q}_{n+1}) &= \det\Bigg(\frac{1}{n}\sum_{i=1}^{n+1}\begin{bmatrix}
+  (x_{i}-\bar{x}_{n+1})^{2} & (x_{i}-\bar{x}_{n+1})(y_{i}-\bar{y}_{n+1})\\
+  \dots & (y_{i}-\bar{y}_{n+1})^{2}
+\end{bmatrix}\Bigg)\\
+&= \frac{1}{n^{2}}\det\Bigg(\begin{bmatrix}
+  \sum_{i=1}^{n+1}(x_{i}-\bar{x}_{n+1})^{2} & \sum_{i=1}^{n+1}(x_{i}-\bar{x}_{n+1})(y_{i}-\bar{y}_{n+1})\\
+  \dots & \sum_{i=1}^{n+1}(y_{i}-\bar{y}_{n+1})^{2}
+\end{bmatrix}\Bigg)\\
+&= \frac{1}{n^{2}}\Bigg[\Big(\sum_{i=1}^{n+1}(x_{i}-\bar{x}_{n+1})^{2}\Big)\Big(\sum_{i=1}^{n+1}(y_{i}-\bar{y}_{n+1})^{2}\Big)-\Big(\sum_{i=1}^{n+1}(x_{i}-\bar{x}_{n+1})(y_{i}-\bar{y}_{n+1})\Big)^{2}\Bigg]\\
+\end{aligned}
+$$
+
+### Potential field affecting $\nu_{n+1}$
+$$
+\begin{aligned}
+U_{n+1} &= \frac{n^{2}(n+1)}{2}\det(\mathbf{Q}_{n+1})\\
+&=\frac{(n+1)}{2}\Bigg[\Big(\sum_{i=1}^{n+1}(x_{i}-\bar{x}_{n+1})^{2}\Big)\Big(\sum_{i=1}^{n+1}(y_{i}-\bar{y}_{n+1})^{2}\Big)-\Big(\sum_{i=1}^{n+1}(x_{i}-\bar{x}_{n+1})(y_{i}-\bar{y}_{n+1})\Big)^{2}\Bigg]
+  
+\end{aligned}
+$$
+### Force affecting $\nu_{n+1}$
+$$
+\begin{aligned}
+  \frac{\partial}{\partial x_{n+1}}\bar{x}_{n+1} = \frac{\partial}{\partial x_{n+1}}\frac{1}{n+1}\sum_{i=1}^{n+1}x_{i} = \frac{1}{n+1}\frac{\partial}{\partial x_{n+1}}\sum_{i=1}^{n+1}x_{i} = \frac{1}{n+1}
+\end{aligned}
+$$
+$$
+\begin{aligned}
+  \frac{\partial}{\partial x_{n+1}}\sum_{i=1}^{n+1}(x_{i}-\bar{x}_{n+1})^{2} &= \frac{\partial}{\partial x_{n+1}}(x_{n+1}-\bar{x}_{n+1})^{2} + \frac{\partial}{\partial x_{n}}\sum_{i=1}^{n+1}(x_{i}-\bar{x}_{n+1})^{2}
+\end{aligned}
+$$
