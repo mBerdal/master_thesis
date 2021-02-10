@@ -8,7 +8,10 @@ from deployment.following_strategies.straight_line_follow import StraightLineFol
 from deployment.exploration_strategies.potential_fields_explore import PotentialFieldsExplore
 from deployment.exploration_strategies.heuristic_explore import HeuristicExplore
 from deployment.following_strategies.no_follow import NoFollow
-from deployment.exploration_strategies.line_explore import LineExplore
+from deployment.exploration_strategies.line_explore import (
+  LineExplore,
+  LineExploreKind
+)
 from deployment.deployment_fsm import DeploymentFSM
 
 import numpy as np
@@ -33,7 +36,7 @@ def simulate(dt, mins, scs, env):
 
 if __name__ == "__main__":
 
-  _animate, save_anim_or_img = False, True
+  _animate, save_anim_or_img = False, False
   anim_or_fig_name = "fig"
   start_animation_from_min_ID = 0
 
@@ -46,7 +49,7 @@ if __name__ == "__main__":
 
   max_range = 3
 
-  N_mins = 40
+  N_mins = 10
   dt = 0.001
 
   scs = SCS(max_range)
@@ -76,7 +79,7 @@ if __name__ == "__main__":
       DeploymentFSM(
         NoFollow(),
         LineExplore(
-          ndims=1,
+          kind=LineExploreKind.ONE_DIM_TYPE_2,
           K_o=0.01
         )
       )
@@ -124,6 +127,6 @@ if __name__ == "__main__":
       mn.plot(ax)
       mn.plot_traj_line(ax)
     fig.savefig(anim_or_fig_name + ".png", bbox_inches="tight")
-      
+    ax.set_xlim([-10, 0])
   plt.show()
 
