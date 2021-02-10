@@ -78,7 +78,7 @@ $$
 ### Neighbors of $\nu_{n+1}$
 The set of all drones such that the $RSSI$ from those drones to $\nu_{n+1}$ is above a given threshold:
 $$
-\mathcal{N}(n+1) = \{1\leq i \leq n: \xi_{n+1, i} \geq \tau > 0\}
+\mathcal{N}(n+1) = \{1\leq i \leq n: \xi_{n+1, i} > \tau > 0\}
 $$
 ### Potential field affecting drone $\nu_{n+1}$
 $$
@@ -110,7 +110,7 @@ $$
   &\iff \sum_{i\in\mathcal{N}(n+1)\setminus\{j\}}\kappa_{i}(x_{j} - x_{i}) < \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\xi_{n+1, i}\\
 \end{aligned}
 $$
-We know that $x_{j} \geq x_{i}\;\forall\;i\in\mathcal{N}(n+1)\setminus\{j\}$ such that $x_{j} - x_{i} \geq 0\;\forall\;i\in\mathcal{N}(n+1)\setminus\{j\}$. Furthermore $\kappa_{i}\geq 0\;\forall\;1\leq i\leq n+1$. Thus:
+We know that $x_{j} \geq x_{i}\;\forall\;i\in\mathcal{N}(n+1)\setminus\{j\}$ such that $x_{j} - x_{i} \geq 0\;\forall\;i\in\mathcal{N}(n+1)\setminus\{j\}$. Furthermore $\kappa_{i}\geq 0\;\forall\; 1\leq i\leq n+1$. Thus:
 $$
 \sum_{i\in\mathcal{N}(n+1)\setminus\{j\}}\kappa_{i}(x_{j} - x_{i})\geq 0
 $$
@@ -122,7 +122,7 @@ $$
   
 \end{aligned}
 $$
-By definition $\xi_{n+1, i} \geq \tau > 0\;\forall\;i\in\mathcal{N}(n+1)$. Thus:
+By definition $\xi_{n+1, i} > \tau > 0\;\forall\;i\in\mathcal{N}(n+1)$. Thus:
 $$
 \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\xi_{n+1, i} \geq \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\tau\geq 0
 $$
@@ -133,13 +133,29 @@ $$
 Thus we know that $\nu_{n+1}$ will move beyond it's neighbor, $\nu_{j}$, that is furthest away from the origin.
 
 ### Checking if $\nu_{n+1}$ moves further than the previously deployed drone
-**TODO**: Check that there is a "chain" from $\nu_{1}$ to $\nu_{n}$ such that, in the end, $n\in\mathcal{N}(n+1)$. This means that previous drones must not
-land too far apart, i.e. $\exists\;j\in\mathcal{N}(i): x_{j}\geq x_{i}\;\forall\;1\leq i < n$.
-Alternatively: $\exists\;j\in\mathcal{N}(n+1): x_{j}\geq x_{n+1}\;\forall\;x_{1}\leq x_{n+1} \leq x_{n}$.
+Assume $k > j$ and $x_{j}^{*} \leq x_{k}$. For some $x_{j}^{*} \leq x_{k}$ we have $j\in\mathcal{N}(k)\iff\mathcal{N}(k)\neq \emptyset$. With integrator dynamics: $\dot{x}_{k} = F_{k}$,
+the drone is guaranteed to stop moving whenever it's neighbor set is empty (if not before). Thus $\mathcal{N}(k) =  \emptyset \iff F_{k} = 0 \iff x_{k} = x_{k}^{*}$. Thus we know that
+$$
+x_{j}^{*} \leq x_{k} < x_{k}^{*} \iff \mathcal{N}(k) \neq \emptyset
+$$
 
-By definition $\mathcal{N}(n+1) = \emptyset \implies F_{n+1} = 0$. With integrator dynamics on the drone: $\dot{x}_{n+1} = F_{n+1}$, this means that
-the drone will stop moving whenever it's neighbor set is empty, i.e. $\xi_{n+1, i} < \tau\;\forall\;1\leq i\leq n$.
+The drone, $\nu_{k}$, that landed at $x_{k}^{*}$ will itself send signals to any new drones, meaning:
+$$
+x_{n+1} = x_{k}^{*}\iff n\in\mathcal{N}(n+1)\iff \mathcal{N}(n+1)\neq\emptyset
+$$
 
+From the previous two inequalities we get:
+$$
+x_{j}^{*} \leq x_{n+1} \leq x_{k}^{*} \iff \mathcal{N}(n+1) \neq \emptyset
+$$
+Thus we know that the new drone, $\nu_{n+1}$, will never have an empty neighbor set as long as it is placed somewhere between any of the previously deployed drones.
+
+### Summing up
+It has been shown that the new drone, $\nu_{n+1}$, will move beyond all its neighbors. Furthermore it has been shown that for any arbitrary $j < k < n+1$, $\nu_{n+1}$ has a non-empty neighbor set. Choosing $j = 1$, $k = n$, yields: $x_{1}\leq x_{n+1} \leq x_{n} \iff \mathcal{N}(n+1)\neq\emptyset$. As we know that $\nu_{n+1}$ will move beyond its neighbors, we know that eventually $n\in\mathcal{N}(n+1)$, meaning 
+$$
+x_{n+1}^{*} > x_{n}^{*}
+$$
+---
 ## Extending to 2D
 
 A drone , $\nu_{n}$ now has state $\mathbf{x}_{n} = \begin{bmatrix}x_{n}&y_{n}\end{bmatrix}^{T}\in\mathbb{R}^{2}$. The RSSI is still just a scalar variable.
