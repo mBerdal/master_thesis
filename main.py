@@ -41,17 +41,12 @@ if __name__ == "__main__":
     np.array([
       -9.8, -9.8
     ]),
-    obstacle_corners = [np.array([
-      [-10, -10],
-      [ 10, -10],
-      [ 10,  10],
-      [-10,  10],
-    ])]
+    obstacle_corners = []
   )
 
   max_range = 3
 
-  N_mins = 45
+  N_mins = 40
   dt = 0.001
 
   scs = SCS(max_range)
@@ -81,7 +76,7 @@ if __name__ == "__main__":
       DeploymentFSM(
         NoFollow(),
         LineExplore(
-          ndims=2,
+          ndims=1,
           K_o=0.01
         )
       )

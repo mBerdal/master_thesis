@@ -7,7 +7,7 @@ from deployment.deployment_helpers import get_obstacle_forces as gof
 import numpy as np
 
 class LineExplore(ExplorationStrategy):
-  def __init__(self, K_o=1, force_threshold=0.01, RSSI_threshold=0.1, ndims=1):
+  def __init__(self, K_o=1, force_threshold=0.01, RSSI_threshold=0.8, ndims=1):
     self.K_o = K_o
     self.force_threshold = force_threshold
     self.RSSI_threshold = RSSI_threshold
@@ -22,10 +22,15 @@ class LineExplore(ExplorationStrategy):
     F = None
     if self.ndims == 1:
       """ 1D """
-      x_is = np.array([b.pos[0] for b in beacons])
-      RSSIs = np.array([MIN.get_RSSI(b) for b in beacons])
+      tmp_RSSIs = np.array([MIN.get_RSSI(b) for b in beacons])
+
+      neigh_indices, = np.where(tmp_RSSIs > self.RSSI_threshold)
+      RSSIs = tmp_RSSIs[neigh_indices]
+
+      x_is = np.array([beacons[i].pos[0] for i in neigh_indices])
+      k_is = np.ones(x_is.shape)
       F_n = -np.sum(k_is*(MIN.pos[0] - x_is - RSSIs))
-      F_o = gof(self.K_o, MIN, ENV)[0]
+      F_o = 0*gof(self.K_o, MIN, ENV)[0]
       F = np.array([F_n + F_o, 0])
     elif self.ndims == 2:
       """ 2D """
