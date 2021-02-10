@@ -30,20 +30,23 @@ class LineExplore(ExplorationStrategy):
       tmp_RSSIs = np.array([MIN.get_RSSI(b) for b in beacons])
 
       neigh_indices, = np.where(tmp_RSSIs > self.RSSI_threshold)
+      n_neighs = len(neigh_indices)
+
       RSSIs = tmp_RSSIs[neigh_indices]
       x_is = np.array([b.pos[0] for b in beacons[neigh_indices]])
       if self.kind == LineExploreKind.ONE_DIM_TYPE_1:
-        k_is = np.array([(i+1)**4 for i in range(x_is.shape[0])])
+        k_is = np.array([(i+1)**4 for i in range(n_neighs)])
         F_n = -np.sum(k_is*(MIN.pos[0] - (x_is + RSSIs)))
       elif self.kind == LineExploreKind.ONE_DIM_TYPE_2:
         k_is = np.ones(x_is.shape)
-        a_is = np.arange(len(neigh_indices)+1, 1, -1)
-        F_n = np.sum(k_is*(MIN.pos[0] - a_is*(x_is + RSSIs)))
-        #print(F_n, k_is, MIN.pos[0])
+        a_is = np.array([
+          (1/2)**i for i in range(n_neighs, 0, -1)
+        ])
+        F_n = -np.sum(k_is*(MIN.pos[0] - a_is*(x_is + RSSIs)))
 
       F_o = 0*gof(self.K_o, MIN, ENV)[0]
       F = np.array([F_n + F_o, 0])
-      if len(neigh_indices) == 0:
+      if n_neighs == 0:
             print("STOPPED due to no neighs")
     else:
       """ 2D """
