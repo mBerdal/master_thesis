@@ -49,6 +49,7 @@ class LineExplore(ExplorationStrategy):
 
         k_is = np.ones(x_is.shape)
         a_is = np.ones(x_is.shape)
+        #a_is = np.arange(1, x_is.shape[0] + 1)
 
         j = np.argmax(x_is)
         a_is[j] = 1 + (1/k_is[j])*np.sum(np.delete(k_is, j))
