@@ -104,8 +104,28 @@ $$
 x_{n+1}^{*} > x_{m}^{*}\iff \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}\alpha_{i}x_{i}^{*} +  \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\alpha_{i}\xi_{n+1, i} + \kappa_{m}\alpha_{m}x_{m}^{*} - \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}x_{m}^{*} \geq \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}\alpha_{i}x_{i}^{*} +  \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\alpha_{i}\xi_{n+1, i} > 0
 $$
 
-Which is satisfied iff. $\kappa_{i}, \alpha_{i}\geq 0\;\forall\;i\in\mathcal{N}(n+1)$, $\kappa_{j}(\alpha_{m} - 1) \geq \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}$, where $m=\argmax_{i\in\mathcal{N}(n+1)}x_{i}$.
+Which is satisfied iff. $\kappa_{i}, \alpha_{i}\geq 0\;\forall\;i\in\mathcal{N}(n+1)$, $\kappa_{m}(\alpha_{m} - 1) \geq \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}$, where $m=\argmax_{i\in\mathcal{N}(n+1)}x_{i}$.
 
+# Suggestion for modelling $\xi$
+
+Defining $d_{n+1, i} = ||x_{n+1} - x_{i}||$. We want $\xi$ to be at some constant, $\bar{\xi}$ when $d_{n+1, i}$ is sufficiently small.
+Furthermore we want $\xi$ to be zero when $d_{n+1, i}$ is sufficiently large. Furthermore we want it to be smooth. This can be achieved by modelling
+$\xi$ as:
+
+$$
+\xi_{n+1, i} = \begin{cases}
+  \bar{\xi}&, d_{n+1, i} < d_{perf}\\
+  \frac{\bar{\xi}}{2}(1+\cos(\omega d_{n+1, i} + \phi))&, d_{perf} \leq d_{n+1, i} \leq d_{none}\\
+  0&, d>d_{none}
+\end{cases},
+$$
+where the constants are calculated as:
+$$
+\begin{aligned}
+  \omega &= \pi\frac{1}{d_{none} - d_{perf}}\\
+  \psi &= -\pi \frac{d_{perf}}{d_{none} - d_{perf}}
+\end{aligned}
+$$
 
 # The proofs in the sections below do not hold... :(
 ### Potential field affecting drone $\nu_{n+1}$

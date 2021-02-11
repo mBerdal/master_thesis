@@ -40,16 +40,15 @@ class LineExplore(ExplorationStrategy):
 
       elif self.kind == LineExploreKind.ONE_DIM_LOCAL:
         neigh_indices, = np.where(RSSIs > self.RSSI_threshold)
-        n_neighs = len(neigh_indices)
-        if n_neighs == 0:
+        if len(neigh_indices) == 0:
             print("STOPPED due to no neighs")
+            raise AtLandingConditionException
         
         x_is = x_is[neigh_indices]
         RSSIs = RSSIs[neigh_indices]
 
         k_is = np.ones(x_is.shape)
         a_is = np.ones(x_is.shape)
-        #a_is = np.arange(1, x_is.shape[0] + 1)
 
         j = np.argmax(x_is)
         a_is[j] = 1 + (1/k_is[j])*np.sum(np.delete(k_is, j))
