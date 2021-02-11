@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
   max_range = 3
 
-  N_mins = 10
+  N_mins = 20
   dt = 10e-4
 
   scs = SCS(max_range)
@@ -127,6 +127,5 @@ if __name__ == "__main__":
       mn.plot(ax)
       mn.plot_traj_line(ax)
     fig.savefig(anim_or_fig_name + ".png", bbox_inches="tight")
-    ax.set_xlim([0, 12])
   plt.show()
 
