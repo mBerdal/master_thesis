@@ -1,3 +1,5 @@
+# 1D Line deploy
+## *Global* information available
 ### Potential field affecting drone $\nu_{n+1}$
 $$
 U_{n+1} = \frac{1}{2}\sum_{i=1}^{n}\kappa_{i}||x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})||^{2}
@@ -11,6 +13,7 @@ F_{n+1} &= -\frac{\partial}{\partial x_{n+1}}U_{n+1} = -\frac{1}{2}\sum_{i=1}^{n
 &=-\sum_{i=1}^{n}\kappa_{i}(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i}))\\
 \end{aligned}
 $$
+
 
 ### Equilibrium point for drone $\nu_{n+1}$
 $$
@@ -31,8 +34,7 @@ $$
 x_{n+1}^{*} > x_{n}^{*}&\iff  x_{n+1}^{*} - x_{n}^{*} > 0\\
 &\iff \frac{\sum_{i=1}^{n}\kappa_{i}\alpha_{i}(x_{i}^{*}+\xi_{n+1, i})}{\sum_{i=1}^{n}\kappa_{i}} - x_{n}^{*} > 0\\
 &\iff \sum_{i=1}^{n}\kappa_{i}\alpha_{i}(x_{i}^{*}+\xi_{n+1, i}) - x_{n}^{*}\sum_{i=1}^{n}\kappa_{i} > 0\\
-&\iff \sum_{i=1}^{n}\kappa_{i}\big[\alpha_{i}(x_{i}^{*}+\xi_{n+1, i}) - x_{n}^{*}\big] > 0\\
-&\iff \sum_{i=1}^{n-1}\kappa_{i}\alpha_{i}x_{i}^{*} +  \sum_{i=1}^{n}\kappa_{i}\alpha_{i}\xi_{n+1, i} + \kappa_{n}\alpha_{n}x_{n}^{*} - \sum_{i=1}^{n}\kappa_{i}x_{n}^{*} > 0\\
+&\iff \sum_{i=1}^{n-1}\kappa_{i}\alpha_{i}x_{i}^{*} +  \sum_{i=1}^{n}\kappa_{i}\alpha_{i}\xi_{n+1, i} + x_{n}^{*}\kappa_{n}\alpha_{n} - x_{n}^{*}\sum_{i=1}^{n}\kappa_{i} > 0\\
 \end{aligned}
 $$
 
@@ -47,10 +49,66 @@ $$
 x_{n+1}^{*} > x_{n}^{*}\iff \sum_{i=1}^{n-1}\kappa_{i}\alpha_{i}x_{i}^{*} +  \sum_{i=1}^{n}\kappa_{i}\alpha_{i}\xi_{n+1, i} + \kappa_{n}\alpha_{n}x_{n}^{*} - \sum_{i=1}^{n}\kappa_{i}x_{n}^{*} \geq \sum_{i=1}^{n-1}\kappa_{i}\alpha_{i}x_{i}^{*} +  \sum_{i=1}^{n}\kappa_{i}\alpha_{i}\xi_{n+1, i} > 0
 $$
 
-Which is satisfied if $\kappa_{i}, \alpha_{i}\geq 0\;\forall\;1\leq i < n$, $\kappa_{n}(\alpha_{n} - 1) \geq \sum_{i=1}^{n-1}\kappa_{i}$.
+Which is satisfied iff. $\kappa_{i}, \alpha_{i}\geq 0\;\forall\;1\leq i \leq n$, $\kappa_{n}(\alpha_{n} - 1) \geq \sum_{i=1}^{n-1}\kappa_{i}$.
 
----
-## 1D Line deploy
+## *Local* information available
+### Neighbors of $\nu_{n+1}$
+The set of all drones such that the $RSSI$ from those drones to $\nu_{n+1}$ is above a given threshold:
+$$
+\mathcal{N}(n+1) = \{1\leq i \leq n: \xi_{n+1, i} > \tau > 0\}
+$$
+
+### Potential field affecting drone $\nu_{n+1}$
+$$
+U_{n+1} = \frac{1}{2}\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}||x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})||^{2}
+$$
+### Force field affecting drone $\nu_{n+1}$
+$$
+\begin{aligned}
+F_{n+1} &= -\frac{\partial}{\partial x_{n+1}}U_{n+1} = -\frac{1}{2}\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\frac{\partial}{\partial x_{n+1}}||x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})||^{2}\\
+&=-\frac{1}{2}\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\frac{\partial}{\partial x_{n+1}}(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i}))^{2}\\
+&=-\frac{1}{2}\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}2(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i}))\frac{\partial}{\partial x_{n+1}}(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i}))\\
+&=-\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i}))\\
+\end{aligned}
+$$
+
+### Equilibrium point for drone $\nu_{n+1}$
+$$
+\begin{aligned}
+  x_{n+1} = x_{n+1}^{*}&\iff F_{n+1} = 0\\
+  &\iff \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}(x_{n+1}^{*}-\alpha_{i}(x_{i}+\xi_{n+1,i}))=0\\
+  &\iff x_{n+1}^{*}\sum_{i\in\mathcal{N}(n+1)}\kappa_{i} - \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\alpha_{i}(x_{i}+\xi_{n+1, i}) = 0\\
+  &\iff x_{n+1}^{*} = \frac{\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\alpha_{i}(x_{i}+\xi_{n+1, i})}{\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}}\\
+\end{aligned}
+$$
+It is assumed that $\sum_{i\in\mathcal{N}(n+1)}\kappa_{i} > 0$.
+### Checking if $x_{n+1}^{*} > \max_{i\in\mathcal{N}(n+1)}x_{i}^{*} = x_{m}^{*}$
+
+$$
+\begin{aligned}
+x_{n+1}^{*} > x_{j}^{*}&\iff  x_{n+1}^{*} - x_{j}^{*} > 0\\
+&\iff \frac{\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\alpha_{i}(x_{i}^{*}+\xi_{n+1, i})}{\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}} - x_{j}^{*} > 0\\
+&\iff \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\alpha_{i}(x_{i}^{*}+\xi_{n+1, i}) - x_{j}^{*}\sum_{i\in\mathcal{N}(n+1)}\kappa_{i} > 0\\
+&\iff \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\big[\alpha_{i}(x_{i}^{*}+\xi_{n+1, i}) - x_{j}^{*}\big] > 0\\
+&\iff \sum_{i\in\mathcal{N}(n+1)\setminus\{j\}}\kappa_{i}\alpha_{i}x_{i}^{*} +  \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\alpha_{i}\xi_{n+1, i} + \kappa_{j}\alpha_{j}x_{j}^{*} - \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}x_{j}^{*} > 0\\
+\end{aligned}
+$$
+
+Choosing $\kappa_{n}$ and $\alpha_{n}$ such that
+$$
+\kappa_{j}(\alpha_{j} - 1) \geq \sum_{i\in\mathcal{N}(n+1)\setminus\{j\}}\kappa_{i}
+$$
+
+Yields:
+
+$$
+x_{n+1}^{*} > x_{j}^{*}\iff \sum_{i\in\mathcal{N}(n+1)\setminus\{j\}}\kappa_{i}\alpha_{i}x_{i}^{*} +  \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\alpha_{i}\xi_{n+1, i} + \kappa_{j}\alpha_{j}x_{n}^{*} - \sum_{i\in\mathcal{N}(n+1)\setminus\{j\}}\kappa_{i}x_{n}^{*} \geq \sum_{i\in\mathcal{N}(n+1)\setminus\{j\}}\kappa_{i}\alpha_{i}x_{i}^{*} +  \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\alpha_{i}\xi_{n+1, i} > 0
+$$
+
+Which is satisfied iff. $\kappa_{i}, \alpha_{i}\geq 0\;\forall\;i\in\mathcal{N}(n+1)$, $\kappa_{j}(\alpha_{j} - 1) \geq \sum_{i\in\mathcal{N}(n+1)\setminus{j}}\kappa_{i}$, where $j=\argmax_{i\in\mathcal{N}(n+1)}x_{i}$.
+
+
+# The proofs in the sections below do not hold... :(
 ### Potential field affecting drone $\nu_{n+1}$
 $$
 U_{n+1} = \frac{1}{2}\sum_{i=1}^{n}\kappa_{i}||x_{n+1}-(x_{i}+\xi_{n+1,i})||^{2}

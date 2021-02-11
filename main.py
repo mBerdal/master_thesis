@@ -42,14 +42,14 @@ if __name__ == "__main__":
 
   env = Env(
     np.array([
-      -9.8, -9.8
+      0, 0
     ]),
     obstacle_corners = []
   )
 
   max_range = 3
 
-  N_mins = 10
+  N_mins = 20
   dt = 0.001
 
   scs = SCS(max_range)
@@ -79,7 +79,7 @@ if __name__ == "__main__":
       DeploymentFSM(
         NoFollow(),
         LineExplore(
-          kind=LineExploreKind.ONE_DIM_TYPE_2,
+          kind=LineExploreKind.ONE_DIM_LOCAL,
           K_o=0.01
         )
       )
@@ -127,6 +127,5 @@ if __name__ == "__main__":
       mn.plot(ax)
       mn.plot_traj_line(ax)
     fig.savefig(anim_or_fig_name + ".png", bbox_inches="tight")
-    ax.set_xlim([-10, 0])
   plt.show()
 
