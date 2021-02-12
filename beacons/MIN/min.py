@@ -28,7 +28,7 @@ class Min(Beacon):
   }
 
   def __init__(self, max_range, deployment_strategy):
-    super().__init__(max_range, None)
+    super().__init__(max_range, None, xi_max=5+np.random.uniform(-1, 1), d_perf = np.random.uniform(1, 2), d_none = np.random.uniform(3, 7))
     self.deployment_strategy = deployment_strategy
     self.sensors = []
     for ang in np.arange(0, 360, 90):

@@ -53,6 +53,7 @@ Which is satisfied iff. $\kappa_{i}, \alpha_{i}\geq 0\;\forall\;1\leq i \leq n$,
 
 ### HOW TO CHOOSE $\kappa_{i}$ and $\alpha_{i}$ such that $x_{n+1}^{*} < x_{n}^{*}$ when $\xi_{n+1, i} = 0\;\forall\;1\leq i \leq n$? ###
 Assuming $\nu_{n+1}$ have moved past all others ($x_{n+1}^{*} > x_{i}^{*}\;\forall\;1\leq i \leq n$), but is rendered neighbor-less. We then want $\nu_{n+1}$ to move back.
+Assuming $x_{n}^{*}\geq x_{n - i}^{*} \geq 0\;\forall\; 1\leq i \leq n-1$.
 $$
 \begin{aligned}
   \xi_{n+1, i} = 0\;\forall\;1\leq i \leq n &\implies x_{n+1}^{*} = \frac{\sum_{i=1}^{n}\kappa_{i}\alpha_{i}x_{i}^{*}}{\sum_{i=1}^{n}\kappa_{i}} < \frac{\sum_{i=1}^{n}\kappa_{i}\alpha_{i}x_{n}^{*}}{\sum_{i=1}^{n}\kappa_{i}}\\

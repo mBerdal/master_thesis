@@ -59,9 +59,7 @@ class LineExplore(ExplorationStrategy):
         a_is[-1] = 2
         k_is[-1] = np.sum(k_is) - 1
 
-        assert xi_is[xi_is > 0].shape[0] != 0
-
-
+        assert xi_is[xi_is > 0].shape[0] != 0, "Drone lost contact to all beacons"
         assert k_is[-1]*(a_is[-1] - 1) >= np.sum(k_is[:-1]) and a_is[-1] >= 0,\
            "Conditions on constants a_i and k_i do not hold. Cannot guarantee x_{n+1} > x_{n}"
 
