@@ -42,10 +42,29 @@ class LineExplore(ExplorationStrategy):
         k_is[-1] = 200*1
         a_is[-1] = 1
 
+        """ Test for 'move back gains' (a_i*k_i = 0 for all 0 < i < n) """
+        
+        """ test 1 """
+
+        k_is = np.zeros(x_is.shape)
+        a_is = np.ones(x_is.shape)
+        a_is[-1] = 2
+        k_is[-1] = 1
+
+        """ test 2 """
+
+        k_is = np.ones(x_is.shape)
+        a_is = np.zeros(x_is.shape)
+
+        a_is[-1] = 2
+        k_is[-1] = np.sum(k_is) - 1
+
+        assert xi_is[xi_is > 0].shape[0] != 0
+
+
         assert k_is[-1]*(a_is[-1] - 1) >= np.sum(k_is[:-1]) and a_is[-1] >= 0,\
            "Conditions on constants a_i and k_i do not hold. Cannot guarantee x_{n+1} > x_{n}"
 
-        
 
       elif self.kind == LineExploreKind.ONE_DIM_LOCAL:
         neigh_indices, = np.where(xi_is > self.RSSI_threshold)

@@ -51,6 +51,37 @@ $$
 
 Which is satisfied iff. $\kappa_{i}, \alpha_{i}\geq 0\;\forall\;1\leq i \leq n$, $\kappa_{n}(\alpha_{n} - 1) \geq \sum_{i=1}^{n-1}\kappa_{i}$.
 
+### HOW TO CHOOSE $\kappa_{i}$ and $\alpha_{i}$ such that $x_{n+1}^{*} < x_{n}^{*}$ when $\xi_{n+1, i} = 0\;\forall\;1\leq i \leq n$? ###
+Assuming $\nu_{n+1}$ have moved past all others ($x_{n+1}^{*} > x_{i}^{*}\;\forall\;1\leq i \leq n$), but is rendered neighbor-less. We then want $\nu_{n+1}$ to move back.
+$$
+\begin{aligned}
+  \xi_{n+1, i} = 0\;\forall\;1\leq i \leq n &\implies x_{n+1}^{*} = \frac{\sum_{i=1}^{n}\kappa_{i}\alpha_{i}x_{i}^{*}}{\sum_{i=1}^{n}\kappa_{i}} < \frac{\sum_{i=1}^{n}\kappa_{i}\alpha_{i}x_{n}^{*}}{\sum_{i=1}^{n}\kappa_{i}}\\
+  &\iff  x_{n+1}^{*}\sum_{i=1}^{n}\kappa_{i} < \sum_{i=1}^{n}\kappa_{i}\alpha_{i}x_{n}^{*}\\
+  &\iff x_{n+1} < \frac{\sum_{i=1}^{n}\kappa_{i}\alpha_{i}}{\sum_{i=1}^{n}\kappa_{i}}x_{n}^{*}
+\end{aligned}
+$$
+
+Now we want
+$$
+\begin{aligned}
+\frac{\sum_{i=1}^{n}\kappa_{i}\alpha_{i}}{\sum_{i=1}^{n}\kappa_{i}} \leq 1 \iff \sum_{i=1}^{n}\kappa_{i}\alpha_{i} \leq \sum_{i=1}^{n}\kappa_{i}
+\end{aligned}
+$$
+
+From before we have:
+- $\sum_{i=1}^{n}\kappa_{i} > 0$
+- $\kappa_{i}\geq 0\;\forall\;1\leq i \leq n$
+- $\alpha_{i}\geq 0\;\forall\;1\leq i \leq n$
+- $\kappa_{n}(\alpha_{n} - 1)\geq \sum_{i=1}^{n-1}\kappa_{i} \iff \kappa_{n}\alpha_{n} \geq \sum_{i=1}^{n}\kappa_{n}$
+
+Thus:
+$$
+\begin{aligned}
+\frac{\sum_{i=1}^{n}\kappa_{i}\alpha_{i}}{\sum_{i=1}^{n}\kappa_{i}} \leq 1,\; \kappa_{n}\alpha_{n} \geq \sum_{i=1}^{n}\kappa_{n} &\iff \sum_{i=1}^{n}\kappa_{i}\alpha_{i} \leq \sum_{i=1}^{n}\kappa_{i}\leq \kappa_{n}\alpha_{n}\\
+&\iff \kappa_{n}\alpha_{n} + \sum_{i=1}^{n-1}\kappa_{i}\alpha_{i} \leq \sum_{i=1}^{n}\kappa_{i} \leq \kappa_{n}\alpha_{n}\\
+&\implies \kappa_{i}\alpha_{i} = 0\;\forall\; 1\leq i \leq n-1
+\end{aligned}
+$$
 ## *Local* information available
 ### Neighbors of $\nu_{n+1}$
 The set of all drones such that the $RSSI$ from those drones to $\nu_{n+1}$ is above a given threshold:
@@ -126,6 +157,14 @@ $$
   \psi &= -\pi \frac{d_{perf}}{d_{none} - d_{perf}}
 \end{aligned}
 $$
+
+# Future work
+Design a field such that:
+
+- $F_{n+1} > 0$ for $x_{n+1} < \max_{i\in\mathcal{N}(n+1)}x_{i}$.
+- $F_{n+1} = 0 \implies x_{n+1} > \max_{i\in\mathcal{N}(n+1)}x_{i}$.
+- $\mathcal{N}(n+1)\neq\emptyset$ when $x_{n+1} = x_{n+1}^{*}$.
+- Utilizes the suggested model for $\xi$
 
 # The proofs in the sections below do not hold... :(
 ### Potential field affecting drone $\nu_{n+1}$
@@ -273,7 +312,7 @@ $$
 
 The drone, $\nu_{k}$, that landed at $x_{k}^{*}$ will itself send signals to any new drones, meaning:
 $$
-x_{n+1} = x_{k}^{*}\iff n\in\mathcal{N}(n+1)\iff \mathcal{N}(n+1)\neq\emptyset
+x_{n+1} = x_{k}^{*}\implies n\in\mathcal{N}(n+1)\implies \mathcal{N}(n+1)\neq\emptyset
 $$
 
 From the previous two inequalities we get:
