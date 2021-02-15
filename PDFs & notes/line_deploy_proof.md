@@ -162,3 +162,19 @@ $$
   & \iff \exist \; i\in\mathcal{N}(n+1) \text{ s.t. } \kappa_{i}, \alpha_{i} > 0,\quad \alpha_{m} > 1,\quad \kappa_{m}(\alpha_{m} - 1) \geq \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}(1 + \alpha_{i}\delta_{i}) \geq 0
 \end{aligned}
 $$
+
+
+# Summary
+
+Assuming we know $\delta_{i} \; \forall \; i\in\mathcal{N}(n+1)$ such that:
+
+$$
+-\delta_{i} \leq \frac{\partial}{\partial d_{n+1, i}} f(d_{n+1, i}, \dots) \leq 0 \; \forall \; i\in\mathcal{N}(n+1)
+$$
+
+We can choose $\kappa_{i}$ and $\alpha_{i}$ such that:
+
+$$
+\exist \; i\in\mathcal{N}(n+1) \text{ s.t. } \kappa_{i}, \alpha_{i} > 0,\quad \alpha_{m} > 1,\quad \kappa_{m}(\alpha_{m} - 1) \geq \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}(1 + \alpha_{i}\delta_{i}) \geq 0,
+$$
+where $m = \argmax_{i\in\mathcal{N}(n+1)}x_{i}$. $\nu_{n+1}$ is then guaranteed to move beyond it's neighbors.
