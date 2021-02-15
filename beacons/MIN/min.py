@@ -4,7 +4,6 @@ from helpers import (
   get_smallest_signed_angle as ssa,
   get_vector_angle as gva,
   polar_to_vec as p2v,
-  normalize,
   euler_int,
   plot_vec
 )
@@ -27,8 +26,8 @@ class Min(Beacon):
     MinState.LANDED:    "black",
   }
 
-  def __init__(self, max_range, deployment_strategy):
-    super().__init__(max_range, None, xi_max=5+np.random.uniform(-1, 1), d_perf = np.random.uniform(1, 2), d_none = np.random.uniform(3, 7))
+  def __init__(self, max_range, deployment_strategy, xi_max=5, d_perf=1, d_none=3):
+    super().__init__(max_range, xi_max=xi_max, d_perf=d_perf, d_none=d_none, pos = None)
     self.deployment_strategy = deployment_strategy
     self.sensors = []
     for ang in np.arange(0, 360, 90):

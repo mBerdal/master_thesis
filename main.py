@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
   max_range = 3
 
-  N_mins = 20
+  N_mins = 2
   dt = 10e-4
 
   scs = SCS(max_range)
@@ -73,6 +73,8 @@ if __name__ == "__main__":
   """
   """ Line exploration """
 
+  RSSI_threshold = 4.9
+
   mins = [
     Min(
       max_range,
@@ -80,7 +82,8 @@ if __name__ == "__main__":
         NoFollow(),
         LineExplore(
           kind=LineExploreKind.ONE_DIM_LOCAL,
-          K_o=0.01
+          K_o=0.01,
+          RSSI_threshold=RSSI_threshold
         )
       )
     ) for _ in range(N_mins)

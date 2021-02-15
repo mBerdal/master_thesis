@@ -10,7 +10,7 @@ class Beacon():
     Beacon.ID_counter += 1
     return ret
 
-  def __init__(self, range, pos=None, xi_max=5, d_perf=1, d_none=5):
+  def __init__(self, range, xi_max, d_perf, d_none, pos=None):
     self.range = range
     self.pos = pos
     self.ID = self.get_ID()

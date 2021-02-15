@@ -125,7 +125,7 @@ x_{n+1}^{*} > \max_{i\in\mathcal{N}(n+1)}x_{i}^{*} = x_{m}^{*}&\iff  x_{n+1}^{*}
 \end{aligned}
 $$
 
-Choosing $\kappa_{n}$ and $\alpha_{n}$ such that
+Choosing $\kappa_{m}$ and $\alpha_{m}$ such that
 $$
 \kappa_{m}(\alpha_{m} - 1) \geq \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}
 $$
@@ -137,6 +137,70 @@ x_{n+1}^{*} > x_{m}^{*}\iff \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}\
 $$
 
 Which is satisfied iff. $\kappa_{i}, \alpha_{i}\geq 0\;\forall\;i\in\mathcal{N}(n+1)$, $\kappa_{m}(\alpha_{m} - 1) \geq \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}$, where $m=\argmax_{i\in\mathcal{N}(n+1)}x_{i}$.
+
+
+## Note on neighbors
+
+It is desirable to be able to guarantee that $\mathcal{N}(n+1)\neq\emptyset$ when $x_{n+1} = x_{n+1}^{*}$.
+As $\xi_{n+1, i}$ is not exactly known, this is impossible to prove. What we *do* know is:
+$$
+\mathcal{N}(n+1) = 0 \implies F_{n+1} = 0,
+$$
+meaning $\nu_{n+1}$ is guaranteed to stop moving just as its neighbor set becomes empty.
+Hence a solution could be to choose $\tau = \tau_{neigh} + \delta_{\tau}$ where $\delta_{\tau} > 0$.
+Just as the neighbor set of $\nu_{n+1}$ becomes empty we will have:
+$$
+\exists\;1\leq i\leq n: \xi_{n+1, i} = \tau = \tau_{neigh} + \delta_{\tau} \implies \exists\;1\leq i\leq n: \xi_{n+1, i} > \tau_{neigh}
+$$
+
+# Proof using qualitative properties for $\xi$
+$$
+\begin{aligned}
+  \xi_{n+1, i} &\leq \bar{\xi}\;\forall\;1\leq i\leq n\\
+  \xi_{n+1, i} &\geq 0\;\forall\;1\leq i\leq n\\
+  \xi_{n+1, i} &> \tau\;\forall\;i\in\mathcal{N}(n+1)\\
+  \xi_{n+1, i} &= f(||x_{n+1} - x_{i}||, \dots) = f(d_{n+1, i}, \dots)\\
+  \frac{\partial}{\partial d_{n+1, i}} f(d_{n+1, i}, \dots) &\leq 0\\
+  \frac{\partial}{\partial x_{n+1, i}}\xi_{n+1, i} &= \frac{\partial}{\partial d_{n+1, i}} f(d_{n+1, i}, \dots) \cdot \frac{\partial}{\partial x_{n+1, i}}d_{n+1, i}\\
+  &= \frac{\partial}{\partial d_{n+1, i}} f(d_{n+1, i}, \dots)\cdot\text{sign}(x_{n+1} - x_{i})
+\end{aligned}
+$$
+
+## Force affecting $\nu_{n+1}$
+$$
+\begin{aligned}
+F_{n+1} &= -\frac{\partial}{\partial x_{n+1, i}}U_{n+1} = -\frac{\partial}{\partial x_{n+1, i}}\frac{1}{2}\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}||x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})||^{2}\\
+&= \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)\frac{\partial}{\partial x_{n+1, i}}\big(-x_{n+1}+\alpha_{i}(x_{i}+\xi_{n+1,i})\big)\\
+&= \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)(-1+\alpha_{i}\frac{\partial}{\partial x_{n+1, i}}\xi_{n+1,i}\big)\\
+&= \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)(-1+\alpha_{i}\frac{\partial}{\partial d_{n+1, i}} f(d_{n+1, i}, \dots)\cdot\text{sign}(x_{n+1} - x_{i})\big)\\
+\end{aligned}
+$$
+
+$\beta_{i} := \alpha_{i}\frac{\partial}{\partial d_{n+1, i}} f(d_{n+1, i}, \dots)$
+
+$$
+\begin{aligned}
+F_{n+1} &= \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)(-1+\beta_{i}\text{sign}(x_{n+1} - x_{i})\big)\\
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+  \mathcal{A}(n+1) &:= \{i\in\mathcal{N}(n+1): x_{n+1} - x_{i} > 0\} \implies \text{sign}(x_{n+1} - x_{i}) = 1\;\forall\;i\in\mathcal{A}\\
+  \mathcal{B}(n+1) &:= \{i\in\mathcal{N}(n+1): x_{n+1} - x_{i} < 0\} \implies \text{sign}(x_{n+1} - x_{i}) = -1\;\forall\;i\in\mathcal{B}\\
+  \mathcal{C}(n+1) &:= \{i\in\mathcal{N}(n+1): x_{n+1} - x_{i} = 0\} \implies \text{sign}(x_{n+1} - x_{i}) = 0\;\forall\;i\in\mathcal{C}\\
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+F_{n+1} &= \sum_{i\in\mathcal{A}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)(-1+\beta_{i})\\
+&= \sum_{i\in\mathcal{B}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)(-1-\beta_{i})\\
+&= \sum_{i\in\mathcal{C}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)(-1)\\
+  
+\end{aligned}
+
+$$
 
 # Suggestion for modelling $\xi$
 

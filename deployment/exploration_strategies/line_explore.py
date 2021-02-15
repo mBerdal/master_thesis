@@ -39,7 +39,7 @@ class LineExplore(ExplorationStrategy):
 
         """ Leads to equally spaced drones """
         k_is = np.zeros(x_is.shape)
-        k_is[-1] = 200*1
+        k_is[-1] = 2*1
         a_is[-1] = 1
 
         """ Test for 'move back gains' (a_i*k_i = 0 for all 0 < i < n) """
@@ -59,8 +59,7 @@ class LineExplore(ExplorationStrategy):
         a_is[-1] = 2
         k_is[-1] = np.sum(k_is) - 1
 
-        assert xi_is[xi_is > 0].shape[0] != 0, "Drone lost contact to all beacons"
-        assert k_is[-1]*(a_is[-1] - 1) >= np.sum(k_is[:-1]) and a_is[-1] >= 0,\
+        assert k_is[-1]*a_is[-1] > np.sum(k_is) or np.isclose(k_is[-1]*a_is[-1], np.sum(k_is)) and a_is[-1] >= 0,\
            "Conditions on constants a_i and k_i do not hold. Cannot guarantee x_{n+1} > x_{n}"
 
 
@@ -74,18 +73,23 @@ class LineExplore(ExplorationStrategy):
         xi_is = xi_is[neigh_indices]
 
         k_is = np.ones(x_is.shape)
-        a_is = np.ones(x_is.shape)
+        a_is = 1.1*np.ones(x_is.shape)
 
-        j = np.argmax(x_is)
-        a_is[j] = 1 + (1/k_is[j])*np.sum(np.delete(k_is, j))
+        m = np.argmax(x_is)
+        a_is[m] = (1/k_is[m])*np.sum(k_is) + 1
+
+
 
         """ Leads to equally spaced drones """
-        k_is = np.zeros(x_is.shape)
-        k_is[j] = 20*1
-        a_is[j] = 1
+        #k_is = np.zeros(x_is.shape)
+        #k_is[j] = 2*1
+        #a_is[j] = 1
 
-        assert k_is[j]*(a_is[j] - 1) >= np.sum(np.delete(k_is, j)) and a_is[j] >= 0,\
-           "Conditions on constants a_i and k_i do not hold. Cannot guarantee x_n_plus_one > max(x_i) for i in neighbors of nu_n_plus_one"
+        assert (k_is[m]*a_is[m] > np.sum(k_is) or np.isclose(k_is[m]*a_is[m], np.sum(k_is))) and a_is[m] >= 0,\
+          f"""
+          Conditions on constants a_i and k_i do not hold. Cannot guarantee x_n_plus_one > max(x_i) for i in neighbors of nu_n_plus_one.
+          {k_is[m]*(a_is[m] - 1)} >=? {np.sum(np.delete(k_is, m))} and {a_is[m]} >= 0.
+           """
 
       F_n = -np.sum(k_is*(MIN.pos[0] - a_is*(x_is + xi_is)))
       F_o = 0*gof(self.K_o, MIN, ENV)[0]
