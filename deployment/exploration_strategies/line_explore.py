@@ -13,10 +13,10 @@ class LineExploreKind(Enum):
       TWO_DIM_GLOBAL = 3,
 
 class LineExplore(ExplorationStrategy):
-  def __init__(self, K_o=1, force_threshold=0.01, RSSI_threshold=0.5, kind=LineExploreKind.ONE_DIM_GLOBAL):
+  def __init__(self, RSSI_threshold, K_o=1, force_threshold=0.01, kind=LineExploreKind.ONE_DIM_GLOBAL):
+    self.RSSI_threshold = RSSI_threshold
     self.K_o = K_o
     self.force_threshold = force_threshold
-    self.RSSI_threshold = RSSI_threshold
     self.kind = kind
 
   def prepare_exploration(self, target):
@@ -24,10 +24,10 @@ class LineExplore(ExplorationStrategy):
 
   def get_exploration_velocity(self, MIN, beacons, ENV):
     F, F_n, F_o = None, None, None
+    xi_is = np.array([MIN.get_xi_to_other_from_model(b) for b in beacons])
 
     if self.kind != LineExploreKind.TWO_DIM_GLOBAL:
       """ 1D """
-      xi_is = np.array([MIN.get_xi_to_other_from_model(b) for b in beacons])
       x_is = np.array([b.pos[0] for b in beacons])
       k_is, a_is = None, None
 
@@ -66,24 +66,40 @@ class LineExplore(ExplorationStrategy):
       elif self.kind == LineExploreKind.ONE_DIM_LOCAL:
         neigh_indices, = np.where(xi_is > self.RSSI_threshold)
         if len(neigh_indices) == 0:
-            print("STOPPED due to no neighs")
+            print(xi_is, self.RSSI_threshold)
+            print(f"{MIN.ID} STOPPED due to no neighs")
             raise AtLandingConditionException
         
         x_is = x_is[neigh_indices]
         xi_is = xi_is[neigh_indices]
 
+        m = np.argmax(x_is)
+
         k_is = np.ones(x_is.shape)
         a_is = 1.1*np.ones(x_is.shape)
 
-        m = np.argmax(x_is)
         a_is[m] = (1/k_is[m])*np.sum(k_is) + 1
-
 
 
         """ Leads to equally spaced drones """
         #k_is = np.zeros(x_is.shape)
         #k_is[j] = 2*1
         #a_is[j] = 1
+
+        """ Using qualitative info. about xi function vol. 1"""
+        a_is = np.ones(x_is.shape)
+        a_is[m] = 1.1
+        k_is = np.ones(x_is.shape)
+
+        delta_is = np.array([b.get_xi_max_decrease() for b in beacons[neigh_indices]])
+
+        k_is[m] = (1/(a_is[m]-1))*np.sum(np.delete(k_is*(1+a_is*delta_is), m)) + 0.1
+        
+        """ Using qualitative info. about xi function vol. 2"""
+        k_is = np.ones(x_is.shape)
+        a_is = np.ones(x_is.shape)
+
+        a_is[m] = (1/k_is[m])*np.sum(np.delete(k_is*(1+a_is*delta_is), m)) + 1
 
         assert (k_is[m]*a_is[m] > np.sum(k_is) or np.isclose(k_is[m]*a_is[m], np.sum(k_is))) and a_is[m] >= 0,\
           f"""
@@ -93,7 +109,7 @@ class LineExplore(ExplorationStrategy):
 
       F_n = -np.sum(k_is*(MIN.pos[0] - a_is*(x_is + xi_is)))
       F_o = 0*gof(self.K_o, MIN, ENV)[0]
-      F = np.array([F_n + F_o, 0])
+      F = self.__clamp(np.array([F_n + F_o, 0]), 10)
       
     else:
       """ 2D """
@@ -106,6 +122,7 @@ class LineExplore(ExplorationStrategy):
       F = F_n + F_o
           
     if np.linalg.norm(F) < self.force_threshold:
+      print(xi_is, self.RSSI_threshold)
       raise AtLandingConditionException
     return F
 

@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
   max_range = 3
 
-  N_mins = 2
+  N_mins = 10
   dt = 10e-4
 
   scs = SCS(max_range)
@@ -73,19 +73,20 @@ if __name__ == "__main__":
   """
   """ Line exploration """
 
-  RSSI_threshold = 4.9
-
   mins = [
     Min(
       max_range,
       DeploymentFSM(
         NoFollow(),
         LineExplore(
-          kind=LineExploreKind.ONE_DIM_LOCAL,
+          RSSI_threshold=0.5,
           K_o=0.01,
-          RSSI_threshold=RSSI_threshold
+          kind=LineExploreKind.ONE_DIM_LOCAL,
         )
-      )
+      ),
+      xi_max=3,
+      d_perf=1,
+      d_none=3
     ) for _ in range(N_mins)
   ]
 

@@ -21,6 +21,7 @@ class Beacon():
     self._d_none = d_none
     self._omega = np.pi/(self._d_none - self._d_perf)
     self._phi = -np.pi*self._d_perf/(self._d_none - self._d_perf)
+    self._xi_max_decrease = (xi_max/2)*self._omega
   
   def insert_into_environment(self, env):
     self.pos = env.entrance_point
@@ -42,6 +43,9 @@ class Beacon():
     if d > self._d_none:
       return 0
     return (self._xi_max/2)*(1+np.cos(self._omega*d + self._phi))
+
+  def get_xi_max_decrease(self):
+    return self._xi_max_decrease
 
 
   def get_vec_to_other(self, other):
