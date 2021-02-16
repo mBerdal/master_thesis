@@ -244,6 +244,9 @@ $$
 g(t+1) \geq \sum_{i=0}^{t}g(i)
 $$
 
-> Suggestion: $g(i) = e^{i}$
+> Suggestion: $g(i) = e^{i}$ (NUMERICALLY UNSTABLE FOR MANY NEIGHBORS)
 > 
 > $\kappa_{m} = \frac{1}{1 + 2\delta}e^{m}$, $\kappa_{i}$
+
+## TODO
+Expand to 2D. What metric should be used to 'see if the new drone explores' more area?
