@@ -153,55 +153,6 @@ $$
 \exists\;1\leq i\leq n: \xi_{n+1, i} = \tau = \tau_{neigh} + \delta_{\tau} \implies \exists\;1\leq i\leq n: \xi_{n+1, i} > \tau_{neigh}
 $$
 
-# Proof using qualitative properties for $\xi$
-$$
-\begin{aligned}
-  \xi_{n+1, i} &\leq \bar{\xi}\;\forall\;1\leq i\leq n\\
-  \xi_{n+1, i} &\geq 0\;\forall\;1\leq i\leq n\\
-  \xi_{n+1, i} &> \tau\;\forall\;i\in\mathcal{N}(n+1)\\
-  \xi_{n+1, i} &= f(||x_{n+1} - x_{i}||, \dots) = f(d_{n+1, i}, \dots)\\
-  \frac{\partial}{\partial d_{n+1, i}} f(d_{n+1, i}, \dots) &\leq 0\\
-  \frac{\partial}{\partial x_{n+1, i}}\xi_{n+1, i} &= \frac{\partial}{\partial d_{n+1, i}} f(d_{n+1, i}, \dots) \cdot \frac{\partial}{\partial x_{n+1, i}}d_{n+1, i}\\
-  &= \frac{\partial}{\partial d_{n+1, i}} f(d_{n+1, i}, \dots)\cdot\text{sign}(x_{n+1} - x_{i})
-\end{aligned}
-$$
-
-## Force affecting $\nu_{n+1}$
-$$
-\begin{aligned}
-F_{n+1} &= -\frac{\partial}{\partial x_{n+1, i}}U_{n+1} = -\frac{\partial}{\partial x_{n+1, i}}\frac{1}{2}\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}||x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})||^{2}\\
-&= \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)\frac{\partial}{\partial x_{n+1, i}}\big(-x_{n+1}+\alpha_{i}(x_{i}+\xi_{n+1,i})\big)\\
-&= \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)(-1+\alpha_{i}\frac{\partial}{\partial x_{n+1, i}}\xi_{n+1,i}\big)\\
-&= \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)(-1+\alpha_{i}\frac{\partial}{\partial d_{n+1, i}} f(d_{n+1, i}, \dots)\cdot\text{sign}(x_{n+1} - x_{i})\big)\\
-\end{aligned}
-$$
-
-$\beta_{i} := \alpha_{i}\frac{\partial}{\partial d_{n+1, i}} f(d_{n+1, i}, \dots)$
-
-$$
-\begin{aligned}
-F_{n+1} &= \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)(-1+\beta_{i}\text{sign}(x_{n+1} - x_{i})\big)\\
-\end{aligned}
-$$
-
-$$
-\begin{aligned}
-  \mathcal{A}(n+1) &:= \{i\in\mathcal{N}(n+1): x_{n+1} - x_{i} > 0\} \implies \text{sign}(x_{n+1} - x_{i}) = 1\;\forall\;i\in\mathcal{A}\\
-  \mathcal{B}(n+1) &:= \{i\in\mathcal{N}(n+1): x_{n+1} - x_{i} < 0\} \implies \text{sign}(x_{n+1} - x_{i}) = -1\;\forall\;i\in\mathcal{B}\\
-  \mathcal{C}(n+1) &:= \{i\in\mathcal{N}(n+1): x_{n+1} - x_{i} = 0\} \implies \text{sign}(x_{n+1} - x_{i}) = 0\;\forall\;i\in\mathcal{C}\\
-\end{aligned}
-$$
-
-$$
-\begin{aligned}
-F_{n+1} &= \sum_{i\in\mathcal{A}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)(-1+\beta_{i})\\
-&= \sum_{i\in\mathcal{B}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)(-1-\beta_{i})\\
-&= \sum_{i\in\mathcal{C}(n+1)}\kappa_{i}\big(x_{n+1}-\alpha_{i}(x_{i}+\xi_{n+1,i})\big)(-1)\\
-  
-\end{aligned}
-
-$$
-
 # Suggestion for modelling $\xi$
 
 Defining $d_{n+1, i} = ||x_{n+1} - x_{i}||$. We want $\xi$ to be at some constant, $\bar{\xi}$ when $d_{n+1, i}$ is sufficiently small.
