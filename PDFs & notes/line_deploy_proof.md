@@ -269,30 +269,192 @@ $$
 
 ### Checking for larger dispersion
 $$
-\mathbf{Q} = \frac{1}{n-1}\sum_{i=1}^{n}(\mathbf{s}_{i}-\bar{\mathbf{s}})(\mathbf{s}_{i}-\bar{\mathbf{s}})^{T},\quad \bar{\mathbf{s}} = \frac{1}{n}\sum_{i=1}^{n}\mathbf{s}_{i}
+\mathbf{Q} = \frac{1}{n-1}\sum_{i=1}^{n}(\mathbf{s}_{i}-\mathbf{c})(\mathbf{s}_{i}-\mathbf{c})^{T},\quad \mathbf{c} = \frac{1}{n}\sum_{i=1}^{n}\mathbf{s}_{i}
 $$
 
-**TODO**
-Check if $\det{(\mathbf{Q})}$ is larger after $\mathbf{x}_{n+1} = \mathbf{x}_{n+1}^{*}$ is included than when only using neighbors.
+> "The generalized variance is defined as the determinant of the covariance matrix, $\det(\Sigma)$. It can be shown to be related to the multidimensional scatter of points around their mean."
 
-**TODO**
-Read papers about entropy.
+**TODO**: Check if $\det{(\mathbf{Q})}$ is larger after $\mathbf{x}_{n+1} = \mathbf{x}_{n+1}^{*}$ is included than when only using neighbors.
+
+For a set $\mathcal{S}$ of drones $\nu_{i},\;i\in\mathcal{S}$ positioned at $\mathbf{x}_{i}\in\mathbb{R}^{2}$, the generalized variance is defined as:
+$$
+\begin{aligned}
+\det(\mathbf{Q}_{\mathcal{S}}) &= \det\Bigg(\frac{1}{|\mathcal{S}|-1}\sum_{i\in\mathcal{S}}(\mathbf{x}_{i}-\mathbf{c}_{\mathcal{S}})(\mathbf{x}_{i}-\mathbf{c}_{\mathcal{S}})^{T}\Bigg) = \Bigg(\frac{1}{|\mathcal{S}|-1}\Bigg)^{2}\det\Bigg(\sum_{i\in\mathcal{S}}\begin{bmatrix}
+  x_{i} - c_{\mathcal{S}, x}\\
+  y_{i} - c_{\mathcal{S}, y}
+\end{bmatrix}\begin{bmatrix}
+  x_{i} - c_{\mathcal{S}, x}&
+  y_{i} - c_{\mathcal{S}, y}
+\end{bmatrix}\Bigg)\\
+&= \Bigg(\frac{1}{|\mathcal{S}|-1}\Bigg)^{2}\det\Bigg(\sum_{i\in\mathcal{S}}\begin{bmatrix}
+  (x_{i} - c_{\mathcal{S}, x})^{2} & (x_{i} - c_{\mathcal{S}, x})(y_{i} - c_{\mathcal{S}, y})\\
+  \dots & (y_{i} - c_{\mathcal{S}, y})^{2}
+\end{bmatrix}\Bigg)\\
+&= \Bigg(\frac{1}{|\mathcal{S}|-1}\Bigg)^{2}\det\Bigg(\begin{bmatrix}
+  \sum_{i\in\mathcal{S}}(x_{i} - c_{\mathcal{S}, x})^{2} & \sum_{i\in\mathcal{S}}(x_{i} - c_{\mathcal{S}, x})(y_{i} - c_{\mathcal{S}, y})\\
+  \dots & \sum_{i\in\mathcal{S}}(y_{i} - c_{\mathcal{S}, y})^{2}
+\end{bmatrix}\Bigg)\\
+&= \Bigg(\frac{1}{|\mathcal{S}|-1}\Bigg)^{2}\Bigg(
+  \Big(\sum_{i\in\mathcal{S}}(x_{i} - c_{\mathcal{S}, x})^{2}\Big)\Big(\sum_{i\in\mathcal{S}}(y_{i} - c_{\mathcal{S}, y})^{2}\Big) - \Big(\sum_{i\in\mathcal{S}}(x_{i} - c_{\mathcal{S}, x})(y_{i} - c_{\mathcal{S}, y})\Big)^{2}
+\Bigg)\\
+\end{aligned}
+$$
+
+Defining the column vectors:
+$$
+\begin{aligned}
+\mathbf{x}_{\mathcal{S}} &= \begin{bmatrix}
+  x_{i}
+\end{bmatrix}\in\mathbb{R}^{|\mathcal{S}|\times 1}\\
+\mathbf{y}_{\mathcal{S}} &= \begin{bmatrix}
+  y_{i}
+\end{bmatrix}\in\mathbb{R}^{|\mathcal{S}|\times 1}\\
+\mathbf{d}_{\mathcal{S}, x} &= \begin{bmatrix}
+  x_{i} - c_{\mathcal{S}, x}
+\end{bmatrix} = \mathbf{x}_{\mathcal{S}} - \mathbf{1}
+c_{\mathcal{S}, x}\in\mathbb{R}^{|\mathcal{S}|\times 1}\\
+\mathbf{d}_{\mathcal{S}, y} &= \begin{bmatrix}
+  y_{i} - c_{\mathcal{S}, y}
+\end{bmatrix} = \mathbf{y}_{\mathcal{S}} - \mathbf{1}
+c_{\mathcal{S}, y}\in\mathbb{R}^{|\mathcal{S}|\times 1}\\
+\end{aligned}
+$$
+
+so that:
+
+$$
+\begin{aligned}
+  \mathbf{d}_{\mathcal{S}, x}^{T}\mathbf{d}_{\mathcal{S}, x} = \begin{bmatrix}
+    x_{\mathcal{S}_{1}} - c_{\mathcal{S}, x}&
+    x_{\mathcal{S}_{2}} - c_{\mathcal{S}, x}&
+    \dots&
+    x_{\mathcal{S}_{|\mathcal{S}|}} - c_{\mathcal{S}, x}
+  \end{bmatrix}\begin{bmatrix}
+    x_{\mathcal{S}_{1}} - c_{\mathcal{S}, x}\\
+    x_{\mathcal{S}_{2}} - c_{\mathcal{S}, x}\\
+    \vdots\\
+    x_{\mathcal{S}_{|\mathcal{S}|}} - c_{\mathcal{S}, x}
+  \end{bmatrix} &= \sum_{i\in\mathcal{S}}(x_{i} - c_{\mathcal{S}, x})^{2}\\
+
+  \mathbf{d}_{\mathcal{S}, y}^{T}\mathbf{d}_{\mathcal{S}, y} = \begin{bmatrix}
+    y_{\mathcal{S}_{1}} - c_{\mathcal{S}, y}&
+    y_{\mathcal{S}_{2}} - c_{\mathcal{S}, y}&
+    \dots&
+    y_{\mathcal{S}_{|\mathcal{S}|}} - c_{\mathcal{S}, y}
+  \end{bmatrix}\begin{bmatrix}
+    y_{\mathcal{S}_{1}} - c_{\mathcal{S}, y}\\
+    y_{\mathcal{S}_{2}} - c_{\mathcal{S}, y}\\
+    \vdots\\
+    y_{\mathcal{S}_{|\mathcal{S}|}} - c_{\mathcal{S}, y}
+  \end{bmatrix} &= \sum_{i\in\mathcal{S}}(y_{i} - c_{\mathcal{S}, y})^{2}\\
+
+  \mathbf{d}_{\mathcal{S}, x}^{T}\mathbf{d}_{\mathcal{S}, y} = \begin{bmatrix}
+    x_{\mathcal{S}_{1}} - c_{\mathcal{S}, x}&
+    x_{\mathcal{S}_{2}} - c_{\mathcal{S}, x}&
+    \dots&
+    x_{\mathcal{S}_{|\mathcal{S}|}} - c_{\mathcal{S}, x}
+  \end{bmatrix}\begin{bmatrix}
+    y_{\mathcal{S}_{1}} - c_{\mathcal{S}, y}\\
+    y_{\mathcal{S}_{2}} - c_{\mathcal{S}, y}\\
+    \vdots\\
+    y_{\mathcal{S}_{|\mathcal{S}|}} - c_{\mathcal{S}, y}
+  \end{bmatrix} &= \sum_{i\in\mathcal{S}}(x_{i} - c_{\mathcal{S}, x})(y_{i} - c_{\mathcal{S}, y})\\
+\end{aligned}
+$$
+
+we arrive at:
+
+$$
+\det(\mathbf{Q}_{\mathcal{S}}) = \Bigg(\frac{1}{|\mathcal{S}|-1}\Bigg)^{2}\Big(
+  \mathbf{d}_{\mathcal{S}, x}^{T}\mathbf{d}_{\mathcal{S}, x}\mathbf{d}_{\mathcal{S}, y}^{T}\mathbf{d}_{\mathcal{S}, y} - \big(\mathbf{d}_{\mathcal{S}, x}^{T}\mathbf{d}_{\mathcal{S}, y}\big)^{2}
+\Big)
+$$
+
+#### Check for increase in generalized variance
+Assuming $|\mathcal{N}(n+1)| \geq 2$.
+$\mathcal{S}(n+1) := \mathcal{N}(n+1)\cup\{n+1\}$
+$$
+\begin{aligned}
+  \det(\mathbf{Q}_{\mathcal{S}(n+1)}) > \det(\mathbf{Q}_{\mathcal{N}(n+1)}) &\iff \Bigg(\frac{1}{|\mathcal{S}(n+1)|-1}\Bigg)^{2}\Big(
+  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x}\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} - \big(\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}\big)^{2} > \Bigg(\frac{1}{|\mathcal{N}(n+1)|-1}\Bigg)^{2}\Big(
+  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} - \big(\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}\big)^{2}
+\Big)\\
+& \iff \Bigg(\frac{1}{|\mathcal{N}(n+1)| + 1 - 1}\Bigg)^{2}\Big(
+  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x}\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} - \big(\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}\big)^{2} > \Bigg(\frac{1}{|\mathcal{N}(n+1)|-1}\Bigg)^{2}\Big(
+  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} - \big(\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}\big)^{2}
+\Big)\\
+& \iff
+  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x}\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} - \big(\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}\big)^{2} - \Bigg(\frac{|\mathcal{N}(n+1)|}{|\mathcal{N}(n+1)|-1}\Bigg)^{2}\Big(
+  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} - \big(\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}\big)^{2}\Big) > 0
+\end{aligned}
+$$
+
+---
+
+$$
+\begin{aligned}
+c_{\mathcal{S}(n+1), x} &= \frac{1}{|\mathcal{S}(n+1)|}\sum_{i\in\mathcal{S}(n+1)}x_{i} = \frac{1}{|\mathcal{N}(n+1)|+1}\Big(x_{n+1} + \sum_{i\in\mathcal{N}(n+1)}x_{i}\Big) = \frac{1}{|\mathcal{N}(n+1)|+1}\Big(x_{n+1} + |\mathcal{N}(n+1)|\frac{1}{|\mathcal{N}(n+1)|}\sum_{i\in\mathcal{N}(n+1)}x_{i}\Big)\\
+&= \frac{1}{|\mathcal{N}(n+1)|+1}\Big(x_{n+1} + |\mathcal{N}(n+1)|c_{\mathcal{N}(n+1), x}\Big)\\
 
 
+\mathbf{x}_{\mathcal{S}(n+1), x} &= \begin{bmatrix}
+  \mathbf{x}_{\mathcal{N}(n+1), x}\\
+  x_{n+1}
+\end{bmatrix} = \begin{bmatrix}
+  \mathbf{d}_{\mathcal{N}(n+1), x} + \mathbf{1}c_{\mathcal{N}(n+1), x}\\
+  x_{n+1}
+\end{bmatrix}\\
 
-## Suggestion inspired by the covariance matrix (Far fetched shit)
 
-The sample covariance matrix is a matrix on the form:
-
-
-where $\mathbf{s}_{i}$ are samples and $\bar{\mathbf{s}}$ is the sample mean.
+\implies \mathbf{d}_{\mathcal{S}(n+1), x} &= \mathbf{x}_{\mathcal{S}(n+1)} - \mathbf{1}c_{\mathcal{S}(n+1), x} = \begin{bmatrix}
+  \mathbf{d}_{\mathcal{N}(n+1), x} + \mathbf{1}c_{\mathcal{N}(n+1), x}\\
+  x_{n+1}
+\end{bmatrix} - \mathbf{1}\frac{1}{|\mathcal{N}(n+1)|+1}\Big(x_{n+1} + |\mathcal{N}(n+1)|c_{\mathcal{N}(n+1), x}\Big)\\
+&= \begin{bmatrix}
+  \mathbf{d}_{\mathcal{N}(n+1), x} + \mathbf{1}c_{\mathcal{N}(n+1), x} - \mathbf{1}\frac{1}{|\mathcal{N}(n+1)|+1}x_{n+1} - \mathbf{1}\frac{|\mathcal{N}(n+1)|}{|\mathcal{N}(n+1)|+1}c_{\mathcal{N}(n+1), x}\\
+  x_{n+1} - \frac{1}{|\mathcal{N}(n+1)|+1}\Big(x_{n+1} + |\mathcal{N}(n+1)|c_{\mathcal{N}(n+1), x}\Big)
+\end{bmatrix}\\
+&= \begin{bmatrix}
+  \mathbf{d}_{\mathcal{N}(n+1), x} + \mathbf{1}\frac{1}{|\mathcal{N}(n+1)|+1}(c_{\mathcal{N}(n+1), x} - x_{n+1})\\
+  \frac{|\mathcal{N}(n+1)|}{|\mathcal{N}(n+1)|+1}(x_{n+1} - c_{\mathcal{N}(n+1), x})
+\end{bmatrix}\\
+&= \begin{bmatrix}
+  \mathbf{d}_{\mathcal{N}(n+1), x}\\
+  0
+\end{bmatrix}+\frac{1}{|\mathcal{N}(n+1)|+1}\begin{bmatrix}
+  -\mathbf{1}\\
+  |\mathcal{N}(n+1)|
+\end{bmatrix}(x_{n+1}-c_{\mathcal{N}(n+1), x})\\
+\implies \mathbf{d}_{\mathcal{S}(n+1), y} &= \begin{bmatrix}
+  \mathbf{d}_{\mathcal{N}(n+1), y}\\
+  0
+\end{bmatrix}+\frac{1}{|\mathcal{N}(n+1)|+1}\begin{bmatrix}
+  -\mathbf{1}\\
+  |\mathcal{N}(n+1)|
+\end{bmatrix}(y_{n+1}-c_{\mathcal{N}(n+1), y})
+\end{aligned}
+$$
 
 Defining:
 
 $$
 \begin{aligned}
-  \bar{\mathbf{s}} &:= \sqrt{\kappa_{i}}x_{n+1}\\
-  \mathbf{s}_{i} &:= \sqrt{\kappa_{i}}\alpha_{i}(x_{i} + \xi_{n+1, i})\\
+  \bar{\mathbf{d}}_{\mathcal{N}(n+1), x} &= \begin{bmatrix}
+    \mathbf{d}_{\mathcal{N}(n+1), x}\\
+    0
+  \end{bmatrix}\\
+  \bar{\mathbf{d}}_{\mathcal{N}(n+1), y} &= \begin{bmatrix}
+    \mathbf{d}_{\mathcal{N}(n+1), y}\\
+    0
+  \end{bmatrix}\\
+  \boldsymbol{\delta}_{n+1, x} &:= \frac{1}{|\mathcal{N}(n+1)|+1}\begin{bmatrix}
+  -\mathbf{1}\\
+  |\mathcal{N}(n+1)|
+\end{bmatrix}(x_{n+1}-c_{\mathcal{N}(n+1), x})\\
+\boldsymbol{\delta}_{n+1, y} &:= \frac{1}{|\mathcal{N}(n+1)|+1}\begin{bmatrix}
+  -\mathbf{1}\\
+  |\mathcal{N}(n+1)|
+\end{bmatrix}(y_{n+1}-c_{\mathcal{N}(n+1), y})\\
 \end{aligned}
 $$
 
@@ -300,201 +462,71 @@ we get:
 
 $$
 \begin{aligned}
-\tilde{\mathbf{Q}} &= \frac{1}{n-1}\sum_{i=1}^{n}(\sqrt{\kappa_{i}}x_{n+1} - \sqrt{\kappa_{i}}\alpha_{i}(x_{i} + \xi_{n+1, i}))(\sqrt{\kappa_{i}}x_{n+1} - \sqrt{\kappa_{i}}\alpha_{i}(x_{i} + \xi_{n+1, i}))^{T}\\
-&= \frac{1}{n-1}\sum_{i=1}^{n}(\sqrt{\kappa_{i}}(x_{n+1} - \alpha_{i}(x_{i} + \xi_{n+1, i})))^{2}\\
-&= \frac{1}{n-1}\sum_{i=1}^{n}\kappa_{i}(x_{n+1} - \alpha_{i}(x_{i} + \xi_{n+1, i}))^{2}\\
-\end{aligned}
-$$
-
-If we choose:
-
-$$
-U_{n+1} = \frac{1}{2}(n-1)^{\dim\tilde{\mathbf{Q}}}\det(\tilde{Q})
-$$
-We get, in the 1D case:
-$$
-\begin{aligned}
-U_{n+1} &= \frac{1}{2}(n-1)^{1}\det\Bigg(\frac{1}{n-1}\sum_{i=1}^{n}\kappa_{i}(x_{n+1} - \alpha_{i}(x_{i} + \xi_{n+1, i}))^{2}\Bigg)\\
-&= \frac{1}{2}(n-1)\frac{1}{n-1}\sum_{i=1}^{n}\kappa_{i}(x_{n+1} - \alpha_{i}(x_{i} + \xi_{n+1, i}))^{2}\\
-&= \frac{1}{2}\sum_{i=1}^{n}\kappa_{i}(x_{n+1} - \alpha_{i}(x_{i} + \xi_{n+1, i}))^{2}\\
-\end{aligned}
-$$
-
-which is the same as the potential previously stated.
-
-In the 2D case we use a weighting vector $\mathbf{v}_{i}$ and define:
-
-$$
-\begin{aligned}
-  \bar{\mathbf{s}} &:= \sqrt{\kappa_{i}}\mathbf{x}_{n+1}\\
-  \mathbf{s}_{i} &:= \sqrt{\kappa_{i}}\alpha_{i}(\mathbf{x}_{i} + \mathbf{v}_{i}\xi_{n+1, i})\\
-\end{aligned}
-$$
-
-We then get the potential function:
-
-$$
-\begin{aligned}
-U_{n+1} &= \frac{1}{2}(n-1)^{2}\det\Bigg(\frac{1}{n-1}\sum_{i=1}^{n}(\sqrt{\kappa_{i}}\mathbf{x}_{n+1} - \sqrt{\kappa_{i}}\alpha_{i}(\mathbf{x}_{i} + \mathbf{v}_{i}\xi_{n+1, i}))(\sqrt{\kappa_{i}}\mathbf{x}_{n+1} - \sqrt{\kappa_{i}}\alpha_{i}(\mathbf{x}_{i} + \mathbf{v}_{i}\xi_{n+1, i}))^{T}\Bigg)\\
-&= \frac{1}{2}(n-1)^{2}\det\Bigg(\frac{1}{n-1}\sum_{i=1}^{n}\kappa_{i}(\mathbf{x}_{n+1} - \alpha_{i}(\mathbf{x}_{i} + \mathbf{v}_{i}\xi_{n+1, i}))(\mathbf{x}_{n+1} - \alpha_{i}(\mathbf{x}_{i} + \mathbf{v}_{i}\xi_{n+1, i}))^{T}\Bigg)\\
-&= \frac{1}{2}(n-1)^{2}\Bigg(\frac{1}{n-1}\Bigg)^{2}\det\Bigg(\sum_{i=1}^{n}\kappa_{i}\begin{bmatrix}
-  x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\\
-  y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})
-\end{bmatrix}
-\begin{bmatrix}
-  x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i}) &
-  y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})
-\end{bmatrix}\Bigg)\\
-&= \frac{1}{2}\det\Bigg(\sum_{i=1}^{n}\kappa_{i}\begin{bmatrix}
-  \big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)^{2} &
-  \big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big) \\
-  \big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big) & 
-  \big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)^{2}
-\end{bmatrix}\\
-&= \frac{1}{2}\det\Bigg(\begin{bmatrix}
-  \sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)^{2} &
-  \sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big) \\
-  \sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big) & 
-  \sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)^{2}
-\end{bmatrix}\\
-&= \frac{1}{2}\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)^{2}\Bigg)\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)^{2}\Bigg)\\
-&- \frac{1}{2}\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)^{2}
-\end{aligned}
-$$
-
-## Differentiation boiii
-
-$$
-\begin{aligned}
-  \frac{\partial}{\partial x_{n+1}}\xi_{n+1, i} =  \frac{\partial}{\partial y_{n+1}}\xi_{n+1, i} = 0 \quad\text{for simplicity (change this later)}
+  \mathbf{d}_{\mathcal{S}(n+1), x} &=\bar{\mathbf{d}}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}\\
+  \mathbf{d}_{\mathcal{S}(n+1), y} &=\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}\\
 \end{aligned}
 $$
 
 $$
 \begin{aligned}
-  \frac{\partial}{\partial x_{n+1}} \sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)^{2} &= \sum_{i=1}^{n}\kappa_{i}\frac{\partial}{\partial x_{n+1}}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)^{2}\\
-  &= \sum_{i=1}^{n}\kappa_{i}2\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\frac{\partial}{\partial x_{n+1}}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\\
-  &= \sum_{i=1}^{n}\kappa_{i}2\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(1 - \alpha_{i}(0 + v_{i, x}\cdot 0)\big)\\
-  &= 2\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\\
+\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x} &= \big(\bar{\mathbf{d}}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}\big)^{T}\big(\bar{\mathbf{d}}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}\big) = \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), x} + \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x}\\
+&= \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x}\\
+
+\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} &= \mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}
 \end{aligned}
 $$
 
 $$
 \begin{aligned}
-  \frac{\partial}{\partial x_{n+1}} \sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)^{2} &= 0
+  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x}\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} &= 
+  \big(
+    \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x}
+  \big)
+  \big(
+    \mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}
+  \big)\\
+  &= \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}(\boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y})\\
+  &+ (\boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x})(\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y})
 \end{aligned}
 $$
 
 $$
 \begin{aligned}
-  &\frac{\partial}{\partial x_{n+1}} \Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)^{2}\\
-  &= 2\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &\cdot \frac{\partial}{\partial x_{n+1}} \Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &= 2\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &\cdot \Bigg(\sum_{i=1}^{n}\kappa_{i}\frac{\partial}{\partial x_{n+1}}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &= 2\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &\cdot \Bigg(\sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\frac{\partial}{\partial x_{n+1}}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\Bigg)\\
-  &= 2\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &\cdot \Bigg(\sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\big(1 - \alpha_{i}(0 + v_{i, x}\cdot 0)\big)\Bigg)\\
-  &= 2\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &\cdot \sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\\
+  \big(\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}\big)^{2} &= \big((\bar{\mathbf{d}}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x})^{T}(\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y})\big)^{2} = \big(
+    \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + 
+    \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y}
+  \big)^{2}\\
+  &= (\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y})^{2} + 2\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}(\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y})\\
+  &+ (\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y})^{2}
 \end{aligned}
 $$
+
+---
 
 $$
 \begin{aligned}
-    \frac{\partial}{\partial x_{n+1}}U_{n+1} &= \frac{1}{2}\Bigg(2\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\Bigg)\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)^{2}\Bigg)\\
-    &-\frac{1}{2}2\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-    &= \Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\Bigg)\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)^{2}\Bigg)\\
-    &-\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-    &= 
-    \begin{bmatrix}
-      \sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)^{2} &
-      -\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)
-    \end{bmatrix}
-    \begin{bmatrix}
-      \sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big) \\
-      \sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)
-    \end{bmatrix}\\
-    &= 
-    \Bigg(\sum_{i=1}^{n}
-    \begin{bmatrix}
-      \kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)^{2} &
-      -\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)
-    \end{bmatrix}\Bigg)
-    \Bigg(\sum_{i=1}^{n}
-    \begin{bmatrix}
-      \kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big) \\
-      \kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)
-    \end{bmatrix}\Bigg)
+  &\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x}\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} - \big(\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}\big)^{2} - \Bigg(\frac{|\mathcal{N}(n+1)|}{|\mathcal{N}(n+1)|-1}\Bigg)^{2}\Big(
+  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} - \big(\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}\big)^{2}\Big) = \\
+
+
+  &\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}(\boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}) + \\
+  & (\boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x})(\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}) + \\
+  &(\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y})^{2} + 2\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}(\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y}) + \\
+  & (\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y})^{2} - \\
+  &\Bigg(\frac{|\mathcal{N}(n+1)|}{|\mathcal{N}(n+1)|-1}\Bigg)^{2}\Big(
+  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} - (\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y})^{2}\Big) = \\
+
+  &\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}\big(1 - g(|\mathcal{N}(n+1|)\big) + \\
+  &(\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y})^{2}\big(1 + g(|\mathcal{N}(n+1|)\big) + \\
+  &\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}(\boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}) + \\
+  & (\boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x})(\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}) + \\
+  &2\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}(\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y}) + \\
+  & (\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y})^{2} = \\
+
 \end{aligned}
 $$
 
-$$
-\begin{aligned}
-  \frac{\partial}{\partial y_{n+1}} \sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)^{2} &= \sum_{i=1}^{n}\kappa_{i}\frac{\partial}{\partial y_{n+1}}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)^{2}\\
-  &= \sum_{i=1}^{n}\kappa_{i}2\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\frac{\partial}{\partial y_{n+1}}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\\
-  &= \sum_{i=1}^{n}\kappa_{i}2\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\big(1 - \alpha_{i}(0 + v_{i, y}\cdot 0)\big)\\
-  &= 2\sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\\
-\end{aligned}
-$$
 
-$$
-\begin{aligned}
-  \frac{\partial}{\partial y_{n+1}} \sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)^{2} &= 0
-\end{aligned}
-$$
+**TODO**
+Read papers about entropy.
 
-$$
-\begin{aligned}
-  &\frac{\partial}{\partial y_{n+1}} \Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)^{2}\\
-  &= 2\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &\cdot \frac{\partial}{\partial y_{n+1}} \Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &= 2\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &\cdot \Bigg(\sum_{i=1}^{n}\kappa_{i}\frac{\partial}{\partial y_{n+1}}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &= 2\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &\cdot \Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\frac{\partial}{\partial y_{n+1}}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &= 2\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &\cdot \Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(1 - \alpha_{i}(0 + v_{i, y}\cdot 0)\big)\Bigg)\\
-  &= 2\Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg)\\
-  &\cdot \sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\\
-\end{aligned}
-$$
-
-$$
-\begin{aligned}
-  \frac{\partial}{\partial y_{n+1}}U_{n+1} &= \Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)^{2}\Bigg)\sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\\
-  &- \Bigg(\sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\Bigg) \sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\\
-  &= \begin{bmatrix}
-    - \sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big) & \sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)^{2}
-  \end{bmatrix}\begin{bmatrix}
-      \sum_{i=1}^{n}\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big) \\
-      \sum_{i=1}^{n}\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)
-    \end{bmatrix}\\
-  &= \Bigg(\sum_{i=1}^{n}
-    \begin{bmatrix}
-      -\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big) & 
-       \kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)^{2}
-    \end{bmatrix}\Bigg)\Bigg(\sum_{i=1}^{n}\begin{bmatrix}
-      \kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big) \\
-      \kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)
-    \end{bmatrix}\Bigg)\\
-\end{aligned}
-$$
-
-$$
-\frac{\partial}{\partial \mathbf{x}_{n+1}} U_{n+1} = \Bigg(\sum_{i=1}^{n}\begin{bmatrix}
-  \kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)^{2} &
-  -\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)\\
-  -\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big) & 
-  \kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big)^{2}
-\end{bmatrix}\Bigg)
-\Bigg(\sum_{i=1}^{n}\begin{bmatrix}
-\kappa_{i}\big(x_{n+1} - \alpha_{i}(x_{i} + v_{i, x}\xi_{n+1, i})\big) \\
-\kappa_{i}\big(y_{n+1} - \alpha_{i}(y_{i} + v_{i, y}\xi_{n+1, i})\big)
-\end{bmatrix}\Bigg)\\
-$$
-
-$$
-\frac{\partial}{\partial\mathbf{x}_{n+1}}U_{n+1} = A(\mathbf{x}_{n+1})\mathbf{v}(\mathbf{x}_{n+1})\;, \; A(\mathbf{x}_{n+1}) = A(\mathbf{x}_{n+1})^{T}
-$$
