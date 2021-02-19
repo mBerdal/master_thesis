@@ -279,24 +279,21 @@ $$
 For a set $\mathcal{S}$ of drones $\nu_{i},\;i\in\mathcal{S}$ positioned at $\mathbf{x}_{i}\in\mathbb{R}^{2}$, the generalized variance is defined as:
 $$
 \begin{aligned}
-\det(\mathbf{Q}_{\mathcal{S}}) &= \det\Bigg(\frac{1}{|\mathcal{S}|-1}\sum_{i\in\mathcal{S}}(\mathbf{x}_{i}-\mathbf{c}_{\mathcal{S}})(\mathbf{x}_{i}-\mathbf{c}_{\mathcal{S}})^{T}\Bigg) = \Bigg(\frac{1}{|\mathcal{S}|-1}\Bigg)^{2}\det\Bigg(\sum_{i\in\mathcal{S}}\begin{bmatrix}
+\mathbf{Q}_{\mathcal{S}} &= \frac{1}{|\mathcal{S}|-1}\sum_{i\in\mathcal{S}}(\mathbf{x}_{i}-\mathbf{c}_{\mathcal{S}})(\mathbf{x}_{i}-\mathbf{c}_{\mathcal{S}})^{T} = \frac{1}{|\mathcal{S}|-1}\sum_{i\in\mathcal{S}}\begin{bmatrix}
   x_{i} - c_{\mathcal{S}, x}\\
   y_{i} - c_{\mathcal{S}, y}
 \end{bmatrix}\begin{bmatrix}
   x_{i} - c_{\mathcal{S}, x}&
   y_{i} - c_{\mathcal{S}, y}
-\end{bmatrix}\Bigg)\\
-&= \Bigg(\frac{1}{|\mathcal{S}|-1}\Bigg)^{2}\det\Bigg(\sum_{i\in\mathcal{S}}\begin{bmatrix}
+\end{bmatrix}\\
+&= \frac{1}{|\mathcal{S}|-1}\sum_{i\in\mathcal{S}}\begin{bmatrix}
   (x_{i} - c_{\mathcal{S}, x})^{2} & (x_{i} - c_{\mathcal{S}, x})(y_{i} - c_{\mathcal{S}, y})\\
   \dots & (y_{i} - c_{\mathcal{S}, y})^{2}
-\end{bmatrix}\Bigg)\\
-&= \Bigg(\frac{1}{|\mathcal{S}|-1}\Bigg)^{2}\det\Bigg(\begin{bmatrix}
+\end{bmatrix}\\
+&= \frac{1}{|\mathcal{S}|-1}\begin{bmatrix}
   \sum_{i\in\mathcal{S}}(x_{i} - c_{\mathcal{S}, x})^{2} & \sum_{i\in\mathcal{S}}(x_{i} - c_{\mathcal{S}, x})(y_{i} - c_{\mathcal{S}, y})\\
   \dots & \sum_{i\in\mathcal{S}}(y_{i} - c_{\mathcal{S}, y})^{2}
-\end{bmatrix}\Bigg)\\
-&= \Bigg(\frac{1}{|\mathcal{S}|-1}\Bigg)^{2}\Bigg(
-  \Big(\sum_{i\in\mathcal{S}}(x_{i} - c_{\mathcal{S}, x})^{2}\Big)\Big(\sum_{i\in\mathcal{S}}(y_{i} - c_{\mathcal{S}, y})^{2}\Big) - \Big(\sum_{i\in\mathcal{S}}(x_{i} - c_{\mathcal{S}, x})(y_{i} - c_{\mathcal{S}, y})\Big)^{2}
-\Bigg)\\
+\end{bmatrix}\\
 \end{aligned}
 $$
 
@@ -365,31 +362,50 @@ $$
 we arrive at:
 
 $$
-\det(\mathbf{Q}_{\mathcal{S}}) = \Bigg(\frac{1}{|\mathcal{S}|-1}\Bigg)^{2}\Big(
-  \mathbf{d}_{\mathcal{S}, x}^{T}\mathbf{d}_{\mathcal{S}, x}\mathbf{d}_{\mathcal{S}, y}^{T}\mathbf{d}_{\mathcal{S}, y} - \big(\mathbf{d}_{\mathcal{S}, x}^{T}\mathbf{d}_{\mathcal{S}, y}\big)^{2}
-\Big)
+\mathbf{Q}_{\mathcal{S}} = \frac{1}{|\mathcal{S}|-1}\begin{bmatrix}
+  \mathbf{d}_{\mathcal{S}, x}^{T}\mathbf{d}_{\mathcal{S}, x} &
+  \mathbf{d}_{\mathcal{S}, x}^{T}\mathbf{d}_{\mathcal{S}, y} \\
+  \dots &
+  \mathbf{d}_{\mathcal{S}, y}^{T}\mathbf{d}_{\mathcal{S}, y}
+\end{bmatrix}
 $$
 
 #### Check for increase in generalized variance
 Assuming $|\mathcal{N}(n+1)| \geq 2$.
-$\mathcal{S}(n+1) := \mathcal{N}(n+1)\cup\{n+1\}$
+$\mathcal{S}(n+1) := \mathcal{N}(n+1)\cup\{n+1\}$. Then want to check for an increase in generalized variance:
+
+$$
+|\det(\mathbf{Q}_{\mathcal{S}(n+1)})| > |\det(\mathbf{Q}_{\mathcal{N}(n+1)})|
+$$
+
+We have:
+
 $$
 \begin{aligned}
-  \det(\mathbf{Q}_{\mathcal{S}(n+1)}) > \det(\mathbf{Q}_{\mathcal{N}(n+1)}) &\iff \Bigg(\frac{1}{|\mathcal{S}(n+1)|-1}\Bigg)^{2}\Big(
-  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x}\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} - \big(\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}\big)^{2} > \Bigg(\frac{1}{|\mathcal{N}(n+1)|-1}\Bigg)^{2}\Big(
-  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} - \big(\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}\big)^{2}
-\Big)\\
-& \iff \Bigg(\frac{1}{|\mathcal{N}(n+1)| + 1 - 1}\Bigg)^{2}\Big(
-  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x}\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} - \big(\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}\big)^{2} > \Bigg(\frac{1}{|\mathcal{N}(n+1)|-1}\Bigg)^{2}\Big(
-  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} - \big(\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}\big)^{2}
-\Big)\\
-& \iff
-  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x}\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} - \big(\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}\big)^{2} - \Bigg(\frac{|\mathcal{N}(n+1)|}{|\mathcal{N}(n+1)|-1}\Bigg)^{2}\Big(
-  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} - \big(\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}\big)^{2}\Big) > 0
+\mathbf{Q}_{\mathcal{N}(n+1)} &= \frac{1}{|\mathcal{N}(n+1)|-1}\begin{bmatrix}
+  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x} &
+  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} \\
+  \dots &
+  \mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}
+\end{bmatrix}\\
+
+
+\mathbf{Q}_{\mathcal{S}(n+1)} &= \frac{1}{|\mathcal{S}(n+1)|-1}\begin{bmatrix}
+  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x} &
+  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} \\
+  \dots &
+  \mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}
+\end{bmatrix}\\
+&= \frac{1}{|\mathcal{N}(n+1)|}\begin{bmatrix}
+  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x} &
+  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} \\
+  \dots &
+  \mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}
+\end{bmatrix}\\
 \end{aligned}
 $$
 
----
+#### Some calculations
 
 $$
 \begin{aligned}
@@ -472,57 +488,188 @@ $$
 \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x} &= \big(\bar{\mathbf{d}}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}\big)^{T}\big(\bar{\mathbf{d}}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}\big) = \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), x} + \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x}\\
 &= \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x}\\
 
-\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} &= \mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}
+\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} &= \mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}\\
+
+\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} &= \big(\bar{\mathbf{d}}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}\big)^{T}\big(\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}\big)\\
+&= \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y}\\
+&= \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y}
+\end{aligned}
+$$
+
+#### Inserting into $\mathbf{Q}_{\mathcal{S}(n+1)}$
+
+
+$$
+\begin{aligned}
+\mathbf{Q}_{\mathcal{S}(n+1)} &= \frac{1}{|\mathcal{N}(n+1)|}\begin{bmatrix}
+  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x} &
+  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} \\
+  \dots &
+  \mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}
+\end{bmatrix}\\
+
+&= \frac{1}{|\mathcal{N}(n+1)|}\begin{bmatrix}
+  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x} &
+  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y} \\
+  \dots & 
+  \mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}
+\end{bmatrix}\\
+
+&= \frac{1}{|\mathcal{N}(n+1)|}\begin{bmatrix}
+  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x} &
+  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} \\
+  \dots &
+  \mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}
+\end{bmatrix}\\
+&+ \frac{1}{|\mathcal{N}(n+1)|}\begin{bmatrix}
+  \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x} &
+  \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y} + \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}\\
+  \dots &
+  \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}
+\end{bmatrix}\\
+
+&= \frac{1}{|\mathcal{N}(n+1)|}\big(|\mathcal{N}(n+1)|-1\big)\mathbf{Q}_{\mathcal{N}(n+1)}\\
+&+ \frac{1}{|\mathcal{N}(n+1)|}\begin{bmatrix}
+  \boldsymbol{\delta}_{n+1, x}^{T}(\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}) & 
+  \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y} + \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} \\
+  \dots &
+  \boldsymbol{\delta}_{n+1, y }^{T}(\boldsymbol{\delta}_{n+1, y } + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y })
+\end{bmatrix}\\
+\end{aligned}
+$$
+
+Defining:
+
+$$
+\begin{aligned}
+  \boldsymbol{\Delta}_{n+1} &= \begin{bmatrix}
+    \boldsymbol{\delta}_{n+1, x}^{T}(\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}) & 
+    \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y} + \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} \\
+    \dots &
+    \boldsymbol{\delta}_{n+1, y }^{T}(\boldsymbol{\delta}_{n+1, y } + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y })
+  \end{bmatrix}
+\end{aligned}
+$$
+
+we get:
+
+$$
+\mathbf{Q}_{\mathcal{S}(n+1)} = \frac{1}{|\mathcal{N}(n+1)|}\Big(
+  (|\mathcal{N}(n+1)|-1)\mathbf{Q}_{\mathcal{N}(n+1)} + \boldsymbol{\Delta}_{n+1}
+\Big)
+$$
+
+> ### NOTES
+> "Any covariance matrix is symmetric and positive semi-definite" - https://en.wikipedia.org/wiki/Covariance_matrix
+>
+> $\mathbf{A}$ pos. semi-def. implies that all eigenvalues of $\mathbf{A}$ are non-negative.
+>
+> For any $\mathbf{A}$: $\det(\mathbf{A}) = \prod_{\lambda\in\text{Eig}(\mathbf{A})}\lambda$
+
+From the notes we get: All covariance matrices are pos. semi-def. meaning all eigenvalues of a covariance matrix are non-negative. The determinant of a matrix equals the product of the eigenvalues of the matrix. Thus for a covariance matrix, which by definition has non-negative eigenvalues, the determinant is non-negative. For a non-negative number $a$ we have: $a = |a|$, meaning:
+
+$$
+|\det(\mathbf{Q}_{\mathcal{S}(n+1)})| > |\det(\mathbf{Q}_{\mathcal{N}(n+1)})| \iff \det(\mathbf{Q}_{\mathcal{S}(n+1)}) > \det(\mathbf{Q}_{\mathcal{N}(n+1)}) \iff \det(\mathbf{Q}_{\mathcal{S}(n+1)}) - \det(\mathbf{Q}_{\mathcal{N}(n+1)}) > 0
+$$
+
+### Nomenclature
+
+$$
+\mathbf{Q}_{\mathcal{N}(n+1)} = \begin{bmatrix}
+  Q_{1} & Q_{2} \\
+  \cdot & Q_{4}
+\end{bmatrix},\quad
+\boldsymbol{\Delta}_{n+1} = \begin{bmatrix}
+  \Delta_{1} & \Delta_{2} \\
+  \cdot & \Delta_{4}
+\end{bmatrix},\quad \beta = |\mathcal{N}(n+1)|-1
+$$
+
+### Proof
+
+$$
+\begin{aligned}
+\det(\mathbf{Q}_{\mathcal{N}(n+1)}) &= Q_{1}Q_{4}-Q_{2}^{2}\\
+
+\det(\mathbf{Q}_{\mathcal{S}(n+1)}) &= \det\Bigg(
+  \frac{1}{\beta + 1}
+  \begin{bmatrix}
+    \beta Q_{1} + \Delta_{1} & \beta Q_{2} + \Delta_{2}\\
+    \cdot & \beta Q_{4} + \Delta_{4}
+  \end{bmatrix}
+\Bigg)\\
+&= \frac{1}{(\beta + 1)^{2}}\big(
+  (\beta Q_{1} + \Delta_{1})(\beta Q_{4} + \Delta_{4}) - (\beta Q_{2} + \Delta_{2})^{2}
+\big)\\
+&= \frac{1}{(\beta + 1)^{2}}\big(
+  \beta^{2} Q_{1}Q_{4} + \beta Q_{1}\Delta_{4} + \beta Q_{4}\Delta_{1} + \Delta_{1}\Delta_{4} - (\beta^{2} Q_{2}^{2} + 2\beta Q_{2}\Delta_{2} + \Delta_{2}^{2})
+\big)\\
+&= \frac{1}{(\beta + 1)^{2}}\big(
+  \beta^{2}(Q_{1}Q_{4} - Q_{2}^{2}) + \beta Q_{1}\Delta_{4} + \beta Q_{4}\Delta_{1} + \Delta_{1}\Delta_{4} - 2\beta Q_{2}\Delta_{2} - \Delta_{2}^{2}
+\big)\\
+&= \frac{\beta^{2}}{(\beta + 1)^{2}}
+  \det(\mathbf{Q}_{\mathcal{N}(n+1)}) + \frac{\beta}{(\beta + 1)^{2}}(Q_{1}\Delta_{4} + Q_{4}\Delta_{1} - 2Q_{2}\Delta_{2}) + \frac{1}{(\beta + 1)^{2}}(\Delta_{1}\Delta_{4}  - \Delta_{2}^{2})
 \end{aligned}
 $$
 
 $$
 \begin{aligned}
-  \mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x}\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} &= 
-  \big(
-    \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x}
-  \big)
-  \big(
-    \mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}
-  \big)\\
-  &= \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}(\boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y})\\
-  &+ (\boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x})(\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y})
+\det(\mathbf{Q}_{\mathcal{S}(n+1)}) - \det(\mathbf{Q}_{\mathcal{N}(n+1)}) &= \frac{\beta^{2}}{(\beta + 1)^{2}}
+  \det(\mathbf{Q}_{\mathcal{N}(n+1)}) + \frac{\beta}{(\beta + 1)^{2}}(Q_{1}\Delta_{4} + Q_{4}\Delta_{1} - 2Q_{2}\Delta_{2}) + \frac{1}{(\beta + 1)^{2}}(\Delta_{1}\Delta_{4}  - \Delta_{2}^{2}) - \det(\mathbf{Q}_{\mathcal{N}(n+1)})\\
+  &= \Bigg(\frac{\beta^{2}}{(\beta + 1)^{2}} - 1\Bigg)
+  \det(\mathbf{Q}_{\mathcal{N}(n+1)}) + \frac{\beta}{(\beta + 1)^{2}}(Q_{1}\Delta_{4} + Q_{4}\Delta_{1} - 2Q_{2}\Delta_{2}) + \frac{1}{(\beta + 1)^{2}}(\Delta_{1}\Delta_{4}  - \Delta_{2}^{2})\\
+  &= -\frac{2\beta + 1}{(\beta + 1)^{2}}
+  \det(\mathbf{Q}_{\mathcal{N}(n+1)}) + \frac{\beta}{(\beta + 1)^{2}}(Q_{1}\Delta_{4} + Q_{4}\Delta_{1} - 2Q_{2}\Delta_{2}) + \frac{1}{(\beta + 1)^{2}}(\Delta_{1}\Delta_{4}  - \Delta_{2}^{2}) > 0\\
+  \iff& -(2\beta + 1)
+  \det(\mathbf{Q}_{\mathcal{N}(n+1)}) + \beta(Q_{1}\Delta_{4} + Q_{4}\Delta_{1} - 2Q_{2}\Delta_{2}) + \Delta_{1}\Delta_{4}  - \Delta_{2}^{2} > 0
 \end{aligned}
 $$
 
-$$
-\begin{aligned}
-  \big(\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}\big)^{2} &= \big((\bar{\mathbf{d}}_{\mathcal{N}(n+1), x} + \boldsymbol{\delta}_{n+1, x})^{T}(\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y})\big)^{2} = \big(
-    \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + 
-    \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y}
-  \big)^{2}\\
-  &= (\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y})^{2} + 2\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}(\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y})\\
-  &+ (\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y})^{2}
-\end{aligned}
-$$
-
----
+$\mathbf{Q}_{\mathcal{N}(n+1)}$ is a constant matrix determined by the configuration of the previously deployed drones. The values affected by the position of $\nu_{n+1}$ are $\Delta_{1}$, $\Delta_{2}$ and $\Delta_{4}$.
 
 $$
 \begin{aligned}
-  &\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), x}\mathbf{d}_{\mathcal{S}(n+1), y}^{T}\mathbf{d}_{\mathcal{S}(n+1), y} - \big(\mathbf{d}_{\mathcal{S}(n+1), x}^{T}\mathbf{d}_{\mathcal{S}(n+1), y}\big)^{2} - \Bigg(\frac{|\mathcal{N}(n+1)|}{|\mathcal{N}(n+1)|-1}\Bigg)^{2}\Big(
-  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} - \big(\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}\big)^{2}\Big) = \\
-
-
-  &\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}(\boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}) + \\
-  & (\boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x})(\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}) + \\
-  &(\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y})^{2} + 2\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}(\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y}) + \\
-  & (\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y})^{2} - \\
-  &\Bigg(\frac{|\mathcal{N}(n+1)|}{|\mathcal{N}(n+1)|-1}\Bigg)^{2}\Big(
-  \mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} - (\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y})^{2}\Big) = \\
-
-  &\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}\big(1 - g(|\mathcal{N}(n+1|)\big) + \\
-  &(\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y})^{2}\big(1 + g(|\mathcal{N}(n+1|)\big) + \\
-  &\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}(\boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}) + \\
-  & (\boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, x})(\mathbf{d}_{\mathcal{N}(n+1), y}^{T}\mathbf{d}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, y}^{T}\boldsymbol{\delta}_{n+1, y} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}^{T}\boldsymbol{\delta}_{n+1, y}) + \\
-  &2\mathbf{d}_{\mathcal{N}(n+1), x}^{T}\mathbf{d}_{\mathcal{N}(n+1), y}(\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y}) + \\
-  & (\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y} + \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y})^{2} = \\
-
+\Delta_{1} &= \boldsymbol{\delta}_{n+1, x}^{T}(\boldsymbol{\delta}_{n+1, x} + 2\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}) = \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, x} + 2\boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), x}\\
+&= \frac{1}{(\beta + 2)^{2}}(x_{n+1}-c_{\mathcal{N}(n+1), x})^{2}\begin{bmatrix}
+  -\mathbf{1}^{T} &
+  \beta + 1
+\end{bmatrix}\begin{bmatrix}
+  -\mathbf{1} \\
+  \beta + 1
+\end{bmatrix}\\
+&+ \frac{2}{\beta + 2}(x_{n+1}-c_{\mathcal{N}(n+1), x})\begin{bmatrix}
+  -\mathbf{1}^{T} &
+  \beta + 1
+\end{bmatrix}\begin{bmatrix}
+  \mathbf{d}_{\mathcal{N}(n+1), x} \\
+  0
+\end{bmatrix}\\
+&= \frac{1}{(\beta + 2)^{2}}(x_{n+1}-c_{\mathcal{N}(n+1), x})^{2}\big(\beta + 1 + (\beta + 1)^{2}\big)\\
+&- \frac{2}{\beta + 2}(x_{n+1}-c_{\mathcal{N}(n+1), x})\mathbf{1}^{T}\mathbf{d}_{\mathcal{N}(n+1), x}\\
+&= \frac{1}{(\beta + 2)^{2}}(x_{n+1}-c_{\mathcal{N}(n+1), x})^{2}(\beta + 1)(1 + \beta + 1)\\
+&- \frac{2}{\beta + 2}(x_{n+1}-c_{\mathcal{N}(n+1), x})\sum_{i\in\mathcal{N}(n+1)} x_{i} - c_{\mathcal{N}(n+1), x}\\
+&= \frac{\beta + 1}{\beta + 2}(x_{n+1}-c_{\mathcal{N}(n+1), x})^{2}\\
+\Delta_{4} &= \frac{\beta + 1}{\beta + 2}(y_{n+1}-c_{\mathcal{N}(n+1), y})^{2}\\
+\Delta_{2} &= \boldsymbol{\delta}_{n+1, x}^{T}\boldsymbol{\delta}_{n+1, y} + \bar{\mathbf{d}}_{\mathcal{N}(n+1), x}^{T}\boldsymbol{\delta}_{n+1, y} + \boldsymbol{\delta}_{n+1, x}^{T}\bar{\mathbf{d}}_{\mathcal{N}(n+1), y}\\
+&= \frac{1}{(\beta + 2)^{2}}(x_{n+1} - c_{\mathcal{N}(n+1), x})(y_{n+1} - c_{\mathcal{N}(n+1), y})\begin{bmatrix}
+  -\mathbf{1}^{T} & \beta + 1
+\end{bmatrix}\begin{bmatrix}
+  -\mathbf{1} \\ \beta + 1
+\end{bmatrix}\\
+&+ \frac{1}{\beta + 2}(y_{n+1} - c_{\mathcal{N}(n+1)}, y)\begin{bmatrix}
+  \mathbf{d}_{x}^{T} & 0
+\end{bmatrix}\begin{bmatrix}
+  -\mathbf{1} \\ \beta + 1
+\end{bmatrix}\\
+&+ \frac{1}{\beta + 2}(x_{n+1} - c_{\mathcal{N}(n+1)}, x)\begin{bmatrix}
+  \mathbf{d}_{y}^{T} & 0
+\end{bmatrix}\begin{bmatrix}
+  -\mathbf{1} \\ \beta + 1
+\end{bmatrix}\\
+&= \frac{1}{(\beta + 2)^{2}}(x_{n+1} - c_{\mathcal{N}(n+1), x})(y_{n+1} - c_{\mathcal{N}(n+1), y})(\beta + 1)(1 + \beta + 1)\\
+&+ \frac{1}{\beta + 2}(y_{n+1} - c_{\mathcal{N}(n+1)}, y)\sum_{i\in\mathcal{N}(n+1)}x_{i} - c_{\mathcal{N}(n+1)}, x\\
+&+ \frac{1}{\beta + 2}(x_{n+1} - c_{\mathcal{N}(n+1)}, x)\sum_{i\in\mathcal{N}(n+1)}y_{i} - c_{\mathcal{N}(n+1)}, y\\
+&= \frac{\beta + 1}{\beta + 2}(x_{n+1} - c_{\mathcal{N}(n+1), x})(y_{n+1} - c_{\mathcal{N}(n+1), y})
 \end{aligned}
 $$
 
