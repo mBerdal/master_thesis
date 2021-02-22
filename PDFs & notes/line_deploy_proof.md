@@ -673,7 +673,141 @@ $$
 \end{aligned}
 $$
 
+$$
+\begin{aligned}
+  &\det(\mathbf{Q}_{\mathcal{S}(n+1)}) - \det(\mathbf{Q}_{\mathcal{N}(n+1)}) > 0\\
 
-**TODO**
-Read papers about entropy.
+  \iff& -(2\beta + 1)
+  \det(\mathbf{Q}_{\mathcal{N}(n+1)}) + \beta(Q_{1}\Delta_{4} + Q_{4}\Delta_{1} - 2Q_{2}\Delta_{2}) + \Delta_{1}\Delta_{4}  - \Delta_{2}^{2} > 0\\
+
+  \iff& -(2\beta + 1)
+  \det(\mathbf{Q}_{\mathcal{N}(n+1)}) + \beta\Big(Q_{1}\frac{\beta + 1}{\beta + 2}(y_{n+1}-c_{\mathcal{N}(n+1), y})^{2} + Q_{4}\frac{\beta + 1}{\beta + 2}(x_{n+1}-c_{\mathcal{N}(n+1), x})^{2} - 2Q_{2}\frac{\beta + 1}{\beta + 2}(x_{n+1} - c_{\mathcal{N}(n+1), x})(y_{n+1} - c_{\mathcal{N}(n+1), y})\Big) + \frac{\beta + 1}{\beta + 2}(x_{n+1}-c_{\mathcal{N}(n+1), x})^{2}\frac{\beta + 1}{\beta + 2}(y_{n+1}-c_{\mathcal{N}(n+1), y})^{2}  - \Big(\frac{\beta + 1}{\beta + 2}(x_{n+1} - c_{\mathcal{N}(n+1), x})(y_{n+1} - c_{\mathcal{N}(n+1), y})\Big)^{2} > 0\\
+
+  \iff& -(2\beta + 1)(\beta + 2)
+  \det(\mathbf{Q}_{\mathcal{N}(n+1)}) + \beta(\beta + 1)\Big(Q_{1}(y_{n+1}-c_{\mathcal{N}(n+1), y})^{2} + Q_{4}(x_{n+1}-c_{\mathcal{N}(n+1), x})^{2} - 2Q_{2}(x_{n+1} - c_{\mathcal{N}(n+1), x})(y_{n+1} - c_{\mathcal{N}(n+1), y})\Big) > 0\\
+\end{aligned}
+$$
+
+### Intermezzo
+
+Not modelling $\xi$ we have:
+$$
+\mathbf{x}_{n+1}^{*} = \frac{\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\alpha_{i}(\mathbf{x}_{i} + \mathbf{v}_{i}\xi_{n+1, i})}{\sum_{i\in\mathcal{N}(n+1)}\kappa_{i}}
+$$
+
+Defining:
+$$
+\begin{aligned}
+  \boldsymbol{\Kappa}_{\mathcal{N}(n+1)} &= \text{diag}\big(\begin{bmatrix}
+    \kappa_{i}
+  \end{bmatrix}\big) \in\mathbb{R}^{|\mathcal{N}(n+1)|\times |\mathcal{N}(n+1)|},\;i\in\mathcal{N}(n+1)\\
+  \boldsymbol{\Alpha}_{\mathcal{N}(n+1)} &= \text{diag}\big(\begin{bmatrix}
+    \alpha_{i}
+  \end{bmatrix}\big) \in\mathbb{R}^{|\mathcal{N}(n+1)|\times |\mathcal{N}(n+1)|},\;i\in\mathcal{N}(n+1)
+\end{aligned}
+$$
+So that:
+$$
+\sum_{i\in\mathcal{N}(n+1)}\kappa_{i} = \mathbf{1}^{T}\boldsymbol{\Kappa}_{\mathcal{N}(n+1)}\mathbf{1}
+$$
+
+Further defining:
+$$
+\begin{aligned}
+\mathbf{x}_{\mathcal{N}(n+1)} &= \begin{bmatrix}
+  x_{i}
+\end{bmatrix} \in\mathbb{R}^{|\mathcal{N}(n+1)|\times 1},\;i\in\mathcal{N}(n+1)\\
+\mathbf{y}_{\mathcal{N}(n+1)} &= \begin{bmatrix}
+  y_{i}
+\end{bmatrix} \in\mathbb{R}^{|\mathcal{N}(n+1)|\times 1},\;i\in\mathcal{N}(n+1)\\
+\boldsymbol{\xi}_{\mathcal{N}(n+1)} &= \begin{bmatrix}
+  \xi_{n+1, i}
+\end{bmatrix} \in\mathbb{R}^{|\mathcal{N}(n+1)|\times 1},\;i\in\mathcal{N}(n+1)\\
+\mathbf{V}_{\mathcal{N}(n+1), x} &= \text{diag}\big(\begin{bmatrix}
+  v_{i, x}
+\end{bmatrix}\big) \in\mathbb{R}^{|\mathcal{N}(n+1)|\times |\mathcal{N}(n+1)|},\;i\in\mathcal{N}(n+1)\\
+\mathbf{V}_{\mathcal{N}(n+1), y} &= \text{diag}\big(\begin{bmatrix}
+  v_{i, y}
+\end{bmatrix}\big) \in\mathbb{R}^{|\mathcal{N}(n+1)|\times |\mathcal{N}(n+1)|},\;i\in\mathcal{N}(n+1)\\
+\end{aligned}
+$$
+
+So that:
+$$
+\begin{aligned}
+  \sum_{i\in\mathcal{N}(n+1)} \alpha_{i}\kappa_{i}\mathbf{x}_{i} &= \begin{bmatrix}
+     \sum_{i\in\mathcal{N}(n+1)} \alpha_{i}\kappa_{i}x_{i} \\
+     \sum_{i\in\mathcal{N}(n+1)} \alpha_{i}\kappa_{i}y_{i}
+  \end{bmatrix}
+  = \begin{bmatrix}
+     \mathbf{1}^{T}\boldsymbol{\Alpha}_{\mathcal{N}(n+1)}\boldsymbol{\Kappa}_{\mathcal{N(n+1)}}\mathbf{x}_{\mathcal{N}(n+1)} \\
+     \mathbf{1}^{T}\boldsymbol{\Alpha}_{\mathcal{N}(n+1)}\boldsymbol{\Kappa}_{\mathcal{N(n+1)}}\mathbf{y}_{\mathcal{N}(n+1)}
+  \end{bmatrix}\\
+
+  \sum_{i\in\mathcal{N}(n+1)} \alpha_{i}\kappa_{i}\mathbf{v}_{i}\xi_{n+1, i} &= \begin{bmatrix}
+     \sum_{i\in\mathcal{N}(n+1)} \alpha_{i}\kappa_{i}v_{i, x}\xi_{n+1, i} \\
+     \sum_{i\in\mathcal{N}(n+1)} \alpha_{i}\kappa_{i}v_{i, y}\xi_{n+1, i}
+  \end{bmatrix}
+  = \begin{bmatrix}
+     \mathbf{1}^{T}\boldsymbol{\Alpha}_{\mathcal{N}(n+1)}\boldsymbol{\Kappa}_{\mathcal{N(n+1)}}\mathbf{V}_{\mathcal{N}(n+1), x}\boldsymbol{\xi}_{\mathcal{N}(n+1)}\\
+     \mathbf{1}^{T}\boldsymbol{\Alpha}_{\mathcal{N}(n+1)}\boldsymbol{\Kappa}_{\mathcal{N(n+1)}}\mathbf{V}_{\mathcal{N}(n+1), y}\boldsymbol{\xi}_{\mathcal{N}(n+1)}
+  \end{bmatrix}
+\end{aligned}
+$$
+
+Then we have:
+
+$$
+\begin{aligned}
+  x_{n+1}^{*} &= \frac{1}{\mathbf{1}^{T}\boldsymbol{\Kappa}_{\mathcal{N}(n+1)}\mathbf{1}}\mathbf{1}^{T}\boldsymbol{\Alpha}_{\mathcal{N}(n+1)}\boldsymbol{\Kappa}_{\mathcal{N(n+1)}}\big(\mathbf{x}_{\mathcal{N}(n+1)} + \mathbf{V}_{\mathcal{N}(n+1), x}\boldsymbol{\xi}_{\mathcal{N}(n+1)}\big)\\
+
+  y_{n+1}^{*} &= \frac{1}{\mathbf{1}^{T}\boldsymbol{\Kappa}_{\mathcal{N}(n+1)}\mathbf{1}}\mathbf{1}^{T}\boldsymbol{\Alpha}_{\mathcal{N}(n+1)}\boldsymbol{\Kappa}_{\mathcal{N(n+1)}}\big(\mathbf{y}_{\mathcal{N}(n+1)} + \mathbf{V}_{\mathcal{N}(n+1), y}\boldsymbol{\xi}_{\mathcal{N}(n+1)}\big)
+\end{aligned}
+$$
+
+Using that:
+
+$$
+\begin{aligned}
+  \mathbf{x}_{\mathcal{N}(n+1)} &= \mathbf{d}_{\mathcal{N}(n+1), x} + \mathbf{1}
+  c_{\mathcal{N}(n+1), x}\\
+  \mathbf{y}_{\mathcal{N}(n+1)} &= \mathbf{d}_{\mathcal{N}(n+1), y} + \mathbf{1}
+  c_{\mathcal{N}(n+1), y}
+\end{aligned}
+$$
+
+we get:
+
+$$
+\begin{aligned}
+  x_{n+1}^{*} &= \frac{1}{\mathbf{1}^{T}\boldsymbol{\Kappa}_{\mathcal{N}(n+1)}\mathbf{1}}\mathbf{1}^{T}\boldsymbol{\Alpha}_{\mathcal{N}(n+1)}\boldsymbol{\Kappa}_{\mathcal{N(n+1)}}\big(\mathbf{d}_{\mathcal{N}(n+1), x} + \mathbf{1}
+  c_{\mathcal{N}(n+1), x} + \mathbf{V}_{\mathcal{N}(n+1), x}\boldsymbol{\xi}_{\mathcal{N}(n+1)}\big)\\
+
+  y_{n+1}^{*} &= \frac{1}{\mathbf{1}^{T}\boldsymbol{\Kappa}_{\mathcal{N}(n+1)}\mathbf{1}}\mathbf{1}^{T}\boldsymbol{\Alpha}_{\mathcal{N}(n+1)}\boldsymbol{\Kappa}_{\mathcal{N(n+1)}}\big(\mathbf{d}_{\mathcal{N}(n+1), y} + \mathbf{1}
+  c_{\mathcal{N}(n+1), y} + \mathbf{V}_{\mathcal{N}(n+1), y}\boldsymbol{\xi}_{\mathcal{N}(n+1)}\big)
+\end{aligned}
+$$
+
+...
+$$
+\begin{aligned}
+  y_{n+1}^{*} - c_{\mathcal{N}(n+1), y} &= \frac{1}{\mathbf{1}^{T}\boldsymbol{\Kappa}_{\mathcal{N}(n+1)}\mathbf{1}}\mathbf{1}^{T}\boldsymbol{\Alpha}_{\mathcal{N}(n+1)}\boldsymbol{\Kappa}_{\mathcal{N(n+1)}}\big(\mathbf{d}_{\mathcal{N}(n+1), y} + \mathbf{1}
+  c_{\mathcal{N}(n+1), y} + \mathbf{V}_{\mathcal{N}(n+1), y}\boldsymbol{\xi}_{\mathcal{N}(n+1)}\big) - c_{\mathcal{N}(n+1), y}\\
+
+  &= \frac{1}{\mathbf{1}^{T}\boldsymbol{\Kappa}_{\mathcal{N}(n+1)}\mathbf{1}}\Bigg(\mathbf{1}^{T}\boldsymbol{\Alpha}_{\mathcal{N}(n+1)}\boldsymbol{\Kappa}_{\mathcal{N(n+1)}}\mathbf{d}_{\mathcal{N}(n+1), y} + \Big(\mathbf{1}^{T}\big(\boldsymbol{\Alpha}_{\mathcal{N}(n+1)} - \mathbf{I}\big)\boldsymbol{\Kappa}_{\mathcal{N(n+1)}}\mathbf{1}\Big)
+  c_{\mathcal{N}(n+1), y} + \mathbf{1}^{T}\boldsymbol{\Alpha}_{\mathcal{N}(n+1)}\boldsymbol{\Kappa}_{\mathcal{N(n+1)}}\mathbf{V}_{\mathcal{N}(n+1), y}\boldsymbol{\xi}_{\mathcal{N}(n+1)}\big)\Bigg)
+  
+\end{aligned}
+$$
+
+
+### TODOs
+1. Create plots of gain patterns
+2. Check for $\alpha_{i} = i$
+3. Investigate absolute distance, relative distance and traveled path as criterias for having "covered more area".
+4. Read papers about entropy.
+5. Suggestion "is distance from neighbor centroid to new drone larger than largest distance from neighbor centroid to neighbor?"
+### Gain setting suggested by Behdad (investigate this)
+
+The currently deploying drone sets its gain as $\alpha_{n+1} = 1 + \min_{i\in\mathcal{N}(n+1)} \alpha_{i}$
 
