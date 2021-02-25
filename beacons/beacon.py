@@ -10,18 +10,23 @@ class Beacon():
     Beacon.ID_counter += 1
     return ret
 
-  def __init__(self, range, xi_max, d_perf, d_none, pos=None):
+  def __init__(self, range, xi_max, d_perf, d_none, k=0, a=0, v=np.zeros((2, )), pos=None):
     self.range = range
     self.pos = pos
     self.ID = self.get_ID()
     self.neighbors = []
     """ STUFF FOR XI MODEL """
-    self._xi_max = xi_max
-    self._d_perf = d_perf
-    self._d_none = d_none
-    self._omega = np.pi/(self._d_none - self._d_perf)
-    self._phi = -np.pi*self._d_perf/(self._d_none - self._d_perf)
+    self.xi_max = xi_max
+    self.d_perf = d_perf
+    self.d_none = d_none
+    self._omega = np.pi/(self.d_none - self.d_perf)
+    self._phi = -np.pi*self.d_perf/(self.d_none - self.d_perf)
     self._xi_max_decrease = (xi_max/2)*self._omega
+    """ Gains """
+    self.k = k
+    self.a = a
+    """ xi direction vector for 2D exploration """
+    self.v = v
   
   def insert_into_environment(self, env):
     self.pos = env.entrance_point
@@ -38,11 +43,11 @@ class Beacon():
 
   def get_xi_to_other_from_model(self, other):
     d = np.linalg.norm(self.pos - other.pos)
-    if d < self._d_perf:
-      return self._xi_max
-    if d > self._d_none:
+    if d < self.d_perf:
+      return self.xi_max
+    if d > self.d_none:
       return 0
-    return (self._xi_max/2)*(1+np.cos(self._omega*d + self._phi))
+    return (self.xi_max/2)*(1+np.cos(self._omega*d + self._phi))
 
   def get_xi_max_decrease(self):
     return self._xi_max_decrease

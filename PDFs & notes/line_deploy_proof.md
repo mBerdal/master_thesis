@@ -147,7 +147,7 @@ $$
 \end{aligned}
 $$
 
-Choosing $\alpha_{m} > 1$ and using the statements above we get:
+Choosing $\alpha_{m} \geq 1$ and using the statements above we get:
 
 $$
 \kappa_{m}\gamma_{m}(\alpha_{m} - 1) \geq \kappa_{m}(\alpha_{m} - 1),\quad \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}\gamma_{i} \leq \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}(1 + \alpha_{i}\delta_{i})
@@ -162,7 +162,7 @@ Thus we have:
 $$
 \begin{aligned}
   x_{n+1} = x_{n+1}^{*} > \max_{i\in\mathcal{N}(n+1)}x_{i}^{*} = x_{m} & \iff x_{m}\Bigg(\kappa_{m}\alpha_{m}\gamma_{m} - \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\gamma_{i}\Bigg) + \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}\alpha_{i}x_{i}\gamma_{i} + \sum_{i\in\mathcal{N}(n+1)}\kappa_{i}\alpha_{i}\xi_{n+1, i}\gamma_{i} > 0\\
-  & \iff \exist \; i\in\mathcal{N}(n+1) \text{ s.t. } \kappa_{i}, \alpha_{i} > 0,\quad \alpha_{m} > 1,\quad \kappa_{m}(\alpha_{m} - 1) \geq \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}(1 + \alpha_{i}\delta_{i})
+  & \iff \exist \; i\in\mathcal{N}(n+1) \text{ s.t. } \kappa_{i}, \alpha_{i} > 0,\quad \alpha_{m} \geq 1,\quad \kappa_{m}(\alpha_{m} - 1) \geq \sum_{i\in\mathcal{N}(n+1)\setminus\{m\}}\kappa_{i}(1 + \alpha_{i}\delta_{i})
 \end{aligned}
 $$
 
@@ -811,3 +811,44 @@ $$
 
 The currently deploying drone sets its gain as $\alpha_{n+1} = 1 + \min_{i\in\mathcal{N}(n+1)} \alpha_{i}$
 
+### What does it mean to go 'beyond' neighbors in 2D?
+
+![Drawing](figs/go_beyond_2D.png)
+
+Drone beyond (outside) neighbors:
+
+$$
+\begin{aligned}
+\nexists\; i\in\mathcal{N}(n+1)\setminus\{r\}: &(\mathbf{x}_{i} - \mathbf{x}_{n+1})\cdot\frac{\mathbf{x}_{r} - \mathbf{x}_{n+1}}{||\mathbf{x}_{r} - \mathbf{x}_{n+1}||}\leq 0\\
+\iff & (\mathbf{x}_{i} - \mathbf{x}_{n+1})\cdot\frac{\mathbf{x}_{r} - \mathbf{x}_{n+1}}{||\mathbf{x}_{r} - \mathbf{x}_{n+1}||} > 0\;\forall\; i\in\mathcal{N}(n+1)\setminus\{r\}\\
+\iff & (\mathbf{x}_{i} - \mathbf{x}_{n+1})^{T}(\mathbf{x}_{r} - \mathbf{x}_{n+1}) > 0\;\forall\; i\in\mathcal{N}(n+1)\setminus\{r\}\\
+\iff & \mathbf{x}_{i}^{T}\mathbf{x}_{r} - \mathbf{x}_{i}^{T}\mathbf{x}_{n+1} - \mathbf{x}_{n+1}^{T}\mathbf{x}_{r} + \mathbf{x}_{n+1}^{T}\mathbf{x}_{n+1} > 0\;\forall\; i\in\mathcal{N}(n+1)\setminus\{r\}\\
+  
+\end{aligned}
+$$
+
+## Claudio's suggested approach
+
+Assuming $\mathbf{x}_{0} = \mathbf{0}$ (base station at origin) we define:
+
+$$
+\begin{aligned}
+  d_{i} &= ||\mathbf{x}_{i} - \mathbf{x}_{i-1}||\\
+  \bar{d}_{n} &= \frac{1}{n}\sum_{i=1}^{n}d_{i}
+\end{aligned}
+$$
+
+Intuition: $d_{i}$ is the distance between drone $\nu_{i}$ and the one deployed before it ($\nu_{i-1}$).
+$\bar{d}_{n}$ is the average distance between all drones and the previous deployed until drone $\nu_{n}$
+
+Demand on the next drone, $\nu_{n+1}$: The average distance must increase:
+$$
+\begin{aligned}
+  \bar{d}_{n+1} > \bar{d}_{n} &\iff \frac{1}{n+1}\sum_{i=1}^{n+1}d_{i} - \bar{d}_{n} > 0\\
+  &\iff d_{n+1} + \sum_{i=1}^{n}d_{i} - (n+1)\bar{d}_{n} > 0\\
+  &\iff d_{n+1} + n\frac{1}{n}\sum_{i=1}^{n}d_{i} - (n+1)\bar{d}_{n} > 0\\
+  &\iff d_{n+1} + n\bar{d}_{n} - (n+1)\bar{d}_{n} > 0\\
+  &\iff d_{n+1} - \bar{d}_{n} > 0\\
+  &\iff ||\mathbf{x}_{n+1} - \mathbf{x}_{n}|| - \bar{d}_{n} > 0\\
+\end{aligned}
+$$

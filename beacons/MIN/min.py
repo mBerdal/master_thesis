@@ -26,8 +26,8 @@ class Min(Beacon):
     MinState.LANDED:    "black",
   }
 
-  def __init__(self, max_range, deployment_strategy, xi_max=5, d_perf=1, d_none=3):
-    super().__init__(max_range, xi_max=xi_max, d_perf=d_perf, d_none=d_none, pos = None)
+  def __init__(self, max_range, deployment_strategy, xi_max=5, d_perf=1, d_none=3, k=0, a=0, v=np.zeros((2, ))):
+    super().__init__(max_range, xi_max, d_perf, d_none, k, a, v)
     self.deployment_strategy = deployment_strategy
     self.sensors = []
     for ang in np.arange(0, 360, 90):

@@ -6,23 +6,23 @@ from numpy import zeros
 class DeploymentFSM():
 
     def __init__(self, following_strategy, exploration_strategy):
-        self.__fs = following_strategy
-        self.__es = exploration_strategy
+        self.fs = following_strategy
+        self.es = exploration_strategy
 
     def get_velocity_vector(self, MIN, beacons, SCS, ENV):
         if MIN.state == MinState.SPAWNED:
-            self.__fs.prepare_following(MIN, beacons, SCS)
+            self.fs.prepare_following(MIN, beacons, SCS)
             MIN.state = MinState.FOLLOWING
         if MIN.state == MinState.FOLLOWING:
             try:
-                return self.__fs.get_following_velocity(MIN, beacons, ENV)
+                return self.fs.get_following_velocity(MIN, beacons, ENV)
             except AtTargetException:
-                self.__es.prepare_exploration(self.__fs.target)
+                self.es.prepare_exploration(self.fs.target)
                 MIN.state = MinState.EXPLORING
                 print(f"{MIN.ID} exploring")
         if MIN.state == MinState.EXPLORING:
             try:
-                return self.__es.get_exploration_velocity(MIN, beacons, ENV)
+                return self.es.get_exploration_velocity(MIN, beacons, ENV)
             except AtLandingConditionException:
                 MIN.state = MinState.LANDED
                 return zeros((2, ))
@@ -31,4 +31,4 @@ class DeploymentFSM():
             exit(0)
     
     def get_target(self):
-        return self.__fs.target
+        return self.fs.target
