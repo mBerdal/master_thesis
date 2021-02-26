@@ -24,6 +24,9 @@ def simulate(dt, mins, scs, env):
   scs.insert_into_environment(env)
   beacons = np.array([scs], dtype=object)
 
+  dists_to_prev = np.zeros((len(mins)))
+  dists_bar = np.zeros(len(mins))
+
   for m in mins:
     m.insert_into_environment(env)
     while not m.state == MinState.LANDED:
@@ -32,9 +35,20 @@ def simulate(dt, mins, scs, env):
     for b in beacons:
       b.compute_neighbors(beacons)
     print(f"min {m.ID} landed at pos\t\t\t {m.pos}")
+
+
+    dists_to_prev[m.ID - 1] = np.linalg.norm(beacons[-1].pos - beacons[-2].pos)
+    dists_bar[m.ID - 1] = np.sum(dists_to_prev)/(len(beacons) - 1)
+
     if not m.deployment_strategy.get_target() is None:
           print(f"Its target now has {len(m.deployment_strategy.get_target().neighbors)} neighs\n------------------", )
   print(f"minimum number of neighbors: {min(beacons, key=lambda b: len(b.neighbors))}")
+
+  print("D")
+  print(dists_to_prev)
+  print("D_bar")
+  print(dists_bar)
+  print("---")
   return beacons
 
 if __name__ == "__main__":
@@ -52,28 +66,11 @@ if __name__ == "__main__":
 
   max_range = 3
 
-  N_mins = 20
+  N_mins = 7
   dt = 10e-4
 
   scs = SCS(max_range)
-  """ Potential fields exploration
-  mins = [
-    Min(
-      max_range,
-      DeploymentFSM(
-        AttractiveFollow(
-          K_o = 0.001,
-          same_num_neighs_differentiator=lambda MINs, k: min(MINs, key=k)
-        ),
-        PotentialFieldsExplore(
-          K_n=1,
-          K_o=1,
-          min_force_threshold=0.1
-        )
-      )
-    ) for _ in range(N_mins)
-  ]
-  """
+
   """ Line exploration """
 
   mins = [

@@ -2,7 +2,7 @@ import numpy as np
 
 class Beacon():
 
-  ID_counter = 1
+  ID_counter = 0
 
   @staticmethod
   def get_ID():

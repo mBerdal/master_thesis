@@ -29,7 +29,8 @@ class LineExplore(ExplorationStrategy):
 
     land_due_to_no_neighs = False
 
-    F_n, F_o = np.zeros((2, )), np.zeros((2, ))
+    F_n = np.zeros((2, ))
+    F_o = gof(self.K_o, MIN, ENV)
 
     x_is = np.concatenate([b.pos.reshape(2, 1) for b in beacons], axis=1)
     xi_is = np.array([MIN.get_xi_to_other_from_model(b) for b in beacons])
@@ -71,7 +72,7 @@ class LineExplore(ExplorationStrategy):
            "Conditions on constants a_i and k_i do not hold. Cannot guarantee x_{n+1} > x_{n}"
         
         F_n = -np.sum(k_is*(MIN.pos[0] - a_is*(x_is + xi_is)))
-        F_o = 0*gof(self.K_o, MIN, ENV)[0]
+        F_o = 0*F_o[0]
       
       elif self.kind == LineExploreKind.TWO_DIM_GLOBAL:
         k_is = np.zeros(len(beacons))
@@ -79,7 +80,6 @@ class LineExplore(ExplorationStrategy):
         x_is = np.concatenate([b.pos.reshape(2, 1) for b in beacons], axis=1)
         xi_is = np.array([MIN.get_RSSI(b) for b in beacons])*np.ones((2, 1))
         F_n = -np.sum(k_is*(MIN.pos.reshape(2, 1) - (x_is + xi_is)), axis=1).reshape(2, )
-        F_o = gof(self.K_o, MIN, ENV)
    
     else:
       """ LOCAL METHODS """
@@ -130,7 +130,7 @@ class LineExplore(ExplorationStrategy):
             """
             
           F_n = np.array([-np.sum(k_is*(MIN.pos[0] - a_is*(x_is + xi_is))), 0])
-          F_o = 0*gof(self.K_o, MIN, ENV)
+          F_o = 0*F_o
 
         else:
           """ Behdads gain approach """
@@ -142,23 +142,21 @@ class LineExplore(ExplorationStrategy):
           ], axis=1)
 
           F_n = -np.sum(k_is*(MIN.pos.reshape(2, 1) - a_is*(x_is + xi_is*v_is)), axis=1).reshape(2, )
-          F_o = gof(self.K_o, MIN, ENV)
+          F_o = 0*F_o
 
           MIN.a = np.min(a_is) + 1
           MIN.k = 1
-          rot_mat_2D = lambda theta: np.array([
-            [np.cos(theta), -np.sin(theta)],
-            [np.sin(theta),  np.cos(theta)],
-          ])
-          v_i_base = np.array([1, 0]).reshape(2, 1)
-
-          F = F_n + F_o
-          
-          MIN.v = rot_mat_2D(MIN.heading + (np.pi/2)*np.random.uniform(-1, 1))@v_i_base
       
     F = F_n + F_o
     at_landing_condition = land_due_to_no_neighs or np.linalg.norm(F) < self.force_threshold
     if at_landing_condition:
+      rot_mat_2D = lambda theta: np.array([
+        [np.cos(theta), -np.sin(theta)],
+        [np.sin(theta),  np.cos(theta)],
+      ])
+      v_i_base = np.array([1, 0]).reshape(2, 1)
+      MIN.v = rot_mat_2D(MIN.heading + (np.pi/2)*np.random.uniform(-1, 1))@v_i_base
+  
       print(np.rad2deg(np.arctan2(MIN.v[1], MIN.v[0])), MIN.ID)
       raise AtLandingConditionException
     return F

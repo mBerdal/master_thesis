@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib import cm
+from matplotlib.patches import FancyArrow
 import numpy as np
 
 class FieldPlotter():
@@ -54,12 +55,12 @@ class FieldPlotter():
     for beacon_ID, drone_config in self.config_dict.items():
       x_i, _, _, _, d_perf_i, d_none_i, xi_max_i = drone_config.values()
       XI_i = FieldPlotter.__xi(x_i, d_perf_i, d_none_i, xi_max_i, X, Y)
-      Z += FieldPlotter.__U_i(
+      Z += FieldPlotter.get_U_i(
         *drone_config.values(),
         X,
         Y,
       )*(XI_i > self.neigh_RSSI_threshold)
-      ax.scatter(*drone_config["x"], color="blue" if not beacon_ID == 1 else "green", zorder=100)
+      ax.scatter(*drone_config["x"], color="blue" if not beacon_ID == 0 else "green", zorder=100)
 
     surf = ax.plot_surface(
         X,
@@ -75,22 +76,24 @@ class FieldPlotter():
 
   def plot_force_field(self):
 
-    X, Y, _= self.__init_X_Y_Z(0.25)
+    X, Y, _= self.__init_X_Y_Z(0.5)
     U, V = np.zeros(X.shape), np.zeros(Y.shape)
 
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     ax.set_xlabel("x [m]")
     ax.set_ylabel("y [m]")
 
     for beacon_ID, drone_config in self.config_dict.items():
-      x_i, _, _, _, d_perf_i, d_none_i, xi_max_i = drone_config.values()
-      temp_U, temp_V = FieldPlotter.__F_i(*drone_config.values(), X, Y)
+      x_i, _, _, v_i, d_perf_i, d_none_i, xi_max_i = drone_config.values()
+      temp_U, temp_V = FieldPlotter.get_F_i(*drone_config.values(), X, Y)
 
       XI_i = FieldPlotter.__xi(x_i, d_perf_i, d_none_i, xi_max_i, X, Y)
       U += temp_U*(XI_i > self.neigh_RSSI_threshold)
       V += temp_V*(XI_i > self.neigh_RSSI_threshold)
 
-      ax.scatter(*drone_config["x"], color="blue" if not beacon_ID == 1 else "green", zorder=100)
+      v_i = v_i.reshape(2,)
+      ax.add_patch(FancyArrow(x_i[0], x_i[1], v_i[0], v_i[1], color="green"))  
+      ax.scatter(*drone_config["x"], color="blue" if not beacon_ID == 0 else "green", zorder=100)
 
     ax.quiver(X, Y, U, V, alpha=0.5)
 
@@ -113,14 +116,35 @@ class FieldPlotter():
     return xi_is
 
   @staticmethod
-  def __U_i(x_i, k_i, a_i, v_i, d_perf_i, d_none_i, xi_max_i, X, Y):
+  def get_U_i(x_i, k_i, a_i, v_i, d_perf_i, d_none_i, xi_max_i, X, Y):
     x_component = X - a_i*(np.ones(X.shape)*x_i[0] + v_i[0]*FieldPlotter.__xi(x_i, d_perf_i, d_none_i, xi_max_i, X, Y))
     y_component = Y - a_i*(np.ones(Y.shape)*x_i[1] + v_i[1]*FieldPlotter.__xi(x_i, d_perf_i, d_none_i, xi_max_i, X, Y))
     return (1/2)*k_i*(x_component**2 + y_component**2)
 
   @staticmethod
-  def __F_i(x_i, k_i, a_i, v_i, d_perf_i, d_none_i, xi_max_i, X, Y):
+  def get_F_i(x_i, k_i, a_i, v_i, d_perf_i, d_none_i, xi_max_i, X, Y):
     F_x = -k_i*(X - a_i*(np.ones(X.shape)*x_i[0] + v_i[0]*FieldPlotter.__xi(x_i, d_perf_i, d_none_i, xi_max_i, X, Y)))
     F_y = -k_i*(Y - a_i*(np.ones(Y.shape)*x_i[1] + v_i[1]*FieldPlotter.__xi(x_i, d_perf_i, d_none_i, xi_max_i, X, Y)))
     return F_x, F_y
     
+
+if __name__ == "__main__":
+
+  k, a = 1, 1
+  d_perf = 1
+  d_none = 1.1
+  xi_max = 10
+
+  x_0 = np.zeros((2, 1))
+
+  v = np.array([-1, 0])
+
+  X, Y = np.meshgrid(
+    np.linspace(-5, 5, 20),
+    np.linspace(-5, 5, 20)
+  )
+
+  U, V = FieldPlotter.get_F_i(x_0, k, a, v, d_perf, d_none, xi_max, X, Y)
+  fig, ax = plt.subplots()
+  ax.quiver(X, Y, U, V, alpha=0.5)
+  plt.show()
