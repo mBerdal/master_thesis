@@ -1,20 +1,20 @@
+from deployment.exploration_strategies.exploration_strategy import AtLandingConditionException
 from environment import Env
+
 
 from beacons.SCS.scs import SCS
 from beacons.MIN.min import Min, MinState
 
-from deployment.following_strategies.attractive_follow import AttractiveFollow
-from deployment.following_strategies.straight_line_follow import StraightLineFollow
-from deployment.exploration_strategies.potential_fields_explore import PotentialFieldsExplore
-from deployment.exploration_strategies.heuristic_explore import HeuristicExplore
 from deployment.following_strategies.no_follow import NoFollow
 from deployment.exploration_strategies.line_explore import (
   LineExplore,
   LineExploreKind
 )
 from deployment.deployment_fsm import DeploymentFSM
-
+from deployment.line_deploy import LineDeploy
 from plot_fields import FieldPlotter
+
+from helpers import normalize, rot_mat_2D 
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -29,9 +29,11 @@ def simulate(dt, mins, scs, env):
 
   for m in mins:
     m.insert_into_environment(env)
-    while not m.state == MinState.LANDED:
-          m.do_step(beacons, scs, env, dt)
-    beacons = np.append(beacons, m)
+    try:
+      while not m.state == MinState.LANDED:
+            m.do_step(beacons, scs, env, dt)
+    except AtLandingConditionException:
+      beacons = np.append(beacons, m)
     for b in beacons:
       b.compute_neighbors(beacons)
     print(f"min {m.ID} landed at pos\t\t\t {m.pos}")
@@ -40,16 +42,12 @@ def simulate(dt, mins, scs, env):
     dists_to_prev[m.ID - 1] = np.linalg.norm(beacons[-1].pos - beacons[-2].pos)
     dists_bar[m.ID - 1] = np.sum(dists_to_prev)/(len(beacons) - 1)
 
-    if not m.deployment_strategy.get_target() is None:
-          print(f"Its target now has {len(m.deployment_strategy.get_target().neighbors)} neighs\n------------------", )
-  print(f"minimum number of neighbors: {min(beacons, key=lambda b: len(b.neighbors))}")
-
-  print("D")
-  print(dists_to_prev)
-  print("D_bar")
-  print(dists_bar)
-  print("---")
   return beacons
+
+def get_exploration_vec(MIN, neighs):
+  x_neighs = np.concatenate([n.pos.reshape(2, 1) for n in neighs], axis=1)
+  opposite_neigh_dir_vec = np.sum(MIN.pos.reshape(2, 1) - x_neighs, axis=1)
+  return rot_mat_2D(np.pi/2 * np.random.uniform(-1, 1))@normalize(opposite_neigh_dir_vec)
 
 if __name__ == "__main__":
 
@@ -66,7 +64,7 @@ if __name__ == "__main__":
 
   max_range = 3
 
-  N_mins = 7
+  N_mins = 20
   dt = 10e-4
 
   scs = SCS(max_range)
@@ -76,12 +74,8 @@ if __name__ == "__main__":
   mins = [
     Min(
       max_range,
-      DeploymentFSM(
-        NoFollow(),
-        LineExplore(
-          K_o=0.01,
-          kind=LineExploreKind.TWO_DIM_LOCAL,
-        )
+      LineDeploy(
+        get_exploration_dir_callback = lambda MIN, neighs: get_exploration_vec(MIN, neighs)
       ),
       xi_max=3,
       d_perf=1,
@@ -91,10 +85,6 @@ if __name__ == "__main__":
 
 
   beacons = simulate(dt, mins, scs, env)
-
-  F = FieldPlotter(beacons=beacons, RSSI_threshold=LineExplore.RSSI_TRHESHOLD)
-  F.plot_potential_field()
-  F.plot_force_field()
 
   fig, ax = plt.subplots(1)
   

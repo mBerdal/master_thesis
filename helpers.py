@@ -26,6 +26,9 @@ def rot_z_mat(ang):
         [     0     ,      0      , 1]
     ])
 
+def rot_mat_2D(ang):
+  return rot_z_mat(ang)[:2, :2]
+
 def plot_vec(axis, vec, startpoint=np.zeros((2, )), clr="black", alpha=1):
     """
 
