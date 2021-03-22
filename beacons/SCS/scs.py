@@ -4,6 +4,6 @@ import numpy as np
 
 class SCS(Beacon):
 
-    def __init__(self, range, xi_max=5, d_perf=1, d_none=3, k=1, a=1, v=np.array([1, 0]), pos=None):
-        super().__init__(range, xi_max, d_perf, d_none, k, a, v, pos)
+    def __init__(self, xi_max, d_perf, d_none, k=1, a=1, exploration_dir=np.array([1, 0]), pos=None):
+        super().__init__(xi_max, d_perf, d_none, k, a, exploration_dir, pos)
         self.path_tree = PathTree(self)

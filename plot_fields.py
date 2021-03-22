@@ -14,6 +14,7 @@ class FieldPlotter():
       self.neigh_RSSI_threshold = kwargs["dict"]["RSSI_threshold"]
       del kwargs["dict"]["RSSI_threshold"]
       self.config_dict = kwargs["dict"]
+    self.save_to_file_prefix = kwargs.get("save_to_file_prefix")
 
 
   @staticmethod
@@ -23,7 +24,7 @@ class FieldPlotter():
         "x": b.pos,
         "k": b.k,
         "a": b.a,
-        "v": b.v,
+        "v": b.exploration_dir,
         "d_perf": b.d_perf,
         "d_none": b.d_none,
         "xi_max": b.xi_max,
@@ -73,15 +74,23 @@ class FieldPlotter():
     )
 
     fig.colorbar(surf, shrink=0.5, aspect=5)
+    if not self.save_to_file_prefix is None:
+      fig.savefig("field_plots/" + self.save_to_file_prefix + "_potential.png", bbox_inches="tight")
+
 
   def plot_force_field(self):
 
     X, Y, _= self.__init_X_Y_Z(0.5)
     U, V = np.zeros(X.shape), np.zeros(Y.shape)
 
-    _, ax = plt.subplots()
+    fig, ax = plt.subplots()
     ax.set_xlabel("x [m]")
     ax.set_ylabel("y [m]")
+
+    h = int(np.floor(np.sqrt(len(self.config_dict.items()))))
+    w = int(np.ceil(np.sqrt(len(self.config_dict.items()))))
+    _, superpos_axes = plt.subplots(h, w)
+    superpos_axes = superpos_axes.flatten()
 
     for beacon_ID, drone_config in self.config_dict.items():
       x_i, _, _, v_i, d_perf_i, d_none_i, xi_max_i = drone_config.values()
@@ -94,8 +103,16 @@ class FieldPlotter():
       v_i = v_i.reshape(2,)
       ax.add_patch(FancyArrow(x_i[0], x_i[1], v_i[0], v_i[1], color="green"))  
       ax.scatter(*drone_config["x"], color="blue" if not beacon_ID == 0 else "green", zorder=100)
+      ax.annotate(beacon_ID, xy=(x_i[0], x_i[1]))
+
+      superpos_axes[beacon_ID].quiver(X, Y, temp_U*(XI_i > self.neigh_RSSI_threshold), temp_V*(XI_i > self.neigh_RSSI_threshold))
+      superpos_axes[beacon_ID].set_title(f"ID: {beacon_ID}")
+      superpos_axes[beacon_ID].add_patch(FancyArrow(x_i[0], x_i[1], v_i[0], v_i[1], color="green", zorder=99))
+      superpos_axes[beacon_ID].scatter(*drone_config["x"], color="blue" if not beacon_ID == 0 else "green", zorder=100)
 
     ax.quiver(X, Y, U, V, alpha=0.5)
+    if not self.save_to_file_prefix is None:
+        fig.savefig("field_plots/" + self.save_to_file_prefix + "_force.png", bbox_inches="tight")
 
   @staticmethod
   def __xi(x_i, d_perf, d_none, xi_max, X, Y):
@@ -132,12 +149,12 @@ if __name__ == "__main__":
 
   k, a = 1, 1
   d_perf = 1
-  d_none = 1.1
-  xi_max = 10
+  d_none = 2
+  xi_max = 2
 
   x_0 = np.zeros((2, 1))
 
-  v = np.array([-1, 0])
+  v = np.array([1, 0])
 
   X, Y = np.meshgrid(
     np.linspace(-5, 5, 20),

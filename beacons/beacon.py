@@ -1,4 +1,5 @@
 import numpy as np
+from helpers import plot_vec
 
 class Beacon():
 
@@ -10,8 +11,7 @@ class Beacon():
     Beacon.ID_counter += 1
     return ret
 
-  def __init__(self, range, xi_max, d_perf, d_none, k=0, a=0, v=np.zeros((2, )), pos=None):
-    self.range = range
+  def __init__(self, xi_max, d_perf, d_none, k=0, a=0, exploration_dir=np.zeros((2, )), pos=None):
     self.pos = pos
     self.ID = self.get_ID()
     self.neighbors = []
@@ -26,21 +26,11 @@ class Beacon():
     self.k = k
     self.a = a
     """ xi direction vector for 2D exploration """
-    self.v = v
+    self.exploration_dir = exploration_dir
   
   def insert_into_environment(self, env):
     self.pos = env.entrance_point
   
-  def is_within_range(self, other):
-    dist = np.linalg.norm(self.pos - other.pos)
-    return dist < self.range and dist < other.range
-
-  def compute_neighbors(self, others):
-    self.neighbors = list(filter(lambda other: self.is_within_range(other) and self != other, others))
-  
-  def get_RSSI(self, other):
-    return np.exp(-np.linalg.norm(self.pos - other.pos))
-
   def get_xi_to_other_from_model(self, other):
     d = np.linalg.norm(self.pos - other.pos)
     if d < self.d_perf:
@@ -69,12 +59,5 @@ class Beacon():
   def plot(self, axis, clr="green"):
     self.point = axis.plot(*self.pos, color=clr, marker="o", markersize=8)[0]
     self.annotation = axis.annotate(self.ID, xy=(self.pos[0], self.pos[1]), fontsize=14)
-    theta = np.linspace(0, 2*np.pi)
-    self.radius = axis.plot(
-      self.pos[0] + self.range*np.cos(theta), self.pos[1] + self.range*np.sin(theta),
-      linestyle="dashed",
-      color="black",
-      alpha=0.3
-    )[0]
-
-    return self.point, self.annotation, self.radius
+    self.exploration_arrow = plot_vec(axis, self.exploration_dir, self.pos, clr="green")
+    return self.point, self.annotation, self.exploration_arrow

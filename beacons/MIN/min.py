@@ -26,24 +26,29 @@ class Min(Beacon):
     MinState.LANDED:    "black",
   }
 
-  def __init__(self, max_range, deployment_strategy, xi_max=5, d_perf=1, d_none=3, k=0, a=0, v=np.zeros((2, ))):
-    super().__init__(max_range, xi_max, d_perf, d_none, k, a, v)
+  def __init__(self, sensor_range, deployment_strategy, xi_max, d_perf, d_none, k=0, a=0, exploration_dir=np.zeros((2, ))):
+    super().__init__(xi_max, d_perf, d_none, k, a, exploration_dir)
     self.deployment_strategy = deployment_strategy
     self.sensors = []
     for ang in np.arange(0, 360, 90):
-      r = RangeSensor(max_range)
+      r = RangeSensor(sensor_range)
       r.mount(self, ang)
 
-  def insert_into_environment(self, env):
+  def insert_into_environment(self, env, start_time):
     super().insert_into_environment(env)
     self.state = MinState.SPAWNED
     self.heading = 0
+    self.state_traj = np.array([self.state], dtype=object)
     self._pos_traj = self.pos.reshape(2, 1)
     self._heading_traj = np.array([self.heading])
-    self.state_traj = np.array([self.state], dtype=object)
+    self.__speed_traj = np.zeros(1, )
+    self.__timeline = start_time*np.ones(1, )
 
   def do_step(self, beacons, SCS, ENV, dt):
     v = self.deployment_strategy.get_velocity_vector(self, beacons, SCS, ENV)
+    self.__speed_traj = np.append(self.__speed_traj, np.linalg.norm(v))
+    self.__timeline = np.append(self.__timeline, self.__timeline[-1] + dt)
+
     self.pos = euler_int(self.pos, v, dt)
     psi_ref = gva(v)
     tau = 0.1
@@ -52,8 +57,12 @@ class Min(Beacon):
     self._heading_traj = np.concatenate((self._heading_traj, [self.heading]))
     self.state_traj = np.concatenate((self.state_traj, [self.state]))
   
-  def get_pos_traj_length(self):
-        return self._pos_traj.shape[1]
+  def get_timeline(self):
+        return self.__timeline
+  
+  def get_speed_traj(self):
+        return self.__speed_traj
+  
 
   """""
   PLOTTING STUFF
@@ -72,9 +81,7 @@ class Min(Beacon):
     self.point.set_color(self.clr[self.state_traj[index]])
     self.annotation.set_x(new_pos[0])
     self.annotation.set_y(new_pos[1])
-    theta = np.linspace(0, 2*np.pi)
-    self.radius.set_data(new_pos.reshape(2, 1) + p2v(self.range, theta))
     self.traj_line.set_data(self._pos_traj[:, :index])
 
     self.heading_arrow.set_data(*np.hstack((new_pos.reshape(2, 1), new_pos.reshape(2, 1) + p2v(1, self._heading_traj[index]).reshape(2, 1))))
-    return self.point, self.annotation, self.radius, self.traj_line, self.heading_arrow
+    return self.point, self.annotation, self.traj_line, self.heading_arrow
