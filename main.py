@@ -3,18 +3,9 @@ from environment import Env
 from beacons.SCS.scs import SCS
 from beacons.MIN.min import Min, MinState
 
-from deployment.following_strategies.attractive_follow import AttractiveFollow
-from deployment.following_strategies.straight_line_follow import StraightLineFollow
-from deployment.exploration_strategies.potential_fields_explore import PotentialFieldsExplore
-from deployment.exploration_strategies.heuristic_explore import HeuristicExplore
-from deployment.following_strategies.no_follow import NoFollow
-from deployment.exploration_strategies.line_explore import (
-  LineExplore,
-  LineExploreKind
-)
-from deployment.exploration_strategies.two_dim_local_line_explore import TWO_DIM_LOCAL_LINE_EXPLORE
-from deployment.deployment_fsm import DeploymentFSM
 from helpers import rot_mat_2D, normalize, plot_configuration, animate_configuration, plot_speed_trajs
+
+from line_deployment import LineDeployment
 
 from plot_fields import FieldPlotter
 
@@ -27,9 +18,7 @@ def simulate(dt, mins, scs, env):
   beacons = np.array([scs], dtype=object)
   t = 0
   for m in mins:
-    m.insert_into_environment(env, t)
-    if isinstance(m.deployment_strategy.es, TWO_DIM_LOCAL_LINE_EXPLORE):
-        m.deployment_strategy.es.load_beacon_info(beacons)
+    m.insert_into_environment(beacons, env, t)
     
     while not m.state == MinState.LANDED:
           m.do_step(beacons, scs, env, dt)
@@ -37,8 +26,6 @@ def simulate(dt, mins, scs, env):
     beacons = np.append(beacons, m)
     print(f"min {m.ID} landed at pos\t\t\t {m.pos}")
 
-    if not m.deployment_strategy.get_target() is None:
-          print(f"Its target now has {len(m.deployment_strategy.get_target().neighbors)} neighs\n------------------", )
   return beacons
 
 if __name__ == "__main__":
@@ -51,16 +38,16 @@ if __name__ == "__main__":
       0, 0
     ]),
     obstacle_corners = [
-      np.array([
+      
+    ]
+  )
+  """
+  np.array([
         [-1, -1],
         [5, -1],
         [5, 5],
         [-1, 5]
       ])
-    ]
-  )
-  """
-
   """
 
   N_mins = 10
@@ -79,13 +66,7 @@ if __name__ == "__main__":
   mins = [
     Min(
       sensor_range,
-      DeploymentFSM(
-        NoFollow(),
-        TWO_DIM_LOCAL_LINE_EXPLORE(
-          K_o=0.01,
-          get_exploration_dir_callback=lambda MIN, neighs, F_O: tmp(MIN, neighs, F_O)
-        )
-      ),
+      LineDeployment(get_exploration_dir_callback=lambda MIN, neighs, F_o: tmp(MIN, neighs, F_o)),
       xi_max=3,
       d_perf=1,
       d_none=3
