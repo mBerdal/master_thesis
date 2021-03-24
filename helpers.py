@@ -32,6 +32,12 @@ def rot_z_mat(ang):
 def rot_mat_2D(ang):
     return rot_z_mat(ang)[:2, :2]
 
+def clamp(F, limit):
+    norm_F = np.linalg.norm(F)
+    if norm_F > limit:
+      return limit*F/norm_F
+    return F
+
 def plot_vec(axis, vec, startpoint=np.zeros((2, )), clr="black", alpha=1):
     """
 
@@ -102,6 +108,27 @@ def plot_speed_trajs(mins, sub_dir_name):
         dir_name = "plots/" + sub_dir_name
         file_saver_aux(dir_name)
         fig.savefig(dir_name + "/speed_traj.png", bbox_inches="tight")
+
+def plot_gains(beacons, sub_dir_name):
+    fig, ax = sbplt(2, sharex=True)
+    ax = ax.flatten()
+
+    xs = [b.ID for b in beacons]
+    k_is = [b.k for b in beacons]
+    a_is = [b.a for b in beacons]
+
+    ax[0].bar(xs, k_is, color="red")
+    ax[0].set_ylabel(r"$\kappa_{i}$")
+
+    ax[1].bar(xs, a_is, color="blue")
+    ax[1].set_ylabel(r"$\alpha_{i}$")
+
+    ax[1].set_xlabel("$i$ (ID)")
+
+    if not sub_dir_name is None:
+        dir_name = "plots/" + sub_dir_name
+        file_saver_aux(dir_name)
+        fig.savefig(dir_name + "/gains.png", bbox_inches="tight")
 
 
 def file_saver_aux(folder):

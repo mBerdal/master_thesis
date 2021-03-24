@@ -1,7 +1,8 @@
 import numpy as np
 from helpers import plot_vec
+from abc import ABCMeta, abstractmethod
 
-class Beacon():
+class Beacon(metaclass=ABCMeta):
 
   ID_counter = 0
 
@@ -42,9 +43,15 @@ class Beacon():
   def get_xi_max_decrease(self):
     return self._xi_max_decrease
 
-
   def get_vec_to_other(self, other):
     return other.pos - self.pos
+
+  @abstractmethod
+  def get_neighs(self):
+        pass
+
+  def __hash__(self):
+        return hash("beacon"*self.ID)
   
   def __eq__(self, other):
         return self.ID == other.ID

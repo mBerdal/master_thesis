@@ -56,6 +56,10 @@ class Min(Beacon):
   
   def get_speed_traj(self):
         return self.__speed_traj
+
+  def get_neighs(self):
+        assert self.state == MinState.LANDED, "Neighbors are not defined until MIN has landed"
+        return self.deployment_strategy.neighs
   
 
   """""

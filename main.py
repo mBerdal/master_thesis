@@ -3,7 +3,14 @@ from environment import Env
 from beacons.SCS.scs import SCS
 from beacons.MIN.min import Min, MinState
 
-from helpers import rot_mat_2D, normalize, plot_configuration, animate_configuration, plot_speed_trajs
+from helpers import (
+  rot_mat_2D,
+  normalize,
+  plot_configuration,
+  animate_configuration,
+  plot_speed_trajs,
+  plot_gains
+)
 
 from line_deployment import LineDeployment
 
@@ -19,7 +26,6 @@ def simulate(dt, mins, scs, env):
   t = 0
   for m in mins:
     m.insert_into_environment(beacons, env, t)
-    
     while not m.state == MinState.LANDED:
           m.do_step(beacons, scs, env, dt)
           t += dt
@@ -31,7 +37,7 @@ def simulate(dt, mins, scs, env):
 if __name__ == "__main__":
 
   animate, save_anim_or_img = False, True
-  fig_name = "dynamic_gain_setting_15_mins_avg_neigh_explore"
+  fig_name = None
 
   env = Env(
     np.array([
@@ -51,23 +57,26 @@ if __name__ == "__main__":
   """
 
   N_mins = 10
-  dt = 10e-4
+  dt = 10e-3
 
-  scs = SCS(xi_max=3, d_perf=1, d_none=3)
+  XI_BAR = 3
+  TAU_XI = 0.5
+  D_BAR = 5
+
+  scs = SCS(xi_max=XI_BAR, d_perf=1, d_none=3)
 
   """ Line exploration """
   def tmp(MIN, neighs, F_O):
     v_neighs = np.sum(np.hstack([(MIN.pos - n.pos).reshape(2, 1) for n in neighs]), axis=1).reshape(2, 1)
-    print(MIN.ID, " landed with neighs ", [n.ID for n in neighs])
-    xtra_angle = ((-1)**(MIN.ID-1))*np.pi/2
+    xtra_angle = 1*np.pi/2*(-1)**(MIN.ID-1)
     return normalize(rot_mat_2D(xtra_angle)@v_neighs)
 
   sensor_range = 1
   mins = [
     Min(
       sensor_range,
-      LineDeployment(get_exploration_dir_callback=lambda MIN, neighs, F_o: tmp(MIN, neighs, F_o)),
-      xi_max=3,
+      LineDeployment(d_bar=D_BAR, xi_bar=XI_BAR, tau_xi=TAU_XI, field_type=2, get_exploration_dir_callback=lambda MIN, neighs, F_o: tmp(MIN, neighs, F_o)),
+      xi_max=XI_BAR,
       d_perf=1,
       d_none=3
     ) for _ in range(N_mins)
@@ -81,6 +90,7 @@ if __name__ == "__main__":
 
 
   plot_speed_trajs(mins, fig_name)
+  plot_gains(beacons, fig_name)
 
   if animate:
     animate_configuration(env, scs, mins, fig_name)

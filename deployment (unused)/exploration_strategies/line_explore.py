@@ -1,6 +1,5 @@
 from deployment.exploration_strategies.exploration_strategy import ExplorationStrategy
 from deployment.deployment_helpers import get_obstacle_forces as gof, AtLandingConditionException
-from helpers import normalize, rot_mat_2D, get_vector_angle as gva
 
 import numpy as np
 from enum import IntEnum
@@ -162,11 +161,4 @@ class LineExplore(ExplorationStrategy):
     if at_landing_condition:
       MIN.exploration_dir = self.get_exploration_dir_callback(MIN, self.neighs, F_o)
       raise AtLandingConditionException
-    return F
-
-  @staticmethod
-  def __clamp(F, limit):
-    norm_F = np.linalg.norm(F)
-    if norm_F > limit:
-      return limit*F/norm_F
     return F
