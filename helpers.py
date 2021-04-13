@@ -3,6 +3,18 @@ from matplotlib.pyplot import subplots as sbplt
 from matplotlib.animation import FuncAnimation as fnanim
 import os
 
+def xi_model(d, d_perf, d_none, xi_max, omega=None, phi=None):
+    if d < d_perf:
+      return xi_max
+    if d > d_none:
+      return 0
+
+    if omega is None:
+        omega = np.pi/(d_none - d_perf)
+    if phi is None:
+        phi = -np.pi*d_perf/(d_none - d_perf)
+    return (xi_max/2)*(1+np.cos(omega*d + phi))
+
 def euler_int(state, state_dot, dt):
     return state + dt*state_dot
 
@@ -38,6 +50,13 @@ def clamp(F, limit):
       return limit*F/norm_F
     return F
 
+def clamp01(scalar):
+    if scalar < 0:
+        return 0
+    if scalar > 1:
+        return 1
+    return scalar
+
 def plot_vec(axis, vec, startpoint=np.zeros((2, )), clr="black", alpha=1):
     """
 
@@ -62,6 +81,7 @@ def plot_configuration(env, scs, mins, sub_dir_name=None):
         dir_name = "plots/" + sub_dir_name
         file_saver_aux(dir_name)
         fig.savefig(dir_name + "/config.png", bbox_inches="tight")
+    return ax
 
 def animate_configuration(env, scs, mins, sub_dir_name):
     fig, ax = sbplt()
@@ -108,6 +128,7 @@ def plot_speed_trajs(mins, sub_dir_name):
         dir_name = "plots/" + sub_dir_name
         file_saver_aux(dir_name)
         fig.savefig(dir_name + "/speed_traj.png", bbox_inches="tight")
+    return ax
 
 def plot_gains(beacons, sub_dir_name):
     fig, ax = sbplt(2, sharex=True)
@@ -129,8 +150,72 @@ def plot_gains(beacons, sub_dir_name):
         dir_name = "plots/" + sub_dir_name
         file_saver_aux(dir_name)
         fig.savefig(dir_name + "/gains.png", bbox_inches="tight")
+    return ax
 
 
 def file_saver_aux(folder):
     if not os.path.exists(folder):
         os.makedirs(folder)
+
+
+
+### SAMPLE COVARIANCE STUFF
+
+def sample_mean(samples, weights=None, get_sum_weights=False):
+    
+    """Computes sample mean (multi-dim, weighted)
+
+    Args:
+        samples (ndarray): k-by-N matrix where
+        columns correspond to a single sample vector
+
+        weights (ndarray, optional): 1-by-N array of weights
+        associated with each sample
+
+        get_sum_weights (bool, optional): wether or not the
+        sum of weights should be returned
+
+    Returns:
+        ndarray, (float): sample mean of shape k-by-1
+        , (sum of weights if get_sum_weights is set to True)
+    """
+
+    return np.average(
+        samples, axis=1, weights=weights, returned=get_sum_weights
+    ).reshape(-1, 1)
+
+def sample_covar_mat(samples, weights=None):
+    """Computes sample covariance matrix
+
+    Args:
+        samples (ndarray): 2-by-N matrix where
+        columns correspond to a single sample vector
+
+    Returns:
+        [ndarray]: N-by-N sample covariance matrix
+    """
+    N = samples.shape[1]
+
+    assert weights is None or weights.shape[0] == N and np.sum(weights) == 1,\
+        "must have as many weights as samples, and weights must sum up to 1"
+
+    if weights is None:
+        weights = np.ones((N, ))/N
+
+    W = 1/(1 - np.sum(np.power(weights, 2)))
+    wm = sample_mean(samples, np.tile(weights, (2, 1)))
+
+    t_11 = np.sum(weights*(samples[0, :] - wm[0])**2)
+    t_22 = np.sum(weights*(samples[1, :] - wm[1])**2)
+    t_12 = np.sum(weights*(samples[0, :] - wm[0])*(samples[1, :] - wm[1]))
+
+    return W*np.array([
+        [t_11, t_12],
+        [t_12, t_22]
+    ])
+    
+def generalized_sample_variance(samples):
+    return np.linalg.det(sample_covar_mat(samples))
+
+def total_sample_variance(samples):
+    return np.trace(sample_covar_mat(samples))

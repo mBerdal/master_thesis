@@ -1,5 +1,5 @@
 import numpy as np
-from helpers import rot_z_mat as R_z
+from helpers import rot_mat_2D as r2d
 
 
 def get_neighbor_forces(K_n, MIN):
@@ -12,7 +12,7 @@ def get_obstacle_forces(K_o, MIN, ENV):
     for s in MIN.sensors:
         s.sense(ENV)
     vecs_to_obs = [
-        (R_z(MIN.heading)@R_z(s.host_relative_angle)@s.measurement.get_val())[:2]
+        r2d(MIN.heading)@r2d(s.host_relative_angle)@s.measurement.get_2d_range_vec()
         for s in MIN.sensors if s.measurement.is_valid()
     ]
     return get_generic_force_vector(vecs_to_obs, K_o)

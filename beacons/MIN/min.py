@@ -5,7 +5,8 @@ from helpers import (
   get_vector_angle as gva,
   polar_to_vec as p2v,
   euler_int,
-  plot_vec
+  plot_vec,
+  rot_z_mat as R_z
 )
 from deployment_helpers import AtLandingConditionException
 
@@ -18,10 +19,12 @@ class MinState(Enum):
 
 class Min(Beacon):
       
-  def __init__(self, sensor_range, deployment_strategy, xi_max, d_perf, d_none, k=0, a=0, exploration_dir=np.zeros((2, ))):
+  def __init__(self, sensor_range, deployment_strategy, xi_max, d_perf, d_none, k=0, a=0, exploration_dir=np.zeros((2, )), turning_time_constant = 0.5):
     super().__init__(xi_max, d_perf, d_none, k, a, exploration_dir)
     self.deployment_strategy = deployment_strategy
-    self.sensors = []
+    self.turning_time_constant = turning_time_constant
+    self.sensor_range = sensor_range
+    self.sensors = list()
     for ang in np.arange(0, 360, 90):
       r = RangeSensor(sensor_range)
       r.mount(self, ang)
@@ -44,8 +47,7 @@ class Min(Beacon):
 
       self.pos = euler_int(self.pos, v, dt)
       psi_ref = gva(v)
-      tau = 0.1
-      self.heading = euler_int(self.heading, (1/tau)*(ssa(psi_ref - self.heading)), dt)
+      self.heading = euler_int(self.heading, (1/self.turning_time_constant)*(ssa(psi_ref - self.heading)), dt)
       self._pos_traj = np.hstack((self._pos_traj, self.pos.reshape(2, 1)))
       self._heading_traj = np.concatenate((self._heading_traj, [self.heading]))
     except AtLandingConditionException:
@@ -60,7 +62,21 @@ class Min(Beacon):
   def get_neighs(self):
         assert self.state == MinState.LANDED, "Neighbors are not defined until MIN has landed"
         return self.deployment_strategy.neighs
+
+  def get_list_of_measured_ranges_and_angs_rel_x_axis(self):
+        obs_ranges_and_angles = list()
+        for s in self.sensors:
+            s.sense(self.environment)
+            if s.measurement.get_range() < self.sensor_range:
+                  obs_ranges_and_angles.append((s.measurement.get_range(), self.heading + s.host_relative_angle))
+        return obs_ranges_and_angles
   
+  def get_total_obstacle_vector(self):
+        vec = np.zeros((2, ))
+        for s in self.sensors:
+              s.sense(self.environment)
+              vec += p2v(s.measurement.get_range(), self.heading + s.host_relative_angle)
+        return vec
 
   """""
   PLOTTING STUFF

@@ -1,5 +1,5 @@
 import numpy as np
-from helpers import plot_vec
+from helpers import plot_vec, xi_model
 from abc import ABCMeta, abstractmethod
 
 class Beacon(metaclass=ABCMeta):
@@ -31,14 +31,11 @@ class Beacon(metaclass=ABCMeta):
   
   def insert_into_environment(self, env):
     self.pos = env.entrance_point
+    self.environment = env
   
   def get_xi_to_other_from_model(self, other):
     d = np.linalg.norm(self.pos - other.pos)
-    if d < self.d_perf:
-      return self.xi_max
-    if d > self.d_none:
-      return 0
-    return (self.xi_max/2)*(1+np.cos(self._omega*d + self._phi))
+    return xi_model(d, self.d_perf, self.d_none, self.xi_max, omega=self._omega, phi=self._phi)
 
   def get_xi_max_decrease(self):
     return self._xi_max_decrease

@@ -54,9 +54,14 @@ def sample_covar_mat(samples, weights=None):
         [t_11, t_12],
         [t_12, t_22]
     ])
-
+    
 def generalized_sample_variance(samples):
     return np.linalg.det(sample_covar_mat(samples))
+
+def total_sample_variance(samples):
+    return np.trace(sample_covar_mat(samples))
+
+
 
 
 def get_F(beacon_x_is, x_N, weights=None):
@@ -75,15 +80,19 @@ def simple_visualizer():
     good_bucket = []
     bad_bucket = []
 
-    prev_var = generalized_sample_variance(A)
-    for x in np.linspace(-5, 5, 20, endpoint=False):
-        for y in np.linspace(-5, 5, 20, endpoint=False):
-            v = np.array([[x], [y]])
-            var = generalized_sample_variance(np.hstack((A, v)))
-            if var > prev_var:
-                good_bucket.append(v)
-            else:
-                bad_bucket.append(v)
+    A = np.array([
+        [0, 1],
+        [0, 0]
+    ])
+
+    prev_var = total_sample_variance(A)
+    for x in np.linspace(-10, 10, 100, endpoint=False):
+        v = np.array([[x], [0]])
+        var = total_sample_variance(np.hstack((A, v)))
+        if var > prev_var:
+            good_bucket.append(v)
+        else:
+            bad_bucket.append(v)
 
     plt.scatter(*A, zorder=100)
 
@@ -95,6 +104,9 @@ def simple_visualizer():
     plt.show()
 
 if __name__ == "__main__":
+
+    simple_visualizer()
+    exit(0)
 
     A = np.array([
         [-1.5, 0, 1.5],
