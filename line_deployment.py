@@ -74,7 +74,7 @@ class LineDeployment():
             
             self.MIN.exploration_dir = self.get_exploration_dir_callback(
                 self.MIN, self.neighs, avg_obs_vec)
-            #self.__set_type_2_static_gains_optimistic()
+                
             self.__set_type_1_static_gains()
             raise AtLandingConditionException
         return clamp(F, 4)

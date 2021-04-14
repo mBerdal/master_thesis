@@ -99,8 +99,8 @@ def animate_configuration(env, scs, mins, sub_dir_name):
       return artists
 
     def animate(i):
-      if i - offset[0] >= mins[min_counter[0]]._pos_traj.shape[1]:
-        offset[0] += mins[min_counter[0]]._pos_traj.shape[1]
+      if i - offset[0] >= mins[min_counter[0]].get_pos_traj().shape[1]:
+        offset[0] += mins[min_counter[0]].get_pos_traj().shape[1]
         min_counter[0] += 1
 
       return mins[min_counter[0]].plot_pos_from_pos_traj_index(i - offset[0])
@@ -121,7 +121,9 @@ def plot_speed_trajs(mins, sub_dir_name):
     ax.set_xlabel("Time [s]")
     ax.set_ylabel("Speed [m/s]")
     for MIN in mins:
-        ax.plot(MIN.get_timeline(), MIN.get_speed_traj())
+        speed_traj = MIN.get_speed_traj()
+        t = MIN.get_timeline()[:speed_traj.shape[0]]
+        ax.plot(t, speed_traj)
     ax.legend([f"MIN {MIN.ID}" for MIN in mins])
 
     if not sub_dir_name is None:
@@ -156,8 +158,6 @@ def plot_gains(beacons, sub_dir_name):
 def file_saver_aux(folder):
     if not os.path.exists(folder):
         os.makedirs(folder)
-
-
 
 ### SAMPLE COVARIANCE STUFF
 
@@ -219,3 +219,44 @@ def generalized_sample_variance(samples):
 
 def total_sample_variance(samples):
     return np.trace(sample_covar_mat(samples))
+
+class FastExpandableNpArray:
+    def __init__(self, height):
+        self.__capacity = height*10
+        self.__data = np.empty((height*10,))
+        self.__size = 0
+        self.__height = height
+        self.__size_at_prev_get = None
+        self.__data_at_prev_get = None
+
+    def append(self, row):
+        assert (len(row) == self.__height)
+        for r in row:
+            self.__add(r)
+
+    def __add(self, x):
+        if self.__size == self.__capacity:
+            self.__capacity *= 2*self.__height
+            new_data = np.empty((self.__capacity,))
+            new_data[:self.__size] = self.__data
+            self.__data = new_data
+
+        self.__data[self.__size] = x
+        self.__size += 1
+    
+    def get_val(self, row, col):
+        if row < 0:
+            row = self.__height + row
+        if col < 0:
+            col = (self.__size // self.__height) + col
+        assert (row >= 0 and col >= 0 and self.__height*col + row < self.__size)
+        return self.__data[self.__height*col + row]
+    
+    def get(self):
+        if (self.__size == self.__size_at_prev_get):
+            return self.__data_at_prev_get
+
+        self.__size_at_prev_get = self.__size
+        tmp_data = self.__data[:self.__size]
+        self.__data_at_prev_get = np.reshape(tmp_data, newshape=(self.__height, int(len(tmp_data)/self.__height)), order="F")
+        return self.__data_at_prev_get
